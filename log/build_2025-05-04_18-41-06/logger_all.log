@@ -1,0 +1,188 @@
+[0.235s] [34mcolcon[0m [1;30mDEBUG[0m [32mCommand line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'qbo_driver', 'qbo_msgs', '--cmake-clean-cache'][0m
+[0.235s] [34mcolcon[0m [1;30mDEBUG[0m [32mParsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=8, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['qbo_driver', 'qbo_msgs'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=True, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0xffff9330bbe0>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffff9330b550>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffff9330b550>>, mixin_verb=('build',))[0m
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(colcon_meta) check parameters
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(recursive) check parameters
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(ignore) check parameters
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(path) check parameters
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(colcon_meta) discover
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(recursive) discover
+[0.317s] [34mcolcon.colcon_core.package_discovery[0m [1;30mINFO[0m Crawling recursively for packages in '/home/qbo-v2/qbo_ws/src'
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'ignore'
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'ignore_ament_install'
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['colcon_pkg']
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'colcon_pkg'
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['colcon_meta']
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'colcon_meta'
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['ros']
+[0.318s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'ros'
+[0.347s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['cmake', 'python']
+[0.347s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'cmake'
+[0.347s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'python'
+[0.347s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extensions ['python_setup_py']
+[0.347s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(.) by extension 'python_setup_py'
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(build) by extension 'ignore'
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(build) ignored
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(install) by extension 'ignore'
+[0.348s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(install) ignored
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(log) by extension 'ignore'
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(log) ignored
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extensions ['ignore', 'ignore_ament_install']
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extension 'ignore'
+[0.349s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extension 'ignore_ament_install'
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extensions ['colcon_pkg']
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extension 'colcon_pkg'
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extensions ['colcon_meta']
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extension 'colcon_meta'
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extensions ['ros']
+[0.350s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_driver) by extension 'ros'
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mDEBUG[0m [32mPackage 'qbo_driver' with type 'ros.ament_python' and name 'qbo_driver'[0m
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extension 'ignore'
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extension 'ignore_ament_install'
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extensions ['colcon_pkg']
+[0.355s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extension 'colcon_pkg'
+[0.356s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extensions ['colcon_meta']
+[0.356s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extension 'colcon_meta'
+[0.356s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extensions ['ros']
+[0.356s] [34mcolcon.colcon_core.package_identification[0m [1;30mLevel 1[0m _identify(qbo_msgs) by extension 'ros'
+[0.357s] [34mcolcon.colcon_core.package_identification[0m [1;30mDEBUG[0m [32mPackage 'qbo_msgs' with type 'ros.ament_cmake' and name 'qbo_msgs'[0m
+[0.357s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(recursive) using defaults
+[0.357s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(ignore) discover
+[0.357s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(ignore) using defaults
+[0.357s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(path) discover
+[0.357s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(path) using defaults
+[0.389s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(prefix_path) check parameters
+[0.389s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(prefix_path) discover
+[0.393s] [34mcolcon.colcon_installed_package_information.package_discovery[0m [1;30mDEBUG[0m [32mFound 2 installed packages in /home/qbo-v2/qbo_ws/src/install[0m
+[0.394s] [34mcolcon.colcon_installed_package_information.package_discovery[0m [1;30mDEBUG[0m [32mFound 1 installed packages in /home/qbo-v2/qbo_ws/install[0m
+[0.396s] [34mcolcon.colcon_installed_package_information.package_discovery[0m [1;30mDEBUG[0m [32mFound 182 installed packages in /opt/ros/humble[0m
+[0.397s] [34mcolcon.colcon_core.package_discovery[0m [1;30mLevel 1[0m discover_packages(prefix_path) using defaults
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_args' from command line to 'None'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_target' from command line to 'None'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_clean_cache' from command line to 'True'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_clean_first' from command line to 'False'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'cmake_force_configure' from command line to 'False'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'ament_cmake_args' from command line to 'None'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'catkin_cmake_args' from command line to 'None'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_msgs' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.445s] [34mcolcon.colcon_core.verb[0m [1;30mDEBUG[0m [32mBuilding package 'qbo_msgs' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/qbo-v2/qbo_ws/src/build/qbo_msgs', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': True, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/qbo-v2/qbo_ws/src/install/qbo_msgs', 'merge_install': False, 'path': '/home/qbo-v2/qbo_ws/src/qbo_msgs', 'symlink_install': False, 'test_result_base': None}[0m
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_args' from command line to 'None'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_target' from command line to 'None'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_clean_cache' from command line to 'True'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_clean_first' from command line to 'False'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'cmake_force_configure' from command line to 'False'
+[0.446s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'ament_cmake_args' from command line to 'None'
+[0.447s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'catkin_cmake_args' from command line to 'None'
+[0.447s] [34mcolcon.colcon_core.verb[0m [1;30mLevel 5[0m set package 'qbo_driver' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.447s] [34mcolcon.colcon_core.verb[0m [1;30mDEBUG[0m [32mBuilding package 'qbo_driver' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/qbo-v2/qbo_ws/src/build/qbo_driver', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': True, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/qbo-v2/qbo_ws/src/install/qbo_driver', 'merge_install': False, 'path': '/home/qbo-v2/qbo_ws/src/qbo_driver', 'symlink_install': False, 'test_result_base': None}[0m
+[0.447s] [34mcolcon.colcon_core.executor[0m [1;30mINFO[0m Executing jobs using 'parallel' executor
+[0.449s] [34mcolcon.colcon_parallel_executor.executor.parallel[0m [1;30mDEBUG[0m [32mrun_until_complete[0m
+[0.450s] [34mcolcon.colcon_ros.task.ament_cmake.build[0m [1;30mINFO[0m Building ROS package in '/home/qbo-v2/qbo_ws/src/qbo_msgs' with build type 'ament_cmake'
+[0.450s] [34mcolcon.colcon_cmake.task.cmake.build[0m [1;30mINFO[0m Building CMake package in '/home/qbo-v2/qbo_ws/src/qbo_msgs'
+[0.454s] [34mcolcon.colcon_core.plugin_system[0m [1;30mINFO[0m Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.454s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.454s] [34mcolcon.colcon_core.shell[0m [1;30mDEBUG[0m [32mSkip shell extension 'dsv' for command environment[0m
+[0.465s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake /home/qbo-v2/qbo_ws/src/qbo_msgs -DCMAKE_INSTALL_PREFIX=/home/qbo-v2/qbo_ws/src/install/qbo_msgs[0m
+[3.874s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake /home/qbo-v2/qbo_ws/src/qbo_msgs -DCMAKE_INSTALL_PREFIX=/home/qbo-v2/qbo_ws/src/install/qbo_msgs[0m
+[3.879s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --build /home/qbo-v2/qbo_ws/src/build/qbo_msgs -- -j8 -l8[0m
+[4.600s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --build /home/qbo-v2/qbo_ws/src/build/qbo_msgs -- -j8 -l8[0m
+[4.618s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --install /home/qbo-v2/qbo_ws/src/build/qbo_msgs[0m
+[4.727s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_environment_scripts_only(qbo_msgs)
+[4.732s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --install /home/qbo-v2/qbo_ws/src/build/qbo_msgs[0m
+[4.739s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs' for CMake module files
+[4.741s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs' for CMake config files
+[4.743s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_msgs', 'cmake_prefix_path')
+[4.744s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.ps1'
+[4.746s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.dsv'
+[4.748s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.sh'
+[4.751s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib'
+[4.751s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_msgs', 'ld_library_path_lib')
+[4.752s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.ps1'
+[4.754s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.dsv'
+[4.755s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.sh'
+[4.756s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/bin'
+[4.757s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/pkgconfig/qbo_msgs.pc'
+[4.757s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/python3.10/site-packages'
+[4.758s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/bin'
+[4.759s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.ps1'
+[4.762s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.dsv'
+[4.765s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.sh'
+[4.767s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.bash'
+[4.770s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.zsh'
+[4.773s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_file_with_runtime_dependencies(/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/colcon-core/packages/qbo_msgs)
+[4.775s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_environment_scripts_only(qbo_msgs)
+[4.776s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs' for CMake module files
+[4.778s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs' for CMake config files
+[4.780s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_msgs', 'cmake_prefix_path')
+[4.780s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.ps1'
+[4.782s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.dsv'
+[4.783s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/cmake_prefix_path.sh'
+[4.785s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib'
+[4.785s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_msgs', 'ld_library_path_lib')
+[4.786s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.ps1'
+[4.787s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.dsv'
+[4.789s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/hook/ld_library_path_lib.sh'
+[4.790s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/bin'
+[4.790s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/pkgconfig/qbo_msgs.pc'
+[4.791s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/python3.10/site-packages'
+[4.792s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/bin'
+[4.793s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.ps1'
+[4.794s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.dsv'
+[4.796s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.sh'
+[4.797s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.bash'
+[4.799s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.zsh'
+[4.800s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_file_with_runtime_dependencies(/home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/colcon-core/packages/qbo_msgs)
+[4.801s] [34mcolcon.colcon_ros.task.ament_python.build[0m [1;30mINFO[0m Building ROS package in '/home/qbo-v2/qbo_ws/src/qbo_driver' with build type 'ament_python'
+[4.801s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_driver', 'ament_prefix_path')
+[4.802s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/ament_prefix_path.ps1'
+[4.804s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/ament_prefix_path.dsv'
+[4.805s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/ament_prefix_path.sh'
+[4.807s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[4.807s] [34mcolcon.colcon_core.shell[0m [1;30mDEBUG[0m [32mSkip shell extension 'dsv' for command environment[0m
+[5.234s] [34mcolcon.colcon_core.task.python.build[0m [1;30mINFO[0m Building Python package in '/home/qbo-v2/qbo_ws/src/qbo_driver'
+[5.234s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[5.238s] [34mcolcon.colcon_core.shell[0m [1;30mDEBUG[0m [32mSkip shell extension 'dsv' for command environment[0m
+[6.062s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoking command in '/home/qbo-v2/qbo_ws/src/qbo_driver': PYTHONPATH=/home/qbo-v2/qbo_ws/src/build/qbo_driver/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/qbo_driver build --build-base /home/qbo-v2/qbo_ws/src/build/qbo_driver/build install --record /home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log --single-version-externally-managed install_data[0m
+[6.999s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver' for CMake module files
+[7.000s] [34mcolcon.colcon_core.event_handler.log_command[0m [1;30mDEBUG[0m [32mInvoked command in '/home/qbo-v2/qbo_ws/src/qbo_driver' returned '0': PYTHONPATH=/home/qbo-v2/qbo_ws/src/build/qbo_driver/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/qbo_driver build --build-base /home/qbo-v2/qbo_ws/src/build/qbo_driver/build install --record /home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log --single-version-externally-managed install_data[0m
+[7.001s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver' for CMake config files
+[7.003s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib'
+[7.004s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver/bin'
+[7.004s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/pkgconfig/qbo_driver.pc'
+[7.005s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages'
+[7.005s] [34mcolcon.colcon_core.shell[0m [1;30mLevel 1[0m create_environment_hook('qbo_driver', 'pythonpath')
+[7.006s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/pythonpath.ps1'
+[7.007s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/pythonpath.dsv'
+[7.009s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating environment hook '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/hook/pythonpath.sh'
+[7.011s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m checking '/home/qbo-v2/qbo_ws/src/install/qbo_driver/bin'
+[7.011s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_environment_scripts_only(qbo_driver)
+[7.012s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/package.ps1'
+[7.014s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package descriptor '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/package.dsv'
+[7.015s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/package.sh'
+[7.017s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/package.bash'
+[7.018s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating package script '/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/package.zsh'
+[7.019s] [34mcolcon.colcon_core.environment[0m [1;30mLevel 1[0m create_file_with_runtime_dependencies(/home/qbo-v2/qbo_ws/src/install/qbo_driver/share/colcon-core/packages/qbo_driver)
+[7.020s] [34mcolcon.colcon_parallel_executor.executor.parallel[0m [1;30mDEBUG[0m [32mclosing loop[0m
+[7.021s] [34mcolcon.colcon_parallel_executor.executor.parallel[0m [1;30mDEBUG[0m [32mloop closed[0m
+[7.022s] [34mcolcon.colcon_parallel_executor.executor.parallel[0m [1;30mDEBUG[0m [32mrun_until_complete finished with '0'[0m
+[7.022s] [34mcolcon.colcon_core.event_reactor[0m [1;30mDEBUG[0m [32mjoining thread[0m
+[7.039s] [34mcolcon.colcon_core.plugin_system[0m [1;30mINFO[0m Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[7.040s] [34mcolcon.colcon_core.plugin_system[0m [1;30mINFO[0m Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[7.040s] [34mcolcon.colcon_notification.desktop_notification[0m [1;30mINFO[0m Sending desktop notification using 'notify2'
+[7.074s] [34mcolcon.colcon_core.event_reactor[0m [1;30mDEBUG[0m [32mjoined thread[0m
+[7.075s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix script '/home/qbo-v2/qbo_ws/src/install/local_setup.ps1'
+[7.079s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix util module '/home/qbo-v2/qbo_ws/src/install/_local_setup_util_ps1.py'
+[7.084s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix chain script '/home/qbo-v2/qbo_ws/src/install/setup.ps1'
+[7.088s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix script '/home/qbo-v2/qbo_ws/src/install/local_setup.sh'
+[7.090s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix util module '/home/qbo-v2/qbo_ws/src/install/_local_setup_util_sh.py'
+[7.093s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix chain script '/home/qbo-v2/qbo_ws/src/install/setup.sh'
+[7.097s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix script '/home/qbo-v2/qbo_ws/src/install/local_setup.bash'
+[7.098s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix chain script '/home/qbo-v2/qbo_ws/src/install/setup.bash'
+[7.102s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix script '/home/qbo-v2/qbo_ws/src/install/local_setup.zsh'
+[7.104s] [34mcolcon.colcon_core.shell[0m [1;30mINFO[0m Creating prefix chain script '/home/qbo-v2/qbo_ws/src/install/setup.zsh'

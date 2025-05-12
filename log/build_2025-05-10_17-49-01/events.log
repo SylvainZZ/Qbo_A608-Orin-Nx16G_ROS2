@@ -1,0 +1,431 @@
+[0.000000] (-) TimerEvent: {}
+[0.000868] (qbo_msgs) JobQueued: {'identifier': 'qbo_msgs', 'dependencies': OrderedDict()}
+[0.001097] (qbo_driver) JobQueued: {'identifier': 'qbo_driver', 'dependencies': OrderedDict([('qbo_msgs', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs')])}
+[0.001351] (qbo_msgs) JobStarted: {'identifier': 'qbo_msgs'}
+[0.013510] (qbo_msgs) JobProgress: {'identifier': 'qbo_msgs', 'progress': 'cmake'}
+[0.014507] (qbo_msgs) Command: {'cmd': ['/usr/bin/cmake', '/home/qbo-v2/qbo_ws/src/qbo_msgs', '-DCMAKE_INSTALL_PREFIX=/home/qbo-v2/qbo_ws/src/install/qbo_msgs'], 'cwd': '/home/qbo-v2/qbo_ws/src/build/qbo_msgs', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'qbo-v2'), ('SSH_CLIENT', '192.168.1.30 50120 22'), ('XDG_SESSION_TYPE', 'tty'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib:/home/qbo-v2/qbo_ws/install/qbo_msgs/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'pam'), ('HOME', '/home/qbo-v2'), ('OLDPWD', '/home/qbo-v2'), ('SSH_TTY', '/dev/pts/3'), ('JETSON_L4T', '36.4.3'), ('ROS_PYTHON_VERSION', '3'), ('JETSON_MODEL', 'NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLCON_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install:/home/qbo-v2/qbo_ws/install'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'qbo-v2'), ('JETSON_MODULE', 'NVIDIA Jetson Orin NX (16GB ram)'), ('JETSON_SERIAL_NUMBER', '1420825014158'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('TERM', 'xterm'), ('XDG_SESSION_ID', '22'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/home/qbo-v2/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', 'localhost:13.0'), ('LANG', 'fr_FR.UTF-8'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('JETSON_SOC', 'tegra234'), ('AMENT_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_msgs:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('JETSON_CUDA_ARCH_BIN', '8.7'), ('PWD', '/home/qbo-v2/qbo_ws/src/build/qbo_msgs'), ('SSH_CONNECTION', '192.168.1.30 50120 192.168.1.40 22'), ('XDG_DATA_DIRS', '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages:/home/qbo-v2/qbo_ws/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/install/qbo_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('JETSON_JETPACK', '6.2'), ('CMAKE_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_msgs:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble'), ('JETSON_P_NUMBER', 'p3767-0000')]), 'shell': False}
+[0.099518] (-) TimerEvent: {}
+[0.120419] (qbo_msgs) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.199704] (-) TimerEvent: {}
+[0.224163] (qbo_msgs) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.246739] (qbo_msgs) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.299890] (-) TimerEvent: {}
+[0.371408] (qbo_msgs) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.395729] (qbo_msgs) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[0.396683] (qbo_msgs) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.397967] (qbo_msgs) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.399957] (-) TimerEvent: {}
+[0.408423] (qbo_msgs) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.500118] (-) TimerEvent: {}
+[0.543316] (qbo_msgs) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.568565] (qbo_msgs) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[0.569538] (qbo_msgs) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.571096] (qbo_msgs) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.578205] (qbo_msgs) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[0.600224] (-) TimerEvent: {}
+[0.700653] (-) TimerEvent: {}
+[0.801106] (-) TimerEvent: {}
+[0.901718] (-) TimerEvent: {}
+[1.002417] (-) TimerEvent: {}
+[1.102885] (-) TimerEvent: {}
+[1.179633] (qbo_msgs) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[1.203016] (-) TimerEvent: {}
+[1.303789] (-) TimerEvent: {}
+[1.370952] (qbo_msgs) StdoutLine: {'line': b'-- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)\n'}
+[1.379604] (qbo_msgs) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[1.397879] (qbo_msgs) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[1.403843] (-) TimerEvent: {}
+[1.465552] (qbo_msgs) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[1.503963] (-) TimerEvent: {}
+[1.604491] (-) TimerEvent: {}
+[1.705084] (-) TimerEvent: {}
+[1.805540] (-) TimerEvent: {}
+[1.906164] (-) TimerEvent: {}
+[1.981968] (qbo_msgs) StdoutLine: {'line': b'-- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)\n'}
+[2.006277] (-) TimerEvent: {}
+[2.106802] (-) TimerEvent: {}
+[2.207285] (-) TimerEvent: {}
+[2.307820] (-) TimerEvent: {}
+[2.355057] (qbo_msgs) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[2.407985] (-) TimerEvent: {}
+[2.508639] (-) TimerEvent: {}
+[2.609328] (-) TimerEvent: {}
+[2.709938] (-) TimerEvent: {}
+[2.810414] (-) TimerEvent: {}
+[2.834567] (qbo_msgs) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[2.883054] (qbo_msgs) StdoutLine: {'line': b'-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") \n'}
+[2.885172] (qbo_msgs) StdoutLine: {'line': b'-- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)\n'}
+[2.910532] (-) TimerEvent: {}
+[2.942536] (qbo_msgs) StdoutLine: {'line': b'-- Found PythonLibs: /usr/lib/aarch64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") \n'}
+[2.943229] (qbo_msgs) StdoutLine: {'line': b'-- Using PYTHON_EXECUTABLE: /usr/bin/python3\n'}
+[2.943537] (qbo_msgs) StdoutLine: {'line': b'-- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10\n'}
+[2.943855] (qbo_msgs) StdoutLine: {'line': b'-- Using PYTHON_LIBRARIES: /usr/lib/aarch64-linux-gnu/libpython3.10.so\n'}
+[2.985177] (qbo_msgs) StdoutLine: {'line': b'-- Found PythonExtra: .so  \n'}
+[3.010622] (-) TimerEvent: {}
+[3.075942] (qbo_msgs) StdoutLine: {'line': b'-- Configuring done\n'}
+[3.110731] (-) TimerEvent: {}
+[3.145625] (qbo_msgs) StdoutLine: {'line': b'-- Generating done\n'}
+[3.164229] (qbo_msgs) StdoutLine: {'line': b'-- Build files have been written to: /home/qbo-v2/qbo_ws/src/build/qbo_msgs\n'}
+[3.174975] (qbo_msgs) CommandEnded: {'returncode': 0}
+[3.175877] (qbo_msgs) JobProgress: {'identifier': 'qbo_msgs', 'progress': 'build'}
+[3.177065] (qbo_msgs) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/qbo-v2/qbo_ws/src/build/qbo_msgs', '--', '-j8', '-l8'], 'cwd': '/home/qbo-v2/qbo_ws/src/build/qbo_msgs', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'qbo-v2'), ('SSH_CLIENT', '192.168.1.30 50120 22'), ('XDG_SESSION_TYPE', 'tty'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib:/home/qbo-v2/qbo_ws/install/qbo_msgs/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'pam'), ('HOME', '/home/qbo-v2'), ('OLDPWD', '/home/qbo-v2'), ('SSH_TTY', '/dev/pts/3'), ('JETSON_L4T', '36.4.3'), ('ROS_PYTHON_VERSION', '3'), ('JETSON_MODEL', 'NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLCON_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install:/home/qbo-v2/qbo_ws/install'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'qbo-v2'), ('JETSON_MODULE', 'NVIDIA Jetson Orin NX (16GB ram)'), ('JETSON_SERIAL_NUMBER', '1420825014158'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('TERM', 'xterm'), ('XDG_SESSION_ID', '22'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/home/qbo-v2/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', 'localhost:13.0'), ('LANG', 'fr_FR.UTF-8'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('JETSON_SOC', 'tegra234'), ('AMENT_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_msgs:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('JETSON_CUDA_ARCH_BIN', '8.7'), ('PWD', '/home/qbo-v2/qbo_ws/src/build/qbo_msgs'), ('SSH_CONNECTION', '192.168.1.30 50120 192.168.1.40 22'), ('XDG_DATA_DIRS', '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages:/home/qbo-v2/qbo_ws/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/install/qbo_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('JETSON_JETPACK', '6.2'), ('CMAKE_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_msgs:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble'), ('JETSON_P_NUMBER', 'p3767-0000')]), 'shell': False}
+[3.210857] (-) TimerEvent: {}
+[3.242514] (qbo_msgs) StdoutLine: {'line': b'[  2%] \x1b[34m\x1b[1mGenerating C code for ROS interfaces\x1b[0m\n'}
+[3.258422] (qbo_msgs) StdoutLine: {'line': b'[  5%] \x1b[34m\x1b[1mGenerating C++ code for ROS interfaces\x1b[0m\n'}
+[3.276565] (qbo_msgs) StdoutLine: {'line': b'[  5%] Built target ament_cmake_python_copy_qbo_msgs\n'}
+[3.310975] (-) TimerEvent: {}
+[3.411416] (-) TimerEvent: {}
+[3.511886] (-) TimerEvent: {}
+[3.610249] (qbo_msgs) StdoutLine: {'line': b'running egg_info\n'}
+[3.611948] (-) TimerEvent: {}
+[3.634349] (qbo_msgs) StdoutLine: {'line': b'writing qbo_msgs.egg-info/PKG-INFO\n'}
+[3.635063] (qbo_msgs) StdoutLine: {'line': b'writing dependency_links to qbo_msgs.egg-info/dependency_links.txt\n'}
+[3.635529] (qbo_msgs) StdoutLine: {'line': b'writing top-level names to qbo_msgs.egg-info/top_level.txt\n'}
+[3.704754] (qbo_msgs) StdoutLine: {'line': b"reading manifest file 'qbo_msgs.egg-info/SOURCES.txt'\n"}
+[3.707664] (qbo_msgs) StdoutLine: {'line': b"writing manifest file 'qbo_msgs.egg-info/SOURCES.txt'\n"}
+[3.712104] (-) TimerEvent: {}
+[3.768239] (qbo_msgs) StdoutLine: {'line': b'[  5%] Built target ament_cmake_python_build_qbo_msgs_egg\n'}
+[3.773495] (qbo_msgs) StdoutLine: {'line': b'[  5%] Built target qbo_msgs__cpp\n'}
+[3.788166] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_generator_c\x1b[0m\n'}
+[3.788579] (qbo_msgs) StdoutLine: {'line': b'[  7%] \x1b[34m\x1b[1mGenerating C++ type support for eProsima Fast-RTPS\x1b[0m\n'}
+[3.789017] (qbo_msgs) StdoutLine: {'line': b'[ 10%] \x1b[34m\x1b[1mGenerating C++ introspection for ROS interfaces\x1b[0m\n'}
+[3.789263] (qbo_msgs) StdoutLine: {'line': b'[ 12%] \x1b[34m\x1b[1mGenerating C++ type support dispatch for ROS interfaces\x1b[0m\n'}
+[3.806734] (qbo_msgs) StdoutLine: {'line': b'[ 17%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_c.dir/rosidl_generator_c/qbo_msgs/msg/detail/listen_result__functions.c.o\x1b[0m\n'}
+[3.807096] (qbo_msgs) StdoutLine: {'line': b'[ 17%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_c.dir/rosidl_generator_c/qbo_msgs/srv/detail/text2_speach__functions.c.o\x1b[0m\n'}
+[3.812233] (-) TimerEvent: {}
+[3.898086] (qbo_msgs) StdoutLine: {'line': b'[ 20%] \x1b[32m\x1b[1mLinking C shared library libqbo_msgs__rosidl_generator_c.so\x1b[0m\n'}
+[3.912361] (-) TimerEvent: {}
+[3.944274] (qbo_msgs) StdoutLine: {'line': b'[ 20%] Built target qbo_msgs__rosidl_generator_c\n'}
+[3.957596] (qbo_msgs) StdoutLine: {'line': b'[ 28%] \x1b[34m\x1b[1mGenerating C type support for eProsima Fast-RTPS\x1b[0m\n'}
+[3.958015] (qbo_msgs) StdoutLine: {'line': b'[ 28%] \x1b[34m\x1b[1mGenerating C introspection for ROS interfaces\x1b[0m\n'}
+[3.958223] (qbo_msgs) StdoutLine: {'line': b'[ 28%] \x1b[34m\x1b[1mGenerating C type support dispatch for ROS interfaces\x1b[0m\n'}
+[4.012499] (-) TimerEvent: {}
+[4.113405] (-) TimerEvent: {}
+[4.214125] (-) TimerEvent: {}
+[4.217895] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_cpp\x1b[0m\n'}
+[4.235972] (qbo_msgs) StdoutLine: {'line': b'[ 30%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/qbo_msgs/msg/listen_result__type_support.cpp.o\x1b[0m\n'}
+[4.242909] (qbo_msgs) StdoutLine: {'line': b'[ 33%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/qbo_msgs/srv/text2_speach__type_support.cpp.o\x1b[0m\n'}
+[4.245389] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_cpp\x1b[0m\n'}
+[4.263905] (qbo_msgs) StdoutLine: {'line': b'[ 38%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/qbo_msgs/msg/detail/listen_result__type_support.cpp.o\x1b[0m\n'}
+[4.264262] (qbo_msgs) StdoutLine: {'line': b'[ 38%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/qbo_msgs/srv/detail/text2_speach__type_support.cpp.o\x1b[0m\n'}
+[4.309332] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_cpp\x1b[0m\n'}
+[4.314269] (-) TimerEvent: {}
+[4.329884] (qbo_msgs) StdoutLine: {'line': b'[ 41%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/qbo_msgs/msg/detail/dds_fastrtps/listen_result__type_support.cpp.o\x1b[0m\n'}
+[4.374303] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_c\x1b[0m\n'}
+[4.392374] (qbo_msgs) StdoutLine: {'line': b'[ 43%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/qbo_msgs/msg/listen_result__type_support.cpp.o\x1b[0m\n'}
+[4.414454] (-) TimerEvent: {}
+[4.439673] (qbo_msgs) StdoutLine: {'line': b'[ 46%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/qbo_msgs/srv/text2_speach__type_support.cpp.o\x1b[0m\n'}
+[4.457576] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_c\x1b[0m\n'}
+[4.464521] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_c\x1b[0m\n'}
+[4.480043] (qbo_msgs) StdoutLine: {'line': b'[ 48%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/qbo_msgs/msg/detail/listen_result__type_support.c.o\x1b[0m\n'}
+[4.486833] (qbo_msgs) StdoutLine: {'line': b'[ 51%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/qbo_msgs/msg/detail/listen_result__type_support_c.cpp.o\x1b[0m\n'}
+[4.489967] (qbo_msgs) StdoutLine: {'line': b'[ 53%] \x1b[32m\x1b[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_c.so\x1b[0m\n'}
+[4.514614] (-) TimerEvent: {}
+[4.537213] (qbo_msgs) StdoutLine: {'line': b'[ 56%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/qbo_msgs/srv/detail/text2_speach__type_support.c.o\x1b[0m\n'}
+[4.548561] (qbo_msgs) StdoutLine: {'line': b'[ 56%] Built target qbo_msgs__rosidl_typesupport_c\n'}
+[4.562549] (qbo_msgs) StdoutLine: {'line': b'[ 58%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/qbo_msgs/srv/detail/dds_fastrtps/text2_speach__type_support.cpp.o\x1b[0m\n'}
+[4.594259] (qbo_msgs) StdoutLine: {'line': b'[ 61%] \x1b[32m\x1b[1mLinking C shared library libqbo_msgs__rosidl_typesupport_introspection_c.so\x1b[0m\n'}
+[4.614793] (-) TimerEvent: {}
+[4.638846] (qbo_msgs) StdoutLine: {'line': b'[ 61%] Built target qbo_msgs__rosidl_typesupport_introspection_c\n'}
+[4.652722] (qbo_msgs) StdoutLine: {'line': b'[ 64%] \x1b[32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/qbo_msgs/srv/detail/text2_speach__type_support_c.cpp.o\x1b[0m\n'}
+[4.709528] (qbo_msgs) StdoutLine: {'line': b'[ 66%] \x1b[32m\x1b[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_cpp.so\x1b[0m\n'}
+[4.714965] (-) TimerEvent: {}
+[4.767365] (qbo_msgs) StdoutLine: {'line': b'[ 66%] Built target qbo_msgs__rosidl_typesupport_cpp\n'}
+[4.815137] (-) TimerEvent: {}
+[4.915681] (-) TimerEvent: {}
+[4.919032] (qbo_msgs) StdoutLine: {'line': b'[ 69%] \x1b[32m\x1b[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_introspection_cpp.so\x1b[0m\n'}
+[5.010112] (qbo_msgs) StdoutLine: {'line': b'[ 69%] Built target qbo_msgs__rosidl_typesupport_introspection_cpp\n'}
+[5.015793] (-) TimerEvent: {}
+[5.116257] (-) TimerEvent: {}
+[5.216757] (-) TimerEvent: {}
+[5.231510] (qbo_msgs) StdoutLine: {'line': b'[ 71%] \x1b[32m\x1b[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_fastrtps_c.so\x1b[0m\n'}
+[5.232000] (qbo_msgs) StdoutLine: {'line': b'[ 74%] \x1b[32m\x1b[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so\x1b[0m\n'}
+[5.316910] (-) TimerEvent: {}
+[5.346266] (qbo_msgs) StdoutLine: {'line': b'[ 74%] Built target qbo_msgs__rosidl_typesupport_fastrtps_cpp\n'}
+[5.346694] (qbo_msgs) StdoutLine: {'line': b'[ 74%] Built target qbo_msgs__rosidl_typesupport_fastrtps_c\n'}
+[5.381366] (qbo_msgs) StdoutLine: {'line': b'[ 74%] Built target qbo_msgs\n'}
+[5.417072] (-) TimerEvent: {}
+[5.417610] (qbo_msgs) StdoutLine: {'line': b'[ 76%] \x1b[34m\x1b[1mGenerating Python code for ROS interfaces\x1b[0m\n'}
+[5.517208] (-) TimerEvent: {}
+[5.617814] (-) TimerEvent: {}
+[5.718243] (-) TimerEvent: {}
+[5.818666] (-) TimerEvent: {}
+[5.919049] (-) TimerEvent: {}
+[6.019440] (-) TimerEvent: {}
+[6.093182] (qbo_msgs) StdoutLine: {'line': b'[ 76%] Built target qbo_msgs__py\n'}
+[6.109352] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_generator_py\x1b[0m\n'}
+[6.119568] (-) TimerEvent: {}
+[6.131491] (qbo_msgs) StdoutLine: {'line': b'[ 82%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_py.dir/rosidl_generator_py/qbo_msgs/msg/_listen_result_s.c.o\x1b[0m\n'}
+[6.131881] (qbo_msgs) StdoutLine: {'line': b'[ 82%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_py.dir/rosidl_generator_py/qbo_msgs/srv/_text2_speach_s.c.o\x1b[0m\n'}
+[6.219712] (-) TimerEvent: {}
+[6.299147] (qbo_msgs) StdoutLine: {'line': b'[ 84%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/qbo_msgs/libqbo_msgs__rosidl_generator_py.so\x1b[0m\n'}
+[6.319850] (-) TimerEvent: {}
+[6.373644] (qbo_msgs) StdoutLine: {'line': b'[ 84%] Built target qbo_msgs__rosidl_generator_py\n'}
+[6.389411] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_c__pyext\x1b[0m\n'}
+[6.389786] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_c__pyext\x1b[0m\n'}
+[6.389998] (qbo_msgs) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_c__pyext\x1b[0m\n'}
+[6.408885] (qbo_msgs) StdoutLine: {'line': b'[ 89%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o\x1b[0m\n'}
+[6.409303] (qbo_msgs) StdoutLine: {'line': b'[ 89%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_c.c.o\x1b[0m\n'}
+[6.409721] (qbo_msgs) StdoutLine: {'line': b'[ 92%] \x1b[32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_introspection_c.c.o\x1b[0m\n'}
+[6.420011] (-) TimerEvent: {}
+[6.520563] (-) TimerEvent: {}
+[6.554827] (qbo_msgs) StdoutLine: {'line': b'[ 94%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[6.558360] (qbo_msgs) StdoutLine: {'line': b'[ 97%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[6.563043] (qbo_msgs) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[6.606522] (qbo_msgs) StdoutLine: {'line': b'[100%] Built target qbo_msgs__rosidl_typesupport_c__pyext\n'}
+[6.607112] (qbo_msgs) StdoutLine: {'line': b'[100%] Built target qbo_msgs__rosidl_typesupport_introspection_c__pyext\n'}
+[6.613194] (qbo_msgs) StdoutLine: {'line': b'[100%] Built target qbo_msgs__rosidl_typesupport_fastrtps_c__pyext\n'}
+[6.620641] (-) TimerEvent: {}
+[6.636492] (qbo_msgs) CommandEnded: {'returncode': 0}
+[6.638710] (qbo_msgs) JobProgress: {'identifier': 'qbo_msgs', 'progress': 'install'}
+[6.653392] (qbo_msgs) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/qbo-v2/qbo_ws/src/build/qbo_msgs'], 'cwd': '/home/qbo-v2/qbo_ws/src/build/qbo_msgs', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'qbo-v2'), ('SSH_CLIENT', '192.168.1.30 50120 22'), ('XDG_SESSION_TYPE', 'tty'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib:/home/qbo-v2/qbo_ws/install/qbo_msgs/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'pam'), ('HOME', '/home/qbo-v2'), ('OLDPWD', '/home/qbo-v2'), ('SSH_TTY', '/dev/pts/3'), ('JETSON_L4T', '36.4.3'), ('ROS_PYTHON_VERSION', '3'), ('JETSON_MODEL', 'NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLCON_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install:/home/qbo-v2/qbo_ws/install'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'qbo-v2'), ('JETSON_MODULE', 'NVIDIA Jetson Orin NX (16GB ram)'), ('JETSON_SERIAL_NUMBER', '1420825014158'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('TERM', 'xterm'), ('XDG_SESSION_ID', '22'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/home/qbo-v2/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', 'localhost:13.0'), ('LANG', 'fr_FR.UTF-8'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('JETSON_SOC', 'tegra234'), ('AMENT_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_msgs:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('JETSON_CUDA_ARCH_BIN', '8.7'), ('PWD', '/home/qbo-v2/qbo_ws/src/build/qbo_msgs'), ('SSH_CONNECTION', '192.168.1.30 50120 192.168.1.40 22'), ('XDG_DATA_DIRS', '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages:/home/qbo-v2/qbo_ws/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/install/qbo_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('JETSON_JETPACK', '6.2'), ('CMAKE_PREFIX_PATH', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_msgs:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble'), ('JETSON_P_NUMBER', 'p3767-0000')]), 'shell': False}
+[6.668710] (qbo_msgs) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[6.670223] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/rosidl_interfaces/qbo_msgs\n'}
+[6.670834] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.671084] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.671323] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/text2_speach.h\n'}
+[6.671572] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.672025] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__functions.h\n'}
+[6.672358] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.h\n'}
+[6.672602] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__struct.h\n'}
+[6.672872] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__functions.c\n'}
+[6.673060] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.673280] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_generator_c__visibility_control.h\n'}
+[6.673513] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.673722] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__functions.c\n'}
+[6.673943] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__struct.h\n'}
+[6.674123] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.h\n'}
+[6.674480] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__functions.h\n'}
+[6.674661] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/listen_result.h\n'}
+[6.674856] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/library_path.sh\n'}
+[6.675028] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/library_path.dsv\n'}
+[6.675247] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_c.so\n'}
+[6.676099] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_c.so" to ""\n'}
+[6.676377] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.676630] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.676932] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.677164] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_fastrtps_c.h\n'}
+[6.677362] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.677551] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.677775] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_fastrtps_c.h\n'}
+[6.677971] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[6.678203] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_c.so\n'}
+[6.678438] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_c.so" to ""\n'}
+[6.678779] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.679021] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.679312] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.679508] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_introspection_c.h\n'}
+[6.679758] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.c\n'}
+[6.680031] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.680236] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.680502] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.c\n'}
+[6.680710] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_introspection_c.h\n'}
+[6.680940] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[6.681150] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_c.so\n'}
+[6.681400] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_c.so" to ""\n'}
+[6.681629] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_c.so\n'}
+[6.681997] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_c.so" to ""\n'}
+[6.682322] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.682583] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.682832] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.683109] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__builder.hpp\n'}
+[6.683389] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.hpp\n'}
+[6.683638] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__traits.hpp\n'}
+[6.683926] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__struct.hpp\n'}
+[6.684230] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/text2_speach.hpp\n'}
+[6.684536] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.684835] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.685140] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__builder.hpp\n'}
+[6.685502] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__struct.hpp\n'}
+[6.685769] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__traits.hpp\n'}
+[6.686040] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.hpp\n'}
+[6.686263] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_generator_cpp__visibility_control.hpp\n'}
+[6.686540] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/listen_result.hpp\n'}
+[6.686761] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.687058] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.687363] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.687659] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[6.687970] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/dds_fastrtps\n'}
+[6.688278] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.688508] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.688794] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[6.689039] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/dds_fastrtps\n'}
+[6.689259] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[6.689541] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so\n'}
+[6.689809] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""\n'}
+[6.690034] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs\n'}
+[6.690294] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv\n'}
+[6.690620] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail\n'}
+[6.690895] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.cpp\n'}
+[6.691191] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_introspection_cpp.hpp\n'}
+[6.691474] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg\n'}
+[6.691766] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail\n'}
+[6.692079] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_introspection_cpp.hpp\n'}
+[6.692345] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.cpp\n'}
+[6.692647] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_cpp.so\n'}
+[6.692921] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_cpp.so" to ""\n'}
+[6.693189] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_cpp.so\n'}
+[6.693456] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_cpp.so" to ""\n'}
+[6.693721] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/pythonpath.sh\n'}
+[6.694010] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/pythonpath.dsv\n'}
+[6.694272] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info\n'}
+[6.694540] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/SOURCES.txt\n'}
+[6.694809] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/dependency_links.txt\n'}
+[6.695073] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/PKG-INFO\n'}
+[6.695340] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/top_level.txt\n'}
+[6.695605] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs\n'}
+[6.695888] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv\n'}
+[6.696116] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/__init__.py\n'}
+[6.696338] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach.py\n'}
+[6.696555] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach_s.c\n'}
+[6.696771] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.696989] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[6.697207] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg\n'}
+[6.697462] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result.py\n'}
+[6.697684] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result_s.c\n'}
+[6.697900] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/__init__.py\n'}
+[6.698113] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/__init__.py\n'}
+[6.698328] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.698545] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.698779] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/libqbo_msgs__rosidl_generator_py.so\n'}
+[6.698997] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[6.699212] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_c.c\n'}
+[6.720733] (-) TimerEvent: {}
+[6.762694] (qbo_msgs) StdoutLine: {'line': b"Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs'...\n"}
+[6.763095] (qbo_msgs) StdoutLine: {'line': b"Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/__init__.py'...\n"}
+[6.763375] (qbo_msgs) StdoutLine: {'line': b"Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg'...\n"}
+[6.763621] (qbo_msgs) StdoutLine: {'line': b"Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/__init__.py'...\n"}
+[6.763901] (qbo_msgs) StdoutLine: {'line': b"Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result.py'...\n"}
+[6.764138] (qbo_msgs) StdoutLine: {'line': b"Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv'...\n"}
+[6.764362] (qbo_msgs) StdoutLine: {'line': b"Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/__init__.py'...\n"}
+[6.764577] (qbo_msgs) StdoutLine: {'line': b"Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach.py'...\n"}
+[6.772406] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.772872] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[6.773211] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.773554] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[6.773830] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\n'}
+[6.774066] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[6.774497] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_py.so\n'}
+[6.775182] (qbo_msgs) StdoutLine: {'line': b'-- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_py.so" to ""\n'}
+[6.775500] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/msg/ListenResult.idl\n'}
+[6.775827] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach.idl\n'}
+[6.776157] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/msg/ListenResult.msg\n'}
+[6.776471] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach.srv\n'}
+[6.776768] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach_Request.msg\n'}
+[6.777072] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach_Response.msg\n'}
+[6.777423] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/package_run_dependencies/qbo_msgs\n'}
+[6.777773] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/parent_prefix_path/qbo_msgs\n'}
+[6.778227] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/ament_prefix_path.sh\n'}
+[6.778539] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/ament_prefix_path.dsv\n'}
+[6.778889] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/path.sh\n'}
+[6.779221] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/path.dsv\n'}
+[6.779532] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.bash\n'}
+[6.779908] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.sh\n'}
+[6.780219] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.zsh\n'}
+[6.780454] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.dsv\n'}
+[6.780730] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.dsv\n'}
+[6.781113] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/packages/qbo_msgs\n'}
+[6.781851] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cExport.cmake\n'}
+[6.782148] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cExport-noconfig.cmake\n'}
+[6.782572] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cExport.cmake\n'}
+[6.782873] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake\n'}
+[6.783245] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cExport.cmake\n'}
+[6.783539] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[6.783899] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cExport.cmake\n'}
+[6.784147] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[6.784444] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cppExport.cmake\n'}
+[6.784759] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cppExport.cmake\n'}
+[6.785036] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake\n'}
+[6.785313] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[6.785626] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[6.785882] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cppExport.cmake\n'}
+[6.786184] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[6.786496] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_pyExport.cmake\n'}
+[6.786770] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_pyExport-noconfig.cmake\n'}
+[6.787030] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake-extras.cmake\n'}
+[6.787287] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[6.787506] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[6.787725] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[6.788016] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[6.788245] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[6.788510] (qbo_msgs) StdoutLine: {'line': b'-- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[6.788738] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgsConfig.cmake\n'}
+[6.788983] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgsConfig-version.cmake\n'}
+[6.789212] (qbo_msgs) StdoutLine: {'line': b'-- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.xml\n'}
+[6.791497] (qbo_msgs) CommandEnded: {'returncode': 0}
+[6.821065] (-) TimerEvent: {}
+[6.864155] (qbo_msgs) JobEnded: {'identifier': 'qbo_msgs', 'rc': 0}
+[6.866756] (qbo_driver) JobStarted: {'identifier': 'qbo_driver'}
+[6.921201] (-) TimerEvent: {}
+[7.021681] (-) TimerEvent: {}
+[7.122142] (-) TimerEvent: {}
+[7.222962] (-) TimerEvent: {}
+[7.323899] (-) TimerEvent: {}
+[7.424342] (-) TimerEvent: {}
+[7.524788] (-) TimerEvent: {}
+[7.625224] (-) TimerEvent: {}
+[7.725658] (-) TimerEvent: {}
+[7.826097] (-) TimerEvent: {}
+[7.883190] (qbo_driver) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../build/qbo_driver', 'build', '--build-base', '/home/qbo-v2/qbo_ws/src/build/qbo_driver/build', 'install', '--record', '/home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/qbo-v2/qbo_ws/src/qbo_driver', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'qbo-v2', 'SSH_CLIENT': '192.168.1.30 50120 22', 'XDG_SESSION_TYPE': 'tty', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib:/home/qbo-v2/qbo_ws/install/qbo_msgs/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib', 'MOTD_SHOWN': 'pam', 'HOME': '/home/qbo-v2', 'OLDPWD': '/home/qbo-v2', 'SSH_TTY': '/dev/pts/3', 'JETSON_L4T': '36.4.3', 'ROS_PYTHON_VERSION': '3', 'JETSON_MODEL': 'NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLCON_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install:/home/qbo-v2/qbo_ws/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'qbo-v2', 'JETSON_MODULE': 'NVIDIA Jetson Orin NX (16GB ram)', 'JETSON_SERIAL_NUMBER': '1420825014158', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'TERM': 'xterm', 'XDG_SESSION_ID': '22', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/home/qbo-v2/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': 'localhost:13.0', 'LANG': 'fr_FR.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'JETSON_SOC': 'tegra234', 'AMENT_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_msgs:/opt/ros/humble', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'JETSON_CUDA_ARCH_BIN': '8.7', 'PWD': '/home/qbo-v2/qbo_ws/src/build/qbo_driver', 'SSH_CONNECTION': '192.168.1.30 50120 192.168.1.40 22', 'XDG_DATA_DIRS': '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/qbo-v2/qbo_ws/src/build/qbo_driver/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages:/home/qbo-v2/qbo_ws/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/install/qbo_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'JETSON_JETPACK': '6.2', 'CMAKE_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_msgs', 'JETSON_P_NUMBER': 'p3767-0000'}, 'shell': False}
+[7.926191] (-) TimerEvent: {}
+[8.026823] (-) TimerEvent: {}
+[8.127433] (-) TimerEvent: {}
+[8.227893] (-) TimerEvent: {}
+[8.263907] (qbo_driver) StdoutLine: {'line': b'running egg_info\n'}
+[8.286007] (qbo_driver) StdoutLine: {'line': b'writing ../build/qbo_driver/qbo_driver.egg-info/PKG-INFO\n'}
+[8.290019] (qbo_driver) StdoutLine: {'line': b'writing dependency_links to ../build/qbo_driver/qbo_driver.egg-info/dependency_links.txt\n'}
+[8.290394] (qbo_driver) StdoutLine: {'line': b'writing entry points to ../build/qbo_driver/qbo_driver.egg-info/entry_points.txt\n'}
+[8.290735] (qbo_driver) StdoutLine: {'line': b'writing requirements to ../build/qbo_driver/qbo_driver.egg-info/requires.txt\n'}
+[8.291021] (qbo_driver) StdoutLine: {'line': b'writing top-level names to ../build/qbo_driver/qbo_driver.egg-info/top_level.txt\n'}
+[8.327998] (-) TimerEvent: {}
+[8.338850] (qbo_driver) StdoutLine: {'line': b"reading manifest file '../build/qbo_driver/qbo_driver.egg-info/SOURCES.txt'\n"}
+[8.342207] (qbo_driver) StdoutLine: {'line': b"writing manifest file '../build/qbo_driver/qbo_driver.egg-info/SOURCES.txt'\n"}
+[8.342547] (qbo_driver) StdoutLine: {'line': b'running build\n'}
+[8.342801] (qbo_driver) StdoutLine: {'line': b'running build_py\n'}
+[8.343347] (qbo_driver) StdoutLine: {'line': b'creating /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.343657] (qbo_driver) StdoutLine: {'line': b'copying src/listen_whisper.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.343979] (qbo_driver) StdoutLine: {'line': b'copying src/brainRS.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.344269] (qbo_driver) StdoutLine: {'line': b'copying src/__init__.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.344508] (qbo_driver) StdoutLine: {'line': b'copying src/listen_old.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.344784] (qbo_driver) StdoutLine: {'line': b'copying src/diag_node.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.345052] (qbo_driver) StdoutLine: {'line': b'copying src/talk_piper.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.345375] (qbo_driver) StdoutLine: {'line': b'copying src/hardware_info.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[8.345762] (qbo_driver) StdoutLine: {'line': b'running install\n'}
+[8.352169] (qbo_driver) StdoutLine: {'line': b'running install_lib\n'}
+[8.376684] (qbo_driver) StdoutLine: {'line': b'creating /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.376995] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/listen_whisper.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.377293] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/brainRS.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.377597] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/__init__.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.377866] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/listen_old.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.378128] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/diag_node.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.378389] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/talk_piper.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.378609] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/hardware_info.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[8.379324] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/listen_whisper.py to listen_whisper.cpython-310.pyc\n'}
+[8.381757] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/brainRS.py to brainRS.cpython-310.pyc\n'}
+[8.382602] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/__init__.py to __init__.cpython-310.pyc\n'}
+[8.382918] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/listen_old.py to listen_old.cpython-310.pyc\n'}
+[8.384301] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/diag_node.py to diag_node.cpython-310.pyc\n'}
+[8.385571] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/talk_piper.py to talk_piper.cpython-310.pyc\n'}
+[8.386580] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/hardware_info.py to hardware_info.cpython-310.pyc\n'}
+[8.387198] (qbo_driver) StdoutLine: {'line': b'running install_data\n'}
+[8.387655] (qbo_driver) StdoutLine: {'line': b'copying resource/qbo_driver -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/ament_index/resource_index/packages\n'}
+[8.388105] (qbo_driver) StdoutLine: {'line': b'copying package.xml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[8.388767] (qbo_driver) StdoutLine: {'line': b'copying launch/diag_launch.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/launch\n'}
+[8.389097] (qbo_driver) StdoutLine: {'line': b'copying config/thresholds.yaml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[8.389417] (qbo_driver) StdoutLine: {'line': b'copying config/diagnostic_aggregator.yaml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[8.389726] (qbo_driver) StdoutLine: {'line': b'copying config/RS/qbo.rive -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[8.390068] (qbo_driver) StdoutLine: {'line': b'running install_egg_info\n'}
+[8.414565] (qbo_driver) StdoutLine: {'line': b"removing '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/qbo_driver-0.1.1-py3.10.egg-info' (and everything under it)\n"}
+[8.415038] (qbo_driver) StdoutLine: {'line': b'Copying ../build/qbo_driver/qbo_driver.egg-info to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/qbo_driver-0.1.1-py3.10.egg-info\n'}
+[8.417852] (qbo_driver) StdoutLine: {'line': b'running install_scripts\n'}
+[8.428099] (-) TimerEvent: {}
+[8.528475] (-) TimerEvent: {}
+[8.604976] (qbo_driver) StdoutLine: {'line': b'Installing diag_node script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[8.605494] (qbo_driver) StdoutLine: {'line': b'Installing qbo_brain script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[8.605871] (qbo_driver) StdoutLine: {'line': b'Installing qbo_listen script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[8.606135] (qbo_driver) StdoutLine: {'line': b'Installing qbo_talk script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[8.606449] (qbo_driver) StdoutLine: {'line': b"writing list of installed files to '/home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log'\n"}
+[8.628570] (-) TimerEvent: {}
+[8.660718] (qbo_driver) CommandEnded: {'returncode': 0}
+[8.683159] (qbo_driver) JobEnded: {'identifier': 'qbo_driver', 'rc': 0}
+[8.685276] (-) EventReactorShutdown: {}

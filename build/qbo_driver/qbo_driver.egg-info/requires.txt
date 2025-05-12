@@ -1,0 +1,8 @@
+rclpy
+sounddevice
+webrtcvad
+faster-whisper
+numpy
+scipy
+rivescript
+qbo_msgs

@@ -1,0 +1,5 @@
+[console_scripts]
+diag_node = src.diag_node:main
+qbo_brain = src.brainRS:main
+qbo_listen = src.listen_whisper:main
+qbo_talk = src.talk_piper:main

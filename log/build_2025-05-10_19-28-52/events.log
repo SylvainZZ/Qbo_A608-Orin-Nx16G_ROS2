@@ -1,0 +1,62 @@
+[0.000000] (-) TimerEvent: {}
+[0.000814] (-) JobUnselected: {'identifier': 'qbo_msgs'}
+[0.001090] (qbo_driver) JobQueued: {'identifier': 'qbo_driver', 'dependencies': OrderedDict([('qbo_msgs', '/home/qbo-v2/qbo_ws/src/install/qbo_msgs')])}
+[0.001350] (qbo_driver) JobStarted: {'identifier': 'qbo_driver'}
+[0.099365] (-) TimerEvent: {}
+[0.199775] (-) TimerEvent: {}
+[0.300351] (-) TimerEvent: {}
+[0.400820] (-) TimerEvent: {}
+[0.501353] (-) TimerEvent: {}
+[0.601824] (-) TimerEvent: {}
+[0.702244] (-) TimerEvent: {}
+[0.802740] (-) TimerEvent: {}
+[0.903158] (-) TimerEvent: {}
+[0.989054] (qbo_driver) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../build/qbo_driver', 'build', '--build-base', '/home/qbo-v2/qbo_ws/src/build/qbo_driver/build', 'install', '--record', '/home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/qbo-v2/qbo_ws/src/qbo_driver', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'qbo-v2', 'SSH_CLIENT': '192.168.1.30 50120 22', 'XDG_SESSION_TYPE': 'tty', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib:/home/qbo-v2/qbo_ws/install/qbo_msgs/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib', 'MOTD_SHOWN': 'pam', 'HOME': '/home/qbo-v2', 'OLDPWD': '/home/qbo-v2', 'SSH_TTY': '/dev/pts/3', 'JETSON_L4T': '36.4.3', 'ROS_PYTHON_VERSION': '3', 'JETSON_MODEL': 'NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLCON_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install:/home/qbo-v2/qbo_ws/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'qbo-v2', 'JETSON_MODULE': 'NVIDIA Jetson Orin NX (16GB ram)', 'JETSON_SERIAL_NUMBER': '1420825014158', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'TERM': 'xterm', 'XDG_SESSION_ID': '22', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/home/qbo-v2/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': 'localhost:13.0', 'LANG': 'fr_FR.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'JETSON_SOC': 'tegra234', 'AMENT_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_msgs:/opt/ros/humble', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'JETSON_CUDA_ARCH_BIN': '8.7', 'PWD': '/home/qbo-v2/qbo_ws/src/build/qbo_driver', 'SSH_CONNECTION': '192.168.1.30 50120 192.168.1.40 22', 'XDG_DATA_DIRS': '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/qbo-v2/qbo_ws/src/build/qbo_driver/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages:/home/qbo-v2/qbo_ws/install/qbo_driver/lib/python3.10/site-packages:/home/qbo-v2/qbo_ws/install/qbo_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'JETSON_JETPACK': '6.2', 'CMAKE_PREFIX_PATH': '/home/qbo-v2/qbo_ws/src/install/qbo_msgs:/home/qbo-v2/qbo_ws/install/qbo_msgs', 'JETSON_P_NUMBER': 'p3767-0000'}, 'shell': False}
+[1.003259] (-) TimerEvent: {}
+[1.103624] (-) TimerEvent: {}
+[1.204123] (-) TimerEvent: {}
+[1.304652] (-) TimerEvent: {}
+[1.369580] (qbo_driver) StdoutLine: {'line': b'running egg_info\n'}
+[1.391244] (qbo_driver) StdoutLine: {'line': b'writing ../build/qbo_driver/qbo_driver.egg-info/PKG-INFO\n'}
+[1.392046] (qbo_driver) StdoutLine: {'line': b'writing dependency_links to ../build/qbo_driver/qbo_driver.egg-info/dependency_links.txt\n'}
+[1.392410] (qbo_driver) StdoutLine: {'line': b'writing entry points to ../build/qbo_driver/qbo_driver.egg-info/entry_points.txt\n'}
+[1.392743] (qbo_driver) StdoutLine: {'line': b'writing requirements to ../build/qbo_driver/qbo_driver.egg-info/requires.txt\n'}
+[1.393061] (qbo_driver) StdoutLine: {'line': b'writing top-level names to ../build/qbo_driver/qbo_driver.egg-info/top_level.txt\n'}
+[1.404833] (-) TimerEvent: {}
+[1.439623] (qbo_driver) StdoutLine: {'line': b"reading manifest file '../build/qbo_driver/qbo_driver.egg-info/SOURCES.txt'\n"}
+[1.441649] (qbo_driver) StdoutLine: {'line': b"writing manifest file '../build/qbo_driver/qbo_driver.egg-info/SOURCES.txt'\n"}
+[1.442056] (qbo_driver) StdoutLine: {'line': b'running build\n'}
+[1.442302] (qbo_driver) StdoutLine: {'line': b'running build_py\n'}
+[1.442587] (qbo_driver) StdoutLine: {'line': b'copying src/listen_whisper.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.442935] (qbo_driver) StdoutLine: {'line': b'copying src/brainRS.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.443225] (qbo_driver) StdoutLine: {'line': b'copying src/__init__.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.443502] (qbo_driver) StdoutLine: {'line': b'copying src/listen_old.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.443810] (qbo_driver) StdoutLine: {'line': b'copying src/diag_node.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.444096] (qbo_driver) StdoutLine: {'line': b'copying src/talk_piper.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.444373] (qbo_driver) StdoutLine: {'line': b'copying src/hardware_info.py -> /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src\n'}
+[1.444674] (qbo_driver) StdoutLine: {'line': b'running install\n'}
+[1.450916] (qbo_driver) StdoutLine: {'line': b'running install_lib\n'}
+[1.473442] (qbo_driver) StdoutLine: {'line': b'copying /home/qbo-v2/qbo_ws/src/build/qbo_driver/build/lib/src/brainRS.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src\n'}
+[1.474640] (qbo_driver) StdoutLine: {'line': b'byte-compiling /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/src/brainRS.py to brainRS.cpython-310.pyc\n'}
+[1.476105] (qbo_driver) StdoutLine: {'line': b'running install_data\n'}
+[1.476512] (qbo_driver) StdoutLine: {'line': b'copying resource/qbo_driver -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/ament_index/resource_index/packages\n'}
+[1.476877] (qbo_driver) StdoutLine: {'line': b'copying package.xml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[1.477263] (qbo_driver) StdoutLine: {'line': b'copying launch/diag_launch.py -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver/launch\n'}
+[1.477588] (qbo_driver) StdoutLine: {'line': b'copying config/thresholds.yaml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[1.477922] (qbo_driver) StdoutLine: {'line': b'copying config/diagnostic_aggregator.yaml -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[1.478217] (qbo_driver) StdoutLine: {'line': b'copying config/RS/qbo.rive -> /home/qbo-v2/qbo_ws/src/install/qbo_driver/share/qbo_driver\n'}
+[1.478502] (qbo_driver) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.502221] (qbo_driver) StdoutLine: {'line': b"removing '/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/qbo_driver-0.1.1-py3.10.egg-info' (and everything under it)\n"}
+[1.502690] (qbo_driver) StdoutLine: {'line': b'Copying ../build/qbo_driver/qbo_driver.egg-info to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/qbo_driver-0.1.1-py3.10.egg-info\n'}
+[1.504290] (qbo_driver) StdoutLine: {'line': b'running install_scripts\n'}
+[1.504844] (-) TimerEvent: {}
+[1.605220] (-) TimerEvent: {}
+[1.679733] (qbo_driver) StdoutLine: {'line': b'Installing diag_node script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[1.680220] (qbo_driver) StdoutLine: {'line': b'Installing qbo_brain script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[1.680612] (qbo_driver) StdoutLine: {'line': b'Installing qbo_listen script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[1.680896] (qbo_driver) StdoutLine: {'line': b'Installing qbo_talk script to /home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/qbo_driver\n'}
+[1.681186] (qbo_driver) StdoutLine: {'line': b"writing list of installed files to '/home/qbo-v2/qbo_ws/src/build/qbo_driver/install.log'\n"}
+[1.705354] (-) TimerEvent: {}
+[1.731578] (qbo_driver) CommandEnded: {'returncode': 0}
+[1.767655] (qbo_driver) JobEnded: {'identifier': 'qbo_driver', 'rc': 0}
+[1.769865] (-) EventReactorShutdown: {}

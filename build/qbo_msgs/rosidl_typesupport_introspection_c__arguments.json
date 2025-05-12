@@ -1,0 +1,21 @@
+{
+  "package_name": "qbo_msgs",
+  "output_dir": "/home/qbo-v2/qbo_ws/src/build/qbo_msgs/rosidl_typesupport_introspection_c/qbo_msgs",
+  "template_dir": "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource",
+  "idl_tuples": [
+    "/home/qbo-v2/qbo_ws/src/build/qbo_msgs/rosidl_adapter/qbo_msgs:msg/ListenResult.idl",
+    "/home/qbo-v2/qbo_ws/src/build/qbo_msgs/rosidl_adapter/qbo_msgs:srv/Text2Speach.idl"
+  ],
+  "target_dependencies": [
+    "/opt/ros/humble/lib/rosidl_typesupport_introspection_c/rosidl_typesupport_introspection_c",
+    "/opt/ros/humble/local/lib/python3.10/dist-packages/rosidl_typesupport_introspection_c/__init__.py",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/idl__rosidl_typesupport_introspection_c.h.em",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/idl__type_support.c.em",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/msg__rosidl_typesupport_introspection_c.h.em",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/msg__type_support.c.em",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/srv__rosidl_typesupport_introspection_c.h.em",
+    "/opt/ros/humble/share/rosidl_typesupport_introspection_c/resource/srv__type_support.c.em",
+    "/home/qbo-v2/qbo_ws/src/build/qbo_msgs/rosidl_adapter/qbo_msgs/msg/ListenResult.idl",
+    "/home/qbo-v2/qbo_ws/src/build/qbo_msgs/rosidl_adapter/qbo_msgs/srv/Text2Speach.idl"
+  ]
+}

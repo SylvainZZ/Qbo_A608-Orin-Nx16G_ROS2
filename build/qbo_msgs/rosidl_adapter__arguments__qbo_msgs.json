@@ -1,0 +1,7 @@
+{
+  "package_name": "qbo_msgs",
+  "non_idl_tuples": [
+    "/home/qbo-v2/qbo_ws/src/qbo_msgs:msg/ListenResult.msg",
+    "/home/qbo-v2/qbo_ws/src/qbo_msgs:srv/Text2Speach.srv"
+  ]
+}

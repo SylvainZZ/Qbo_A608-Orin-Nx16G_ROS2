@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: qbo_driver
+Version: 0.1.1
+Summary: ROS 2 hardware diagnostics driver for the QBO platform based on Jetson Orin NX.
+Maintainer: zwolinski
+Maintainer-email: sylvain-zwolinski@orange.fr
+License: BSD-3-Clause
+Requires-Dist: rclpy
+Requires-Dist: sounddevice
+Requires-Dist: webrtcvad
+Requires-Dist: faster-whisper
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: rivescript
+Requires-Dist: qbo_msgs
+Dynamic: license
+Dynamic: maintainer
+Dynamic: maintainer-email
+Dynamic: requires-dist
+Dynamic: summary

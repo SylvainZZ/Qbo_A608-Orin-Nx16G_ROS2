@@ -1,0 +1,281 @@
+[0.016s] Invoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake /home/qbo-v2/qbo_ws/src/qbo_msgs -DCMAKE_INSTALL_PREFIX=/home/qbo-v2/qbo_ws/src/install/qbo_msgs
+[0.119s] -- The C compiler identification is GNU 11.4.0
+[0.223s] -- The CXX compiler identification is GNU 11.4.0
+[0.246s] -- Detecting C compiler ABI info
+[0.370s] -- Detecting C compiler ABI info - done
+[0.395s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.395s] -- Detecting C compile features
+[0.397s] -- Detecting C compile features - done
+[0.407s] -- Detecting CXX compiler ABI info
+[0.542s] -- Detecting CXX compiler ABI info - done
+[0.567s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.568s] -- Detecting CXX compile features
+[0.570s] -- Detecting CXX compile features - done
+[0.577s] -- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+[1.179s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[1.370s] -- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[1.378s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.397s] -- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[1.464s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.981s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[2.354s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[2.834s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[2.882s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+[2.884s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[2.942s] -- Found PythonLibs: /usr/lib/aarch64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+[2.942s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[2.942s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[2.943s] -- Using PYTHON_LIBRARIES: /usr/lib/aarch64-linux-gnu/libpython3.10.so
+[2.984s] -- Found PythonExtra: .so  
+[3.075s] -- Configuring done
+[3.144s] -- Generating done
+[3.163s] -- Build files have been written to: /home/qbo-v2/qbo_ws/src/build/qbo_msgs
+[3.174s] Invoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake /home/qbo-v2/qbo_ws/src/qbo_msgs -DCMAKE_INSTALL_PREFIX=/home/qbo-v2/qbo_ws/src/install/qbo_msgs
+[3.178s] Invoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --build /home/qbo-v2/qbo_ws/src/build/qbo_msgs -- -j8 -l8
+[3.241s] [  2%] [34m[1mGenerating C code for ROS interfaces[0m
+[3.257s] [  5%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[3.275s] [  5%] Built target ament_cmake_python_copy_qbo_msgs
+[3.609s] running egg_info
+[3.633s] writing qbo_msgs.egg-info/PKG-INFO
+[3.634s] writing dependency_links to qbo_msgs.egg-info/dependency_links.txt
+[3.634s] writing top-level names to qbo_msgs.egg-info/top_level.txt
+[3.704s] reading manifest file 'qbo_msgs.egg-info/SOURCES.txt'
+[3.706s] writing manifest file 'qbo_msgs.egg-info/SOURCES.txt'
+[3.767s] [  5%] Built target ament_cmake_python_build_qbo_msgs_egg
+[3.772s] [  5%] Built target qbo_msgs__cpp
+[3.787s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_generator_c[0m
+[3.787s] [  7%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[3.788s] [ 10%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[3.788s] [ 12%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[3.806s] [ 17%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_c.dir/rosidl_generator_c/qbo_msgs/msg/detail/listen_result__functions.c.o[0m
+[3.806s] [ 17%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_c.dir/rosidl_generator_c/qbo_msgs/srv/detail/text2_speach__functions.c.o[0m
+[3.897s] [ 20%] [32m[1mLinking C shared library libqbo_msgs__rosidl_generator_c.so[0m
+[3.943s] [ 20%] Built target qbo_msgs__rosidl_generator_c
+[3.956s] [ 28%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[3.957s] [ 28%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[3.957s] [ 28%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[4.217s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_cpp[0m
+[4.235s] [ 30%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/qbo_msgs/msg/listen_result__type_support.cpp.o[0m
+[4.242s] [ 33%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/qbo_msgs/srv/text2_speach__type_support.cpp.o[0m
+[4.244s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_cpp[0m
+[4.263s] [ 38%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/qbo_msgs/msg/detail/listen_result__type_support.cpp.o[0m
+[4.263s] [ 38%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/qbo_msgs/srv/detail/text2_speach__type_support.cpp.o[0m
+[4.308s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_cpp[0m
+[4.329s] [ 41%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/qbo_msgs/msg/detail/dds_fastrtps/listen_result__type_support.cpp.o[0m
+[4.373s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_c[0m
+[4.391s] [ 43%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/qbo_msgs/msg/listen_result__type_support.cpp.o[0m
+[4.439s] [ 46%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/qbo_msgs/srv/text2_speach__type_support.cpp.o[0m
+[4.456s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_c[0m
+[4.463s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_c[0m
+[4.479s] [ 48%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/qbo_msgs/msg/detail/listen_result__type_support.c.o[0m
+[4.486s] [ 51%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/qbo_msgs/msg/detail/listen_result__type_support_c.cpp.o[0m
+[4.489s] [ 53%] [32m[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_c.so[0m
+[4.536s] [ 56%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/qbo_msgs/srv/detail/text2_speach__type_support.c.o[0m
+[4.547s] [ 56%] Built target qbo_msgs__rosidl_typesupport_c
+[4.561s] [ 58%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/qbo_msgs/srv/detail/dds_fastrtps/text2_speach__type_support.cpp.o[0m
+[4.593s] [ 61%] [32m[1mLinking C shared library libqbo_msgs__rosidl_typesupport_introspection_c.so[0m
+[4.638s] [ 61%] Built target qbo_msgs__rosidl_typesupport_introspection_c
+[4.652s] [ 64%] [32mBuilding CXX object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/qbo_msgs/srv/detail/text2_speach__type_support_c.cpp.o[0m
+[4.708s] [ 66%] [32m[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_cpp.so[0m
+[4.766s] [ 66%] Built target qbo_msgs__rosidl_typesupport_cpp
+[4.918s] [ 69%] [32m[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[5.009s] [ 69%] Built target qbo_msgs__rosidl_typesupport_introspection_cpp
+[5.230s] [ 71%] [32m[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[5.231s] [ 74%] [32m[1mLinking CXX shared library libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[5.345s] [ 74%] Built target qbo_msgs__rosidl_typesupport_fastrtps_cpp
+[5.345s] [ 74%] Built target qbo_msgs__rosidl_typesupport_fastrtps_c
+[5.380s] [ 74%] Built target qbo_msgs
+[5.416s] [ 76%] [34m[1mGenerating Python code for ROS interfaces[0m
+[6.092s] [ 76%] Built target qbo_msgs__py
+[6.108s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_generator_py[0m
+[6.130s] [ 82%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_py.dir/rosidl_generator_py/qbo_msgs/msg/_listen_result_s.c.o[0m
+[6.131s] [ 82%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_generator_py.dir/rosidl_generator_py/qbo_msgs/srv/_text2_speach_s.c.o[0m
+[6.298s] [ 84%] [32m[1mLinking C shared library rosidl_generator_py/qbo_msgs/libqbo_msgs__rosidl_generator_py.so[0m
+[6.373s] [ 84%] Built target qbo_msgs__rosidl_generator_py
+[6.388s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_c__pyext[0m
+[6.389s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_fastrtps_c__pyext[0m
+[6.389s] [35m[1mConsolidate compiler generated dependencies of target qbo_msgs__rosidl_typesupport_introspection_c__pyext[0m
+[6.408s] [ 89%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[6.408s] [ 89%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[6.408s] [ 92%] [32mBuilding C object CMakeFiles/qbo_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[6.554s] [ 94%] [32m[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so[0m
+[6.557s] [ 97%] [32m[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so[0m
+[6.562s] [100%] [32m[1mLinking C shared library rosidl_generator_py/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so[0m
+[6.605s] [100%] Built target qbo_msgs__rosidl_typesupport_c__pyext
+[6.606s] [100%] Built target qbo_msgs__rosidl_typesupport_introspection_c__pyext
+[6.612s] [100%] Built target qbo_msgs__rosidl_typesupport_fastrtps_c__pyext
+[6.636s] Invoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --build /home/qbo-v2/qbo_ws/src/build/qbo_msgs -- -j8 -l8
+[6.654s] Invoking command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --install /home/qbo-v2/qbo_ws/src/build/qbo_msgs
+[6.668s] -- Install configuration: ""
+[6.669s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/rosidl_interfaces/qbo_msgs
+[6.670s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.670s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.670s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/text2_speach.h
+[6.670s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.671s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__functions.h
+[6.671s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.h
+[6.671s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__struct.h
+[6.672s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__functions.c
+[6.672s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.672s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_generator_c__visibility_control.h
+[6.672s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.672s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__functions.c
+[6.673s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__struct.h
+[6.673s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.h
+[6.673s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__functions.h
+[6.673s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/listen_result.h
+[6.674s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/library_path.sh
+[6.674s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/library_path.dsv
+[6.674s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_c.so
+[6.675s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_c.so" to ""
+[6.675s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.675s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.676s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.676s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_fastrtps_c.h
+[6.676s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.676s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.677s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_fastrtps_c.h
+[6.677s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[6.677s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_c.so
+[6.677s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[6.678s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.678s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.678s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.678s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_introspection_c.h
+[6.679s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.c
+[6.679s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.679s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.679s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.c
+[6.679s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_introspection_c.h
+[6.680s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[6.680s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_c.so
+[6.680s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_c.so" to ""
+[6.680s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_c.so
+[6.681s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_c.so" to ""
+[6.681s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.681s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.682s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.682s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__builder.hpp
+[6.682s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.hpp
+[6.682s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__traits.hpp
+[6.683s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__struct.hpp
+[6.683s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/text2_speach.hpp
+[6.683s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.684s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.684s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__builder.hpp
+[6.684s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__struct.hpp
+[6.685s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__traits.hpp
+[6.685s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.hpp
+[6.685s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[6.685s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/listen_result.hpp
+[6.686s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.686s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.686s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.686s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_fastrtps_cpp.hpp
+[6.687s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/dds_fastrtps
+[6.687s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.687s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.688s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_fastrtps_cpp.hpp
+[6.688s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/dds_fastrtps
+[6.688s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[6.688s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so
+[6.689s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[6.689s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs
+[6.689s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv
+[6.689s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail
+[6.690s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__type_support.cpp
+[6.690s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/srv/detail/text2_speach__rosidl_typesupport_introspection_cpp.hpp
+[6.690s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg
+[6.691s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail
+[6.691s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__rosidl_typesupport_introspection_cpp.hpp
+[6.691s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/include/qbo_msgs/qbo_msgs/msg/detail/listen_result__type_support.cpp
+[6.691s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_cpp.so
+[6.692s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[6.692s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_cpp.so
+[6.692s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_typesupport_cpp.so" to ""
+[6.692s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/pythonpath.sh
+[6.693s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/pythonpath.dsv
+[6.693s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info
+[6.693s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/SOURCES.txt
+[6.694s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/dependency_links.txt
+[6.694s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/PKG-INFO
+[6.694s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs-0.1.1-py3.10.egg-info/top_level.txt
+[6.694s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs
+[6.695s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv
+[6.695s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/__init__.py
+[6.695s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach.py
+[6.695s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach_s.c
+[6.696s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so
+[6.696s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[6.696s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg
+[6.696s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result.py
+[6.696s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result_s.c
+[6.697s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/__init__.py
+[6.697s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/__init__.py
+[6.697s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so
+[6.697s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so
+[6.698s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/libqbo_msgs__rosidl_generator_py.so
+[6.698s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[6.698s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/_qbo_msgs_s.ep.rosidl_typesupport_c.c
+[6.762s] Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs'...
+[6.762s] Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/__init__.py'...
+[6.762s] Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg'...
+[6.762s] Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/__init__.py'...
+[6.763s] Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/msg/_listen_result.py'...
+[6.763s] Listing '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv'...
+[6.763s] Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/__init__.py'...
+[6.763s] Compiling '/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/srv/_text2_speach.py'...
+[6.771s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so
+[6.772s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so" to ""
+[6.772s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so
+[6.772s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so" to ""
+[6.773s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so
+[6.773s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/local/lib/python3.10/dist-packages/qbo_msgs/qbo_msgs_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so" to ""
+[6.773s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_py.so
+[6.774s] -- Set runtime path of "/home/qbo-v2/qbo_ws/src/install/qbo_msgs/lib/libqbo_msgs__rosidl_generator_py.so" to ""
+[6.774s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/msg/ListenResult.idl
+[6.775s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach.idl
+[6.775s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/msg/ListenResult.msg
+[6.775s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach.srv
+[6.776s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach_Request.msg
+[6.776s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/srv/Text2Speach_Response.msg
+[6.776s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/package_run_dependencies/qbo_msgs
+[6.777s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/parent_prefix_path/qbo_msgs
+[6.777s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/ament_prefix_path.sh
+[6.777s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/ament_prefix_path.dsv
+[6.778s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/path.sh
+[6.778s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/environment/path.dsv
+[6.778s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.bash
+[6.779s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.sh
+[6.779s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.zsh
+[6.779s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/local_setup.dsv
+[6.779s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.dsv
+[6.780s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/ament_index/resource_index/packages/qbo_msgs
+[6.781s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cExport.cmake
+[6.781s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cExport-noconfig.cmake
+[6.781s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[6.782s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[6.782s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cExport.cmake
+[6.782s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[6.783s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cExport.cmake
+[6.783s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[6.783s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_cppExport.cmake
+[6.784s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[6.784s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[6.784s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[6.784s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[6.785s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cppExport.cmake
+[6.785s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[6.785s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_pyExport.cmake
+[6.786s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/export_qbo_msgs__rosidl_generator_pyExport-noconfig.cmake
+[6.786s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake-extras.cmake
+[6.786s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[6.786s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[6.787s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[6.787s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[6.787s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[6.787s] -- Up-to-date: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[6.787s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgsConfig.cmake
+[6.788s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/cmake/qbo_msgsConfig-version.cmake
+[6.788s] -- Installing: /home/qbo-v2/qbo_ws/src/install/qbo_msgs/share/qbo_msgs/package.xml
+[6.791s] Invoked command in '/home/qbo-v2/qbo_ws/src/build/qbo_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/qbo-v2/qbo_ws/src/install/qbo_driver:/home/qbo-v2/qbo_ws/install/qbo_driver:/opt/ros/humble /usr/bin/cmake --install /home/qbo-v2/qbo_ws/src/build/qbo_msgs
