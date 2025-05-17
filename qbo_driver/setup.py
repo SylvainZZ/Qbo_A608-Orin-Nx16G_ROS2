@@ -9,10 +9,15 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/diag_launch.py']),
-        ('share/' + package_name, ['config/thresholds.yaml']),
-        ('share/' + package_name, ['config/diagnostic_aggregator.yaml']),
-        ('share/' + package_name, ['config/RS/qbo.rive']),
+        ('share/' + package_name + '/launch', [
+            'launch/qbo_diag.launch.py',
+            'launch/qbo_audio.launch.py'
+        ]),
+        ('share/' + package_name, [
+            'config/thresholds.yaml',
+            'config/diagnostic_aggregator.yaml',
+            'config/RS/qbo.rive'
+        ]),
     ],
     install_requires=[
         "rclpy",
@@ -31,10 +36,10 @@ setup(
     license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
-            'diag_node = src.diag_node:main',
-            'qbo_listen = src.listen_whisper:main',
-            'qbo_talk = src.talk_piper:main',
-            'qbo_brain = src.brainRS:main',
+            'diag_node = qbo_driver.diag_node:main',
+            'qbo_listen = qbo_driver.listen_whisper:main',
+            'qbo_talk = qbo_driver.talk_piper:main',
+            'qbo_brain = qbo_driver.brainRS:main',
         ],
     },
 )

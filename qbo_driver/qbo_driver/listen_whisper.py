@@ -2,7 +2,7 @@
 """
 ROS 2 Humble - Qbo Listen Node (v2)
 ----------------------------------
-• Détection automatique du micro par *nom* (paramètre `audio_device_name`).
+• Détection automatique du micro par *nom* (paramètre `audio_in_device_name`).
 • S'adapte à la *fréquence native* de la carte son et ré-échantillonne en 16kHz (faster-whisper + VAD).
 • Boucle d'écoute dans un *thread daemon* avec arrêt propre via `threading.Event`.
 • Compatibilité Jetson Orin NX 16 GB -- CTranslate2 GPU + cuDNN.
@@ -52,11 +52,11 @@ class ListenNode(Node):
         super().__init__("qbo_listen")
 
         # ── Paramètres ROS 2 ───────────────────────────────────────────
-        self.declare_parameter("audio_device_name", "usb")
+        self.declare_parameter("audio_in_device_name", "usb")
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "medium")
         self.lang = self.get_parameter("system_lang").get_parameter_value().string_value
-        device_hint = self.get_parameter("audio_device_name").get_parameter_value().string_value
+        device_hint = self.get_parameter("audio_in_device_name").get_parameter_value().string_value
         model_size  = self.get_parameter("whisper_model").get_parameter_value().string_value
 
         # ── Sélection du périphérique audio ───────────────────────────

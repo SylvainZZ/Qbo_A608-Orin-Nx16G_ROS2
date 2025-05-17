@@ -32,9 +32,10 @@ class BrainRS(Node):
 
     def normalize_input(self, sentence: str) -> str:
         sentence = sentence.lower()
-        sentence = re.sub(r"[’']", " ", sentence)             # remplace apostrophes par espace
-        sentence = re.sub(r"[^\w\s]", "", sentence)           # supprime ponctuation (.,!? etc.)
-        # sentence = re.sub(r"\s+", " ", sentence).strip()      # supprime les espaces multiples
+        sentence = re.sub(r"[’']", " ", sentence)       # Apostrophes → espace
+        sentence = re.sub(r"[-]", " ", sentence)        # Tirets (es-tu) → espace
+        sentence = re.sub(r"[^\w\s]", "", sentence)     # Ponctuation → supprimée
+        sentence = re.sub(r"\s+", " ", sentence).strip()  # Nettoyage espaces multiples
         return sentence
 
     def listen_callback(self, msg: ListenResult):
