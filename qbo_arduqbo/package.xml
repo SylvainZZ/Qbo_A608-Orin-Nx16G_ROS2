@@ -1,26 +1,27 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>qbo_msgs</name>
+  <name>qbo_arduqbo</name>
   <version>0.1.1</version>
   <description>
-    qbo_driver is a ROS 2 package designed for the QBO platform running on the Jetson Orin NX.
-    It provides a msg for the python package.
+    This is the arduino libraries and projects that are used by the QBoards.
   </description>
   <maintainer email="sylvain-zwolinski@orange.fr">qbo_ros2</maintainer>
   <author email="sylvain-zwolinski@orange.fr">zwolinski</author>
   <license>BSD-3-Clause</license>
 
-  <member_of_group>rosidl_interface_packages</member_of_group>
-
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <build_depend>rosidl_default_generators</build_depend>
-  <build_depend>builtin_interfaces</build_depend>
-  <build_depend>std_msgs</build_depend>
 
-  <exec_depend>rosidl_default_runtime</exec_depend>
-  <exec_depend>builtin_interfaces</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>qbo_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>dynamixel_sdk</depend>
+  <depend>dynamixel_workbench_toolbox</depend>
+  <depend>diagnostic_updater</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

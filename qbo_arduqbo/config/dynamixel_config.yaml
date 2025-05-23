@@ -1,0 +1,35 @@
+qbo_dynamixel:
+  ros__parameters:
+    dynamixel.usb_port: "/dev/ttyUSB1"
+    dynamixel.baud_rate: 1000000
+    dynamixel.protocol_version: 1.0
+
+    dynamixel_state_rate_hz: 1
+    dynamixel_joint_rate_hz: 30
+
+    # DIAGNOSTICS
+    diagnostic_temp_warn: 65.0
+    diagnostic_voltage_min: 8.0
+    diagnostic_voltage_max: 12.5
+    diagnostic_position_error: 20
+
+    dynamixel.motor_keys: ["motor_1", "motor_2"]
+    # Servo 1 : head_pan_joint
+    dynamixel.motors.motor_1.name: head_pan_joint
+    dynamixel.motors.motor_1.id: 1
+    dynamixel.motors.motor_1.invert: false
+    dynamixel.motors.motor_1.max_angle_degrees: 70.0
+    dynamixel.motors.motor_1.min_angle_degrees: -70.0
+    dynamixel.motors.motor_1.range: 300.0
+    dynamixel.motors.motor_1.ticks: 1024
+    dynamixel.motors.motor_1.neutral: 512
+
+    # Servo 2 : head_tilt_joint
+    dynamixel.motors.motor_2.name: head_tilt_joint
+    dynamixel.motors.motor_2.id: 8
+    dynamixel.motors.motor_2.invert: false
+    dynamixel.motors.motor_2.max_angle_degrees: 47.0
+    dynamixel.motors.motor_2.min_angle_degrees: -10.0
+    dynamixel.motors.motor_2.range: 300.0
+    dynamixel.motors.motor_2.ticks: 1024
+    dynamixel.motors.motor_2.neutral: 480
