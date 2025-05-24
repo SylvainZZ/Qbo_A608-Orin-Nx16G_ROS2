@@ -40,6 +40,7 @@ setup(
             'qbo_listen = qbo_driver.listen_whisper:main',
             'qbo_talk = qbo_driver.talk_piper:main',
             'qbo_brain = qbo_driver.brainRS:main',
+            'test_dxl_node = qbo_driver.pan_tilt_tester_node:main',
         ],
     },
 )

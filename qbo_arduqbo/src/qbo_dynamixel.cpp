@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
         for (const auto &key : motor_keys) {
             std::string full = "dynamixel.motors." + key + ".name";
-            node->declare_parameter(full, key);  // fallback: motor_1 etc.
+            node->declare_parameter(full, key);
         }
 
         auto controller = std::make_shared<DynamixelController>(node);
