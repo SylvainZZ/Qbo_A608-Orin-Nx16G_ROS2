@@ -11,7 +11,9 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
             'launch/qbo_diag.launch.py',
-            'launch/qbo_audio.launch.py'
+            'launch/qbo_audio.launch.py',
+            'launch/gscam_imx219_launch.py',
+            'launch/dual_camera_v412_launch.py'
         ]),
         ('share/' + package_name, [
             'config/thresholds.yaml',

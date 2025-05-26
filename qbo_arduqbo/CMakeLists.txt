@@ -53,6 +53,18 @@ ament_target_dependencies(qbo_dynamixel
   qbo_msgs
 )
 
+add_executable(qboard3_driver
+  src/qboard3_driver.cpp
+  src/controllers/battery_controller.cpp
+)
+target_include_directories(test_qboard3 PUBLIC
+  include
+)
+ament_target_dependencies(test_qboard3
+  rclcpp
+  std_msgs
+)
+
 # Installation
 install(TARGETS
   qbo_dynamixel
