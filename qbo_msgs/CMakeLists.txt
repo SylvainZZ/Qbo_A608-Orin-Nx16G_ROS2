@@ -14,6 +14,7 @@ find_package(builtin_interfaces REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ListenResult.msg"
   "msg/MotorState.msg"
+  "msg/BatteryLevel.msg"
   "srv/Text2Speach.srv"
   "srv/TorqueEnable.srv"
   DEPENDENCIES std_msgs builtin_interfaces

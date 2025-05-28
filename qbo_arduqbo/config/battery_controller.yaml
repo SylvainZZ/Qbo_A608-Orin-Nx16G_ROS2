@@ -1,5 +1,10 @@
 controllers:
   ros__parameters:
+    qboard3_driver:
+      i2c_device: "/dev/i2c-7"
+      i2c_address: 20
+    enable_battery: true
+    enable_imu: false
     battery:
       topic: battery_state
       rate: 10.0

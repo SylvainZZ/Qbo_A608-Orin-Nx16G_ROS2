@@ -52,19 +52,6 @@ ament_target_dependencies(qbo_dynamixel
   diagnostic_updater
   qbo_msgs
 )
-
-add_executable(qboard3_driver
-  src/qboard3_driver.cpp
-  src/controllers/battery_controller.cpp
-)
-target_include_directories(test_qboard3 PUBLIC
-  include
-)
-ament_target_dependencies(test_qboard3
-  rclcpp
-  std_msgs
-)
-
 # Installation
 install(TARGETS
   qbo_dynamixel
@@ -72,6 +59,52 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Executable principal
+add_executable(qbo_arduqbo
+  src/qbo_arduqbo.cpp
+  src/drivers/i2c_bus_driver.cpp
+  src/controllers/battery_controller.cpp
+)
+target_include_directories(qbo_arduqbo
+  PUBLIC include
+)
+ament_target_dependencies(qbo_arduqbo
+  rclcpp
+  std_msgs
+  diagnostic_msgs
+  diagnostic_updater
+  qbo_msgs
+)
+install(TARGETS
+  qbo_arduqbo
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
+# --- Librairie série : qbo_serial
+add_library(qbo_serial
+  src/cereal_port/CerealPort.cpp
+  src/drivers/arduqbo_instructions.cpp
+  src/drivers/qboduino_driver.cpp
+)
+
+target_link_libraries(qbo_serial pthread)
+
+ament_target_dependencies(qbo_serial rclcpp)
+
+# --- Exécutable de test CLI : serial_test
+add_executable(serial_test src/test_serial_main.cpp)
+target_link_libraries(serial_test qbo_serial)
+ament_target_dependencies(serial_test rclcpp)
+
+# --- Installation
+install(TARGETS
+  qbo_serial
+  serial_test
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Installation
 install(DIRECTORY include/
   DESTINATION include/
 )
