@@ -17,6 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BatteryLevel.msg"
   "srv/Text2Speach.srv"
   "srv/TorqueEnable.srv"
+  "srv/SetOdometry.srv"
   DEPENDENCIES std_msgs builtin_interfaces
 )
 

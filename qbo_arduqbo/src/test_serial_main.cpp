@@ -1,19 +1,25 @@
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 #include "qbo_arduqbo/drivers/qboduino_driver.h"
 
 int main(int argc, char * argv[]) {
   rclcpp::init(argc, argv);
 
-  std::string base_port = "/dev/ttyUSB0";
-  std::string head_port = "/dev/ttyUSB1";
-  int board_num, version;
+  std::string base_port = "/dev/ttyUSB0";  // adapter si besoin
+  std::string dummy_port = "";    // aucune tête branchée
+  int baud = 115200;
 
-  QboDuinoDriver driver(base_port, 115200, head_port, 115200, 0.01, 0.01);
+  // Timeout rallongé pour permettre à l’Arduino de booter proprement
+  QboDuinoDriver driver(base_port, baud, dummy_port, baud, 4.0, 4.0);
 
-  if (driver.getVersion("head", board_num, version) == 0) {
-    std::cout << "Base board version: " << board_num << "." << version << "\n";
+
+  int board_id = -1, version = -1;
+
+  int code = driver.getVersion("base", board_id, version);
+  if (code >= 0 && board_id == 0){
+    std::cout << "✅ Base Q.bo Board detected!" << std::endl;
+    std::cout << "   ID: " << board_id << ", Version: " << version << std::endl;
   } else {
-    std::cerr << "Error reading base board version\n";
+    std::cerr << "❌ Failed to get base board version" << std::endl;
   }
 
   rclcpp::shutdown();

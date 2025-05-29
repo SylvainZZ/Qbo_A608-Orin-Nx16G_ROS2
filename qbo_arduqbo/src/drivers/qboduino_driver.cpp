@@ -24,81 +24,81 @@
 
 #include "qbo_arduqbo/drivers/qboduino_driver.h"
 
-QboDuinoDriver::QboDuinoDriver(std::string port1, int baud1, std::string port2, int baud2, float timeout1, float timeout2) : firstDevice(), secondDevice(), timeout1_(timeout1 * 1000), timeout2_(timeout2 * 1000)
+QboDuinoDriver::QboDuinoDriver(std::string port1, int baud1, std::string port2, int baud2, float timeout1, float timeout2)
+  : firstDevice(), secondDevice(), timeout1_(timeout1 * 1000), timeout2_(timeout2 * 1000)
 {
-    try
-    {
-        firstDevice.open(port1.c_str(), baud1);
-    }
-    catch (...)
-    {
+    bool any_detected = false;
+
+    if (!port1.empty()) {
+        try {
+            firstDevice.open(port1.c_str(), baud1);
+        } catch (...) {}
+
+        usleep(5500000);  // Boot Arduino
+
+        if (!firstDevice.portOpen()) {
+            std::cout << "Unable to open " << port1 << " port" << std::endl;
+        } else {
+            int board_id = -1, version = -1;
+            boards_["first"] = &firstDevice;
+            timeouts_["first"] = &timeout1_;
+            int code = getVersion("first", board_id, version);
+            if (code >= 0 && board_id == 0) {
+                boards_["base"] = &firstDevice;
+                timeouts_["base"] = &timeout1_;
+                std::cout << "Base control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
+                any_detected = true;
+            } else if (code >= 0 && board_id == 1) {
+                boards_["head"] = &firstDevice;
+                timeouts_["head"] = &timeout1_;
+                std::cout << "Head control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
+                any_detected = true;
+            } else {
+                std::cout << "Not QBO Board detected at " << port1 << std::endl;
+            }
+        }
+    } else {
+        std::cout << "[INFO] No port1 specified — skipping port 1\n";
     }
 
-    try
-    {
-        secondDevice.open(port2.c_str(), baud2);
-    }
-    catch (...)
-    {
-    }
-    usleep(5500000);
-    if (!firstDevice.portOpen())
-    {
-        std::cout << "Unable to open " << port1 << " port" << std::endl;
-    }
-    else
-    {
-        int board_id = -1, version = -1;
-        boards_["first"] = &firstDevice;
-        timeouts_["first"] = &timeout1_;
-        int code = getVersion("first", board_id, version);
-        if (code >= 0 && board_id == 0)
-        {
-            boards_["base"] = &firstDevice;
-            timeouts_["base"] = &timeout1_;
-            std::cout << "Base control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
+    if (!port2.empty()) {
+        try {
+            secondDevice.open(port2.c_str(), baud2);
+        } catch (...) {}
+
+        usleep(5500000);  // Boot Arduino
+
+        if (!secondDevice.portOpen()) {
+            std::cout << "Unable to open " << port2 << " port" << std::endl;
+        } else {
+            int board_id = -1, version = -1;
+            boards_["second"] = &secondDevice;
+            timeouts_["second"] = &timeout2_;
+            int code = getVersion("second", board_id, version);
+            if (code >= 0 && board_id == 0) {
+                boards_["base"] = &secondDevice;
+                timeouts_["base"] = &timeout2_;
+                std::cout << "Base control board fount at " << port2 << " and inicialiced at " << baud2 << " baudrate" << std::endl;
+                any_detected = true;
+            } else if (code >= 0 && board_id == 1) {
+                boards_["head"] = &secondDevice;
+                timeouts_["head"] = &timeout2_;
+                std::cout << "Head control board fount at " << port2 << " and inicialiced at " << baud2 << " baudrate" << std::endl;
+                any_detected = true;
+            } else {
+                std::cout << "Not QBO Board detected at " << port2 << std::endl;
+            }
         }
-        else if (code >= 0 && board_id == 1)
-        {
-            boards_["head"] = &firstDevice;
-            timeouts_["head"] = &timeout1_;
-            std::cout << "Head control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
-        }
-        else
-        {
-            std::cout << "Not QBO Board detected at " << port1 << std::endl;
-        }
+    } else {
+        std::cout << "[INFO] No port2 specified — skipping port 2\n";
     }
-    if (!secondDevice.portOpen())
-    {
-        std::cout << "Unable to open " << port2 << " port" << std::endl;
-    }
-    else
-    {
-        int board_id = -1, version = -1;
-        boards_["second"] = &secondDevice;
-        timeouts_["second"] = &timeout2_;
-        int code = getVersion("second", board_id, version);
-        if (code >= 0 && board_id == 0)
-        {
-            boards_["base"] = &secondDevice;
-            timeouts_["base"] = &timeout2_;
-            std::cout << "Base control board fount at " << port2 << " and inicialiced at " << baud2 << " baudrate" << std::endl;
-        }
-        else if (code >= 0 && board_id == 1)
-        {
-            boards_["head"] = &secondDevice;
-            timeouts_["head"] = &timeout2_;
-            std::cout << "Head control board fount at " << port2 << " and inicialiced at " << baud2 << " baudrate" << std::endl;
-        }
-        else
-        {
-            std::cout << "Not QBO Board detected at " << port2 << std::endl;
-        }
-    }
-    if (boards_.count("base") == 0 && boards_.count("head") == 0)
+
+    if (!any_detected) {
+        std::cerr << "❌ No Q.bo board detected on any port. Aborting.\n";
         exit(-1);
+    }
 }
+
 
 int QboDuinoDriver::read(cereal::CerealPort *ser, std::string &lectura, long timeout)
 {

@@ -10,9 +10,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(std_srvs)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(dynamixel_workbench_toolbox REQUIRED)
 find_package(diagnostic_updater REQUIRED)
 find_package(qbo_msgs REQUIRED)
@@ -68,6 +70,10 @@ add_executable(qbo_arduqbo
 target_include_directories(qbo_arduqbo
   PUBLIC include
 )
+target_link_libraries(qbo_arduqbo
+  qbo_serial
+  base_controller
+)
 ament_target_dependencies(qbo_arduqbo
   rclcpp
   std_msgs
@@ -79,7 +85,9 @@ install(TARGETS
   qbo_arduqbo
   DESTINATION lib/${PROJECT_NAME}
 )
-
+install(DIRECTORY config/
+  DESTINATION share/${PROJECT_NAME}/config
+)
 
 # --- Librairie série : qbo_serial
 add_library(qbo_serial
@@ -103,6 +111,10 @@ install(TARGETS
   serial_test
   DESTINATION lib/${PROJECT_NAME}
 )
+
+add_library(base_controller src/controllers/base_controller.cpp)
+target_link_libraries(base_controller qbo_serial)
+ament_target_dependencies(base_controller rclcpp tf2 tf2_ros tf2_geometry_msgs geometry_msgs nav_msgs qbo_msgs std_srvs)
 
 # Installation
 install(DIRECTORY include/
