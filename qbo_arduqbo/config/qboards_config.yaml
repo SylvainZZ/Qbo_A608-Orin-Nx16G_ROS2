@@ -1,31 +1,34 @@
 qbo_arduqbo:
   ros__parameters:
-      qboard3_driver.i2c_device: "/dev/i2c-7"
-      qboard3_driver.i2c_address: 20
+      i2c_device: "/dev/i2c-7"
+      i2c_address: 20
 
-      qboards.port1: "/dev/ttyUSB0"
-      qboards.baud1: 115200
-      qboards.port2: "/dev/ttyUSB1"
-      qboards.baud2: 115200
-      qboards.timeout1: 4.0
-      qboards.timeout2: 4.0
-      qboards.enable_qboard1: true
-      qboards.enable_qboard2: false
-
-      enable_battery: true
-      battery.topic: battery_state
-      battery.rate: 10.0
-      battery.error_battery_level: 11.5
-      battery.warn_battery_level: 12.2
-      battery.capacity_ah: 10.0
-      battery.battery_type: LiFePo4
-      battery.nominal_voltage: 13.2
+      port1: "/dev/ttyUSB0"
+      baud1: 115200
+      port2: ""
+      baud2: 115200
+      timeout1: 3.0
+      timeout2: 3.0
+      enable_qboard1: true
+      enable_qboard2: false
 
       enable_base: true
+      enable_battery: true
+      enable_imu: false
+
+battery:
+  ros__parameters:
+    topic: battery_state
+    rate: 10.0
+    error_battery_level: 11.5
+    warn_battery_level: 12.2
+    capacity_ah: 10.0
+    battery_type: LiFePo4
+    nominal_voltage: 13.2
 
 base:
   ros__parameters:
-    rate: 15.0
+    rate: 2.0
     topic: "/cmd_vel"
     odom_topic: "/odom"
     tf_odom_broadcast: true

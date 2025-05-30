@@ -6,56 +6,64 @@
 using namespace std::chrono_literals;
 
 CBatteryController::CBatteryController(
-    const std::string &name,
     std::shared_ptr<I2CBusDriver> driver,
-    std::shared_ptr<rclcpp::Node> node)
-    : node_(node),
+    const rclcpp::NodeOptions & options)
+    : rclcpp::Node("battery", options),
       updater_(
-          node->get_node_base_interface(),
-          node->get_node_clock_interface(),
-          node->get_node_logging_interface(),
-          node->get_node_parameters_interface(),
-          node->get_node_timers_interface(),
-          node->get_node_topics_interface(),
+          this->get_node_base_interface(),
+          this->get_node_clock_interface(),
+          this->get_node_logging_interface(),
+          this->get_node_parameters_interface(),
+          this->get_node_timers_interface(),
+          this->get_node_topics_interface(),
           1.0),
       driver_(driver),
-      name_(name),
       level_(0),
-      stat_(0)
+      stat_(0),
+      last_estimated_runtime_minutes_(0.0)
 {
-    node_->declare_parameter("controllers." + name + ".topic", "battery_state");
-    node_->declare_parameter("controllers." + name + ".rate", 15.0);
-    node_->declare_parameter("controllers." + name + ".error_battery_level", 12.0);
-    node_->declare_parameter("controllers." + name + ".warn_battery_level", 12.5);
-    node_->declare_parameter("controllers." + name + ".capacity_ah", 10.0);
-    node_->declare_parameter("controllers." + name + ".nominal_voltage", 13.0);
-    node_->declare_parameter("controllers." + name + ".battery_type", "LiFePo4");
+    name_ = this->get_name();
 
+    // Déclaration des paramètres
+    this->declare_parameter("topic", "battery_state");
+    this->declare_parameter("rate", 15.0);
+    this->declare_parameter("error_battery_level", 12.0);
+    this->declare_parameter("warn_battery_level", 12.5);
+    this->declare_parameter("capacity_ah", 10.0);
+    this->declare_parameter("nominal_voltage", 13.0);
+    this->declare_parameter("battery_type", "LiFePo4");
+
+    // Lecture des paramètres
     std::string topic;
-    node_->get_parameter("controllers." + name + ".topic", topic);
-    node_->get_parameter("controllers." + name + ".rate", rate_);
+    this->get_parameter("topic", topic);
+    this->get_parameter("rate", rate_);
 
-    battery_pub_ = node_->create_publisher<qbo_msgs::msg::BatteryLevel>(topic, 1);
+    // Publisher
+    battery_pub_ = this->create_publisher<qbo_msgs::msg::BatteryLevel>(topic, 1);
 
     loadParameters();
 
-    // Initialisation de l'updater
+    // Diagnostics
     updater_.setHardwareID("Battery");
     updater_.add("Battery Status", this, &CBatteryController::diagnosticCallback);
 
-    // Créer un timer pour appeler l'updater (à la place de l'ancien timer_)
-    node_->create_wall_timer(
+    // Timer pour les diagnostics
+    this->create_wall_timer(
         std::chrono::duration<double>(1.0 / rate_),
         [this]() { updater_.force_update(); });
+
+    RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized");
+    // std::cout << "Nom du contrôleur: " << this->get_name() << std::endl;
+    RCLCPP_INFO(this->get_logger(), "Rate loaded for CBatteryController: %.2f Hz", rate_);
 }
 
 void CBatteryController::loadParameters()
 {
-    node_->get_parameter("controllers." + name_ + ".error_battery_level", error_battery_level_);
-    node_->get_parameter("controllers." + name_ + ".warn_battery_level", warn_battery_level_);
-    node_->get_parameter("controllers." + name_ + ".capacity_ah", capacity_ah_);
-    node_->get_parameter("controllers." + name_ + ".nominal_voltage", nominal_voltage_);
-    node_->get_parameter("controllers." + name_ + ".battery_type", battery_type_);
+    this->get_parameter("error_battery_level", error_battery_level_);
+    this->get_parameter("warn_battery_level", warn_battery_level_);
+    this->get_parameter("capacity_ah", capacity_ah_);
+    this->get_parameter("nominal_voltage", nominal_voltage_);
+    this->get_parameter("battery_type", battery_type_);
 }
 
 std::string formatDouble(double value, int precision = 2)
@@ -97,7 +105,7 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
                 if (last_estimated_runtime_minutes_ < 0.0 ||
                     std::abs(estimated_runtime_minutes - last_estimated_runtime_minutes_) > 10.0) {
                     last_estimated_runtime_minutes_ = estimated_runtime_minutes;
-                    RCLCPP_INFO(node_->get_logger(), "Updated runtime to %.1f minutes", estimated_runtime_minutes);
+                    RCLCPP_INFO(this->get_logger(), "Updated runtime to %.1f minutes", estimated_runtime_minutes);
                 }
             }
         }
@@ -154,7 +162,7 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 
     // Publication ROS du BatteryLevel
     qbo_msgs::msg::BatteryLevel msg;
-    msg.header.stamp = node_->now();
+    msg.header.stamp = this->now();
     msg.level = voltage;
     msg.stat = stat_;
     battery_pub_->publish(msg);

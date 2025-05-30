@@ -10,19 +10,18 @@
 #include <deque>
 #include <numeric>
 
-class CBatteryController {
+class CBatteryController : public rclcpp::Node {
 public:
     CBatteryController(
-        const std::string &name,
         std::shared_ptr<I2CBusDriver> driver,
-        std::shared_ptr<rclcpp::Node> node);
+        const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
     void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
     void loadParameters();
 
     // ROS2
-    std::shared_ptr<rclcpp::Node> node_;
+    // std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Publisher<qbo_msgs::msg::BatteryLevel>::SharedPtr battery_pub_;
     diagnostic_updater::Updater updater_;
 

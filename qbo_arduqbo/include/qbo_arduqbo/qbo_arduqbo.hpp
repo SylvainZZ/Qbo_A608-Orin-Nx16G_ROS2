@@ -14,12 +14,14 @@ class QboArduqboManager {
 public:
     explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node);
     void setup();
+    void run();
 
 private:
     std::shared_ptr<rclcpp::Node> node_;
     std::shared_ptr<I2CBusDriver> i2c_driver_;
     std::shared_ptr<QboDuinoDriver> arduino_driver_;
-    std::vector<std::shared_ptr<void>> controllers_;  // Pour garder les instances
+    std::vector<std::shared_ptr<rclcpp::Node>> controllers_;  // Pour garder les instances
+    rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
     // Flags
     bool enable_battery_;
