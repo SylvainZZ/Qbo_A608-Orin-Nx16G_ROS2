@@ -114,11 +114,16 @@ install(TARGETS
 
 add_library(base_controller src/controllers/base_controller.cpp)
 target_link_libraries(base_controller qbo_serial)
-ament_target_dependencies(base_controller rclcpp tf2 tf2_ros tf2_geometry_msgs geometry_msgs nav_msgs qbo_msgs std_srvs)
+ament_target_dependencies(base_controller rclcpp tf2 tf2_ros tf2_geometry_msgs geometry_msgs nav_msgs diagnostic_updater qbo_msgs std_srvs)
 
 # Installation
 install(DIRECTORY include/
   DESTINATION include/
+)
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 # Lancement auto des tests si activé

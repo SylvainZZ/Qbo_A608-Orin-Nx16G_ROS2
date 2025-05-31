@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 CBatteryController::CBatteryController(
     std::shared_ptr<I2CBusDriver> driver,
     const rclcpp::NodeOptions & options)
-    : rclcpp::Node("battery", options),
+    : rclcpp::Node("battery_ctrl", options),
       updater_(
           this->get_node_base_interface(),
           this->get_node_clock_interface(),

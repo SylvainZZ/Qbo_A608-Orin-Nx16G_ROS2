@@ -1,0 +1,27 @@
+analyzers:
+  ros__parameters:
+    path: Qbo
+    battery:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: Battery
+      startswith: ['qbo_arduqbo: Battery Status']
+      remove_prefix: ['qbo_arduqbo: ']
+
+    motors:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: Motors
+      startswith: ['qbo_arduqbo: Motors Status']
+      remove_prefix: ['qbo_arduqbo: ']
+
+    head_pan:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: Head
+      startswith: ['qbo_dynamixel: head_pan_joint']
+      remove_prefix: ['qbo_dynamixel: ']
+
+    head_tilt:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: Head
+      startswith: ['qbo_dynamixel: head_tilt_joint']
+      remove_prefix: ['qbo_dynamixel: ']
+

@@ -9,12 +9,12 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <std_srvs/srv/empty.hpp>
-#include "qbo_msgs/srv/SetOdometry.hpp"
-// #include <qbo_msgs/srv/BaseStop.hpp>
+#include "qbo_msgs/srv/set_odometry.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/static_transform_broadcaster.h>
+#include <diagnostic_updater/diagnostic_updater.hpp>
 
 #include "qbo_arduqbo/drivers/qboduino_driver.h"
 
@@ -26,11 +26,14 @@ private:
   void twistCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
   void timerCallback();
   void publishStaticTF();
+  void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
 
-  bool resetStall(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  bool resetStallService(const std::shared_ptr<std_srvs::srv::Empty::Request>,
                   std::shared_ptr<std_srvs::srv::Empty::Response>);
-  bool stopBase(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  bool stopBaseService(const std::shared_ptr<std_srvs::srv::Empty::Request>,
                 std::shared_ptr<std_srvs::srv::Empty::Response>);
+  bool setOdometryService(const std::shared_ptr<qbo_msgs::srv::SetOdometry::Request>,
+                   std::shared_ptr<qbo_msgs::srv::SetOdometry::Response>);
 
   // Driver série vers la base Q.bo
   std::shared_ptr<QboDuinoDriver> driver_;
@@ -49,8 +52,9 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   nav_msgs::msg::Odometry odom_;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_stall_srv_, stop_base_srv_;
-  rclcpp::Service<qbo_msgs::srv::SetOdometry>::SharedPtr setOdometry_srv_;
+  rclcpp::Service<qbo_msgs::srv::SetOdometry>::SharedPtr set_odometry_srv_;
   rclcpp::TimerBase::SharedPtr timer_;
+  diagnostic_updater::Updater updater_;
 
   // TF
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

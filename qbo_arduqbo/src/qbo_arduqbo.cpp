@@ -64,7 +64,7 @@ void QboArduqboManager::setup() {
         if (enable_base) {
             auto base_ctrl = std::make_shared<BaseController>(
                 arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "base")
+                rclcpp::NodeOptions().append_parameter_override("name", "base_ctrl")
             );
             controllers_.push_back(base_ctrl);
             RCLCPP_INFO(node_->get_logger(), "✅ Base controller loaded");
@@ -87,7 +87,7 @@ void QboArduqboManager::setup() {
     if (enable_battery_) {
         auto battery = std::make_shared<CBatteryController>(
             i2c_driver_,
-            rclcpp::NodeOptions().append_parameter_override("name", "battery")
+            rclcpp::NodeOptions().append_parameter_override("name", "battery_ctrl")
         );
         controllers_.push_back(std::static_pointer_cast<rclcpp::Node>(battery));
         RCLCPP_INFO(node_->get_logger(), "✅ Battery controller enabled");

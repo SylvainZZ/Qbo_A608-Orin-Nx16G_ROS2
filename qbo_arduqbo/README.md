@@ -126,6 +126,15 @@ qbo_dynamixel:
     ...
 ```
 
+```bash
+ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml
+ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml --log-level DEBUG
+colcon build --packages-select qbo_msgs   --cmake-clean-cache   --allow-overriding qbo_msgs
+ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
+ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
+ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
+
+
 **Auteur :** Sylvain Zwolinski
 **Licence :** BSD-3-Clause
 

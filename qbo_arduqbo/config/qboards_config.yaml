@@ -3,7 +3,7 @@ qbo_arduqbo:
       i2c_device: "/dev/i2c-7"
       i2c_address: 20
 
-      port1: "/dev/ttyUSB0"
+      port1: "/dev/ttyUSB2"
       baud1: 115200
       port2: ""
       baud2: 115200
@@ -16,7 +16,7 @@ qbo_arduqbo:
       enable_battery: true
       enable_imu: false
 
-battery:
+battery_ctrl:
   ros__parameters:
     topic: battery_state
     rate: 10.0
@@ -26,7 +26,7 @@ battery:
     battery_type: LiFePo4
     nominal_voltage: 13.2
 
-base:
+base_ctrl:
   ros__parameters:
     rate: 2.0
     topic: "/cmd_vel"

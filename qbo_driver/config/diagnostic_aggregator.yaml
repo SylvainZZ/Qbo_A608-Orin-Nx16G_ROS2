@@ -13,10 +13,19 @@
 #           - "Fan PWM (%)"
 #           - "Power Total (W)"
 #           - "Disk Usage (%)"
-analyzers:
-  path: Qbo
-  orin-nx-16g:
-    type: diagnostic_aggregator/GenericAnalyzer
-    path: orin-nx-16g
-    startswith: ['QBO Diagnostics [orin-nx-16g]']
-    remove_prefix: ['QBO Diagnostics [orin-nx-16g]']
+# analyzers:
+#   path: Qbo
+#   orin-nx-16g:
+#     type: diagnostic_aggregator/GenericAnalyzer
+#     path: orin-nx-16g
+#     startswith: ['QBO Diagnostics [orin-nx-16g]']
+#     remove_prefix: ['QBO Diagnostics [orin-nx-16g]']
+
+diagnostic_aggregator:
+  ros__parameters:
+    analyzers:
+      orin-nx-16g:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: orin-nx-16g
+        startswith: ['QBO Diagnostics [orin-nx-16g]']
+        remove_prefix: ['QBO Diagnostics [orin-nx-16g]']

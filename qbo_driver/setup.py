@@ -23,6 +23,7 @@ setup(
     ],
     install_requires=[
         "rclpy",
+        'python-diagnostic-updater'
         "sounddevice",
         "webrtcvad",
         "faster-whisper",
@@ -43,6 +44,7 @@ setup(
             'qbo_talk = qbo_driver.talk_piper:main',
             'qbo_brain = qbo_driver.brainRS:main',
             'test_dxl_node = qbo_driver.pan_tilt_tester_node:main',
+            'OrinA608Diag = qbo_driver.hardwareOrinA608:main',
         ],
     },
 )
