@@ -8,7 +8,9 @@
 #include "qbo_arduqbo/drivers/i2c_bus_driver.hpp"
 #include "qbo_arduqbo/drivers/qboduino_driver.h"
 #include "qbo_arduqbo/controllers/battery_controller.hpp"
-// #include "qbo_arduqbo/controllers/imu_controller.hpp" // plus tard
+#include "qbo_arduqbo/controllers/base_controller.hpp"
+#include "qbo_arduqbo/controllers/imu_controller.hpp"
+#include "qbo_arduqbo/controllers/lcd_controller.hpp"
 
 class QboArduqboManager {
 public:
@@ -25,5 +27,11 @@ private:
 
     // Flags
     bool enable_battery_;
-    bool enable_imu_;
+    bool enable_imu_base_;
+    bool enable_imu_head_;
+    bool enable_base_;
+    bool enable_lcd_;
+    bool enable_qboard1_;
+    bool enable_qboard2_;
+
 };

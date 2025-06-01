@@ -15,9 +15,11 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ListenResult.msg"
   "msg/MotorState.msg"
   "msg/BatteryLevel.msg"
+  "msg/LCD.msg"
   "srv/Text2Speach.srv"
   "srv/TorqueEnable.srv"
   "srv/SetOdometry.srv"
+  "srv/CalibrateIMU.srv"
   DEPENDENCIES std_msgs builtin_interfaces
 )
 

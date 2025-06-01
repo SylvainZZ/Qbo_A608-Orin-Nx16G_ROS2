@@ -1,7 +1,7 @@
 #include "qbo_arduqbo/qbo_arduqbo.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/node_interfaces/node_parameters_interface.hpp"
-#include "qbo_arduqbo/controllers/base_controller.hpp"
+
 
 QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node)
     : node_(node) {}
@@ -24,13 +24,16 @@ void QboArduqboManager::setup() {
     int address;
     declare_and_get_param("i2c_device", device_path, std::string("/dev/i2c-7"));
     declare_and_get_param("i2c_address", address, 20);
-    declare_and_get_param("enable_battery", enable_battery_, true);
-    declare_and_get_param("enable_imu", enable_imu_, false);
+    declare_and_get_param("enable_battery", enable_battery_, false);
+    declare_and_get_param("enable_base", enable_base_, false);
+    declare_and_get_param("enable_imu_base", enable_imu_base_, false);
+    declare_and_get_param("enable_imu_head", enable_imu_head_, false);
+    declare_and_get_param("enable_lcd", enable_lcd_, false);
 
     std::string port1, port2;
     int baud1, baud2;
     double timeout1, timeout2;
-    bool enable_qboard1, enable_qboard2;
+    // bool enable_qboard1, enable_qboard2;
 
     declare_and_get_param("port1", port1, std::string("/dev/ttyUSB0"));
     declare_and_get_param("port2", port2, std::string("/dev/ttyUSB1"));
@@ -38,11 +41,11 @@ void QboArduqboManager::setup() {
     declare_and_get_param("baud2", baud2, 115200);
     declare_and_get_param("timeout1", timeout1, 0.05);
     declare_and_get_param("timeout2", timeout2, 0.05);
-    declare_and_get_param("enable_qboard1", enable_qboard1, true);
-    declare_and_get_param("enable_qboard2", enable_qboard2, true);
+    declare_and_get_param("enable_qboard1", enable_qboard1_, true);
+    declare_and_get_param("enable_qboard2", enable_qboard2_, true);
 
-    RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1.c_str(), enable_qboard1 ? "enabled" : "disabled");
-    RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2.c_str(), enable_qboard2 ? "enabled" : "disabled");
+    RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1.c_str(), enable_qboard1_ ? "enabled" : "disabled");
+    RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2.c_str(), enable_qboard2_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "BAUD: %d / %d | TIMEOUT: %.2f / %.2f", baud1, baud2, timeout1, timeout2);
 
     // =====================
@@ -56,12 +59,9 @@ void QboArduqboManager::setup() {
     // =====================
 
     // ➕ Qboard 1 (Serial - base)
-    if (enable_qboard1) {
+    if (enable_qboard1_) {
         RCLCPP_INFO(node_->get_logger(), "✅ Qbo base board communication active");
-        bool enable_base = true;
-        declare_and_get_param("enable_base", enable_base, true);
-
-        if (enable_base) {
+        if (enable_base_) {
             auto base_ctrl = std::make_shared<BaseController>(
                 arduino_driver_,
                 rclcpp::NodeOptions().append_parameter_override("name", "base_ctrl")
@@ -71,12 +71,35 @@ void QboArduqboManager::setup() {
         } else {
             RCLCPP_INFO(node_->get_logger(), "⏹️ Base controller disabled by config");
         }
+
+        if (enable_imu_base_) {
+            auto imu_ctrl = std::make_shared<ImuController>(
+                arduino_driver_,
+                rclcpp::NodeOptions().append_parameter_override("name", "imu_ctrl")
+            );
+            controllers_.push_back(imu_ctrl);
+            RCLCPP_INFO(node_->get_logger(), "✅ IMU controller loaded");
+        } else {
+            RCLCPP_INFO(node_->get_logger(), "⏹️ IMU controller disabled by config");
+        }
+
+        if (enable_lcd_) {
+            auto lcd_ctrl = std::make_shared<LcdController>(
+                arduino_driver_,
+                rclcpp::NodeOptions().append_parameter_override("name", "lcd_ctrl")
+            );
+            controllers_.push_back(lcd_ctrl);
+            RCLCPP_INFO(node_->get_logger(), "✅ LCD controller loaded");
+        } else {
+            RCLCPP_INFO(node_->get_logger(), "⏹️ LCD controller disabled by config");
+        }
+
     } else {
         RCLCPP_WARN(node_->get_logger(), "❌ Base board communication disabled by config");
     }
 
     // ➕ Qboard 2 (Serial - head)
-    if (enable_qboard2) {
+    if (enable_qboard2_) {
         RCLCPP_INFO(node_->get_logger(), "✅ Qbo head board communication active");
         // TODO: Implémentation future
     } else {
@@ -94,7 +117,7 @@ void QboArduqboManager::setup() {
     }
 
     // ➕ Qboard 3 (IMU - TODO)
-    if (enable_imu_) {
+    if (enable_imu_head_) {
         RCLCPP_WARN(node_->get_logger(), "⚠️ IMU controller not yet implemented");
     }
 

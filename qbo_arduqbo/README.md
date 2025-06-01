@@ -133,6 +133,7 @@ colcon build --packages-select qbo_msgs   --cmake-clean-cache   --allow-overridi
 ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
 ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
 ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
+ros2 launch qbo_arduqbo qbo_full.launch.py
 
 
 **Auteur :** Sylvain Zwolinski

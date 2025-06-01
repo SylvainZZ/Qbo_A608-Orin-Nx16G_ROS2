@@ -66,6 +66,8 @@ add_executable(qbo_arduqbo
   src/qbo_arduqbo.cpp
   src/drivers/i2c_bus_driver.cpp
   src/controllers/battery_controller.cpp
+  src/controllers/imu_controller.cpp
+
 )
 target_include_directories(qbo_arduqbo
   PUBLIC include
@@ -73,6 +75,8 @@ target_include_directories(qbo_arduqbo
 target_link_libraries(qbo_arduqbo
   qbo_serial
   base_controller
+  imu_controller
+  lcd_controller
 )
 ament_target_dependencies(qbo_arduqbo
   rclcpp
@@ -114,7 +118,37 @@ install(TARGETS
 
 add_library(base_controller src/controllers/base_controller.cpp)
 target_link_libraries(base_controller qbo_serial)
-ament_target_dependencies(base_controller rclcpp tf2 tf2_ros tf2_geometry_msgs geometry_msgs nav_msgs diagnostic_updater qbo_msgs std_srvs)
+ament_target_dependencies(base_controller
+  rclcpp
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
+  geometry_msgs
+  nav_msgs
+  diagnostic_updater
+  qbo_msgs
+  std_srvs
+)
+
+add_library(imu_controller src/controllers/imu_controller.cpp)
+target_link_libraries(imu_controller qbo_serial)
+ament_target_dependencies(imu_controller
+  rclcpp
+  sensor_msgs
+  std_srvs
+  diagnostic_updater
+  qbo_msgs
+)
+
+add_library(lcd_controller src/controllers/lcd_controller.cpp)
+target_link_libraries(lcd_controller qbo_serial)
+ament_target_dependencies(lcd_controller
+  rclcpp
+  sensor_msgs
+  std_srvs
+  diagnostic_updater
+  qbo_msgs
+)
 
 # Installation
 install(DIRECTORY include/

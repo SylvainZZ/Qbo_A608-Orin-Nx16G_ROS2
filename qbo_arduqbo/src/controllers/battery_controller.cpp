@@ -44,7 +44,7 @@ CBatteryController::CBatteryController(
     loadParameters();
 
     // Diagnostics
-    updater_.setHardwareID("Battery");
+    updater_.setHardwareID("Q.board3");
     updater_.add("Battery Status", this, &CBatteryController::diagnosticCallback);
 
     // Timer pour les diagnostics

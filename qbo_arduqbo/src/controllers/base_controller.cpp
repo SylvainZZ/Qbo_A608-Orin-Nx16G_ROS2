@@ -2,21 +2,22 @@
 #include "qbo_arduqbo/controllers/base_controller.hpp"
 
 BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("base_ctrl", options),
-  driver_(driver),
-  broadcast_tf_(true),
-  base_stop_(false),
-  v_linear_(0.0),
-  v_angular_(0.0),
-  x_(0.0), y_(0.0), th_(0.0), v_dirty_(true),
-  updater_(
-    this->get_node_base_interface(),
-    this->get_node_clock_interface(),
-    this->get_node_logging_interface(),
-    this->get_node_parameters_interface(),
-    this->get_node_timers_interface(),
-    this->get_node_topics_interface(),
-    1.0)
+  : Node("base_ctrl", options),
+    driver_(driver),
+    broadcast_tf_(true),
+    base_stop_(false),
+    v_linear_(0.0),
+    v_angular_(0.0),
+    x_(0.0), y_(0.0), th_(0.0), v_dirty_(true),
+    updater_(
+        this->get_node_base_interface(),
+        this->get_node_clock_interface(),
+        this->get_node_logging_interface(),
+        this->get_node_parameters_interface(),
+        this->get_node_timers_interface(),
+        this->get_node_topics_interface(),
+        1.0
+    )
   {
 
     // (void)name;
@@ -50,20 +51,13 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
       this->get_name() + std::string("/set_odometry"),
       std::bind(&BaseController::setOdometryService, this, std::placeholders::_1, std::placeholders::_2));
 
-    updater_.setHardwareID("Base Motors");
+    updater_.setHardwareID("Q.board1");
     updater_.add("Motors Status", this, &BaseController::diagnosticCallback);
 
     // Timer pour les diagnostics
     this->create_wall_timer(
         std::chrono::duration<double>(1.0 / rate_),
         [this]() { updater_.force_update(); });
-
-    // diagnostic_timer_ = this->create_wall_timer(
-    //     std::chrono::milliseconds(1000),  // 1 Hz (tu peux ajuster)
-    //     [this]() {
-    //         updater_.force_update();
-    //     }
-    // );
 
     timer_ = create_wall_timer(std::chrono::milliseconds((int)(1000.0 / rate_)), std::bind(&BaseController::timerCallback, this));
 

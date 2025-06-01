@@ -3,7 +3,7 @@ qbo_arduqbo:
       i2c_device: "/dev/i2c-7"
       i2c_address: 20
 
-      port1: "/dev/ttyUSB2"
+      port1: "/dev/ttyUSB0"
       baud1: 115200
       port2: ""
       baud2: 115200
@@ -14,7 +14,9 @@ qbo_arduqbo:
 
       enable_base: true
       enable_battery: true
-      enable_imu: false
+      enable_imu_base: true
+      enable_imu_head: false
+      enable_lcd: true
 
 battery_ctrl:
   ros__parameters:
@@ -28,7 +30,17 @@ battery_ctrl:
 
 base_ctrl:
   ros__parameters:
-    rate: 2.0
+    rate: 15.0
     topic: "/cmd_vel"
     odom_topic: "/odom"
     tf_odom_broadcast: true
+
+imu_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "/imu_state"
+
+lcd_ctrl:
+  ros__parameters:
+    rate: 1.0
+    topic: "/cmd_lcd"
