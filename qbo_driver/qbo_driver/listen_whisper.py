@@ -17,6 +17,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.signal import resample_poly  # pip install scipy (lightweight)
+from scipy.io.wavfile import write
 import sounddevice as sd
 import webrtcvad
 
@@ -28,17 +29,20 @@ from faster_whisper import WhisperModel
 
 
 def find_device(name_hint: str) -> tuple[Optional[int], int]:
-    """Retourne (index, sample_rate_natif) du premier device d'entrée
-    dont *name_hint* (insensible à la casse) est contenu dans le nom."""
     name_hint = name_hint.lower()
+    default_rate = 16000  # valeur par défaut si incertaine
     for idx, dev in enumerate(sd.query_devices()):
         if dev["max_input_channels"] < 1:
             continue
         if name_hint in dev["name"].lower():
-            return idx, int(dev["default_samplerate"])
-    # aucun device correspondant ➜ prendre le défaut système
+            rate = int(dev.get("default_samplerate", default_rate))
+            print(f"🎧 Found '{dev['name']}' at index {idx}, rate={rate}")
+            return idx, rate
+    # fallback
     dev = sd.query_devices(kind="input")
-    return None, int(dev["default_samplerate"])
+    rate = int(dev.get("default_samplerate", default_rate))
+    print(f"🎧 Fallback device '{dev['name']}' at index=None, rate={rate}")
+    return None, rate
 
 
 class ListenNode(Node):
@@ -131,6 +135,7 @@ class ListenNode(Node):
             audio_frames = deque()
             silent_frames = 0
             speaking = False
+
             try:
                 with sd.RawInputStream(
                     samplerate=self.input_rate,
@@ -145,28 +150,46 @@ class ListenNode(Node):
                             frame = self.buffer_queue.get(timeout=0.5)
                         except queue.Empty:
                             continue
+
                         if len(frame) < self.blocksize * 2:
                             continue
-                        try:
-                            is_speech = self.vad.is_speech(frame, self.TARGET_RATE)
-                        except Exception as e:
-                            self.get_logger().warning(f"VAD error: {e}")
+
+                        # ── Prétraitement et resample vers 16 kHz ──
+                        pcm = self._preprocess_block(frame)
+                        if len(pcm) < 160:
                             continue
-                        if is_speech:
-                            audio_frames.append(frame)
-                            silent_frames = 0
-                            speaking = True
-                        elif speaking:
-                            silent_frames += 1
-                            if silent_frames > self.SILENCE_THRESHOLD:
-                                break  # fin de phrase
+
+                        # ── Découpe en trames de 160 pour le VAD ──
+                        for i in range(0, len(pcm) - 160 + 1, 160):
+                            block = (pcm[i:i + 160] * 32768).astype(np.int16).tobytes()
+                            try:
+                                is_speech = self.vad.is_speech(block, self.TARGET_RATE)
+                            except Exception as e:
+                                self.get_logger().warning(f"VAD error: {e}")
+                                continue
+
+                            if is_speech:
+                                audio_frames.append(block)
+                                silent_frames = 0
+                                speaking = True
+                            elif speaking:
+                                silent_frames += 1
+                                if silent_frames > self.SILENCE_THRESHOLD:
+                                    break  # fin de phrase
+
             except Exception as e:
                 self.get_logger().error(f"Stream error: {e}")
                 time.sleep(1)
                 continue
 
             if not audio_frames:
+                self.get_logger().warning("📭 Aucun segment détecté par le VAD (silence ou bruit ?)")
                 continue
+
+            # Diagnostic : écrire ce qui a été capté
+            raw_audio = b"".join(audio_frames)
+            pcm = self._preprocess_block(raw_audio)
+            write("debug_audio.wav", self.TARGET_RATE, (pcm * 32768).astype(np.int16))
 
             raw_audio = b"".join(audio_frames)
             pcm = self._preprocess_block(raw_audio)
@@ -179,18 +202,20 @@ class ListenNode(Node):
                     vad_filter=True,
                     vad_parameters={"min_silence_duration_ms": 150},
                 )
-                segments = list(segments_iter)        # ← CONSERVE les éléments
+                segments = list(segments_iter)
                 text = " ".join(s.text for s in segments).strip()
 
                 if text:
                     raw_conf = self._confidence(segments)
                     self.get_logger().debug(f"confidence_raw={raw_conf:.6f}")
                     conf = round(raw_conf, 3)
-                    msg  = ListenResult(sentence=text, confidence=float(conf))
+                    msg = ListenResult(sentence=text, confidence=float(conf))
                     self.result_pub.publish(msg)
                     self.get_logger().info(f"📝 {text}  (conf={conf:.3f})")
+
             except Exception as e:
                 self.get_logger().error(f"Whisper error: {e}")
+
 
     # ─────────────────────────────────────────────────────────────────
 
@@ -205,7 +230,8 @@ def main(args=None):
         node.stop_evt.set()
         node.audio_thread.join(timeout=1.0)
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

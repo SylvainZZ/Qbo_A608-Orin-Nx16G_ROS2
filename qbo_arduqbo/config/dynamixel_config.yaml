@@ -1,6 +1,6 @@
 qbo_dynamixel:
   ros__parameters:
-    dynamixel.usb_port: "/dev/ttyUSB2"
+    dynamixel.usb_port: "/dev/ttyDmx"
     dynamixel.baud_rate: 1000000
     dynamixel.protocol_version: 1.0
 

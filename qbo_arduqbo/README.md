@@ -134,6 +134,7 @@ ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 
 ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
 ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
 ros2 launch qbo_arduqbo qbo_full.launch.py
+ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/qbo-v2/qbo_ws/src/qbo_arduqbo/config/diagnostics_aggregator.yaml
 
 
 **Auteur :** Sylvain Zwolinski

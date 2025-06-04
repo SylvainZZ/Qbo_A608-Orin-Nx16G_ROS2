@@ -3,15 +3,27 @@ analyzers:
     path: Qbo
     battery:
       type: diagnostic_aggregator/GenericAnalyzer
-      path: Battery
-      startswith: ['qbo_arduqbo: Battery Status']
-      remove_prefix: ['qbo_arduqbo: ']
+      path: Battery Status
+      startswith: ['battery_ctrl']
+      remove_prefix: ['battery_ctrl']
 
-    motors:
+    base_controller:
       type: diagnostic_aggregator/GenericAnalyzer
-      path: Motors
-      startswith: ['qbo_arduqbo: Motors Status']
-      remove_prefix: ['qbo_arduqbo: ']
+      path: Motors Status
+      startswith: ['base_ctrl']
+      remove_prefix: ['base_ctrl']
+
+    imu_controller:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: IMU Status
+      startswith: ['imu_ctrl']
+      remove_prefix: ['imu_ctrl']
+
+    LCD:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: LCD Status
+      startswith: ['lcd_ctrl']
+      remove_prefix: ['lcd_ctrl']
 
     head_pan:
       type: diagnostic_aggregator/GenericAnalyzer
@@ -24,4 +36,10 @@ analyzers:
       path: Head
       startswith: ['qbo_dynamixel: head_tilt_joint']
       remove_prefix: ['qbo_dynamixel: ']
+
+    orin-nx-16g:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: orin-nx-16g
+        startswith: ['OrinA608Diag_node']
+        remove_prefix: ['OrinA608Diag_node']
 
