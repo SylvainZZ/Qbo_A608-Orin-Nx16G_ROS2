@@ -1,223 +1,121 @@
-#!/usr/bin/env python3
-"""
-ROS 2 Humble - Qbo Listen Node (v2)
-----------------------------------
-• Détection automatique du micro par *nom* (paramètre `audio_in_device_name`).
-• S'adapte à la *fréquence native* de la carte son et ré-échantillonne en 16kHz (faster-whisper + VAD).
-• Boucle d'écoute dans un *thread daemon* avec arrêt propre via `threading.Event`.
-• Compatibilité Jetson Orin NX 16 GB -- CTranslate2 GPU + cuDNN.
-"""
-
-from __future__ import annotations
-
-import os, queue, threading, time
-import math
+import os
+import queue
+import threading
+import time
 from collections import deque
-from typing import Optional
-
 import numpy as np
-from scipy.signal import resample_poly  # pip install scipy (lightweight)
-from scipy.io.wavfile import write
 import sounddevice as sd
 import webrtcvad
+from scipy.io.wavfile import write
+from faster_whisper import WhisperModel
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from qbo_msgs.msg import ListenResult
-from faster_whisper import WhisperModel
 
-
-def find_device(name_hint: str) -> tuple[Optional[int], int]:
+def find_device(name_hint: str):
     name_hint = name_hint.lower()
-    default_rate = 16000  # valeur par défaut si incertaine
     for idx, dev in enumerate(sd.query_devices()):
         if dev["max_input_channels"] < 1:
             continue
         if name_hint in dev["name"].lower():
-            rate = int(dev.get("default_samplerate", default_rate))
-            print(f"🎧 Found '{dev['name']}' at index {idx}, rate={rate}")
+            rate = int(dev.get("default_samplerate", 16000))
+            print(f"✨ Found '{dev['name']}' at index {idx}, rate={rate}")
             return idx, rate
-    # fallback
     dev = sd.query_devices(kind="input")
-    rate = int(dev.get("default_samplerate", default_rate))
-    print(f"🎧 Fallback device '{dev['name']}' at index=None, rate={rate}")
+    rate = int(dev.get("default_samplerate", 16000))
     return None, rate
 
-
 class ListenNode(Node):
+    TARGET_RATE = 16000
+    FRAME_MS = 10
     CHANNELS = 1
-    TARGET_RATE = 16_000            # ce que veulent VAD + Whisper (Hz)
-    FRAME_MS = 10                   # frame audio = 10 ms ➜ 160 samples @16 kHz
-    VAD_SENSITIVITY = 1             # 0 = moins agressif, 3 = plus
-    SILENCE_THRESHOLD = 10          # 10 × 10 ms = 100 ms de silence → fin phrase
+    BLOCKSIZE = int(TARGET_RATE * FRAME_MS / 1000)
+    SILENCE_THRESHOLD = 10
 
     def __init__(self):
         super().__init__("qbo_listen")
 
-        # ── Paramètres ROS 2 ───────────────────────────────────────────
-        self.declare_parameter("audio_in_device_name", "usb")
+        self.declare_parameter("audio_in_device_name", "default")
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "medium")
+
         self.lang = self.get_parameter("system_lang").get_parameter_value().string_value
         device_hint = self.get_parameter("audio_in_device_name").get_parameter_value().string_value
-        model_size  = self.get_parameter("whisper_model").get_parameter_value().string_value
+        model_size = self.get_parameter("whisper_model").get_parameter_value().string_value
 
-        # ── Sélection du périphérique audio ───────────────────────────
-        self.device_index, self.input_rate = find_device(device_hint)
-        self.get_logger().info(f"🎤 Device index={self.device_index}, rate={self.input_rate} Hz")
+        self.device_index, _ = find_device(device_hint)
 
-        self.blocksize = int(self.input_rate * self.FRAME_MS / 1000)
-        self.vad = webrtcvad.Vad(self.VAD_SENSITIVITY)
-        self.buffer_queue: queue.Queue[bytes] = queue.Queue()
-
-        # ── Publishers ────────────────────────────────────────────────
-        self.system_lang_pub = self.create_publisher(String, "/system_lang", 1)
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
-        self.system_lang_pub.publish(String(data=self.lang))
 
-        # ── Whisper initialisation ───────────────────────────────────
-        self.get_logger().info("🔄 Chargement du modèle Whisper…")
-        self.voice_model = WhisperModel(
-            model_size,
-            device="cuda",            # GPU Orin
-            compute_type="int8_float16",  # cuDNN activé
-        )
+        self.get_logger().info("🔄 Chargement du modèle Whisper...")
+        self.voice_model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
         self.get_logger().info("✅ Modèle Whisper prêt.")
 
-        # ── Thread d'écoute ──────────────────────────────────────────
         self.stop_evt = threading.Event()
         self.audio_thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.audio_thread.start()
 
-    # ─────────────────────────────────────────────────────────────────
-    # Audio utils
-    def _callback(self, indata, frames, t, status):
-        if status:
-            self.get_logger().warning(f"Audio status : {status}")
-        self.buffer_queue.put(bytes(indata))
-
-    def _resample_to_target(self, pcm: np.ndarray) -> np.ndarray:
-        if self.input_rate == self.TARGET_RATE:
-            return pcm
-        return resample_poly(pcm, self.TARGET_RATE, self.input_rate)
-
-    def _preprocess_block(self, raw: bytes) -> np.ndarray:
-        pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-        pcm = self._resample_to_target(pcm)
-        return pcm
-
-    def _confidence(self, segments) -> float:
-        if not segments:
-            return 0.0
-        # for i, seg in enumerate(segments):
-        #     self.get_logger().info(
-        #         f"[seg {i}] avg_logprob={seg.avg_logprob:.3f} "
-        #         f"no_speech_prob={seg.no_speech_prob:.3f}")
-
-        use_avg = all(math.isfinite(s.avg_logprob) and s.avg_logprob > -10
-                      for s in segments)
-
-        total, tokens = 0.0, 0
-        for seg in segments:
-            ntok = max(1, len(seg.text.strip().split()))
-            score = (math.exp(seg.avg_logprob)
-                     if use_avg else (1.0 - seg.no_speech_prob))
-            total  += score * ntok
-            tokens += ntok
-
-        return total / tokens if tokens else 0.0
-
-    # ─────────────────────────────────────────────────────────────────
     def _listen_loop(self):
-        self.get_logger().info("🎙️ En écoute … (Ctrl-C pour quitter)")
-        while not self.stop_evt.is_set() and rclpy.ok():
-            audio_frames = deque()
-            silent_frames = 0
-            speaking = False
+        self.get_logger().info("🎹 En écoute avec VAD temps-réel...")
 
-            try:
-                with sd.RawInputStream(
-                    samplerate=self.input_rate,
-                    blocksize=self.blocksize,
-                    device=self.device_index,
-                    dtype="int16",
-                    channels=self.CHANNELS,
-                    callback=self._callback,
-                ):
-                    while not self.stop_evt.is_set():
-                        try:
-                            frame = self.buffer_queue.get(timeout=0.5)
-                        except queue.Empty:
-                            continue
+        vad = webrtcvad.Vad(2)
+        buffer_queue = queue.Queue()
 
-                        if len(frame) < self.blocksize * 2:
-                            continue
+        def audio_callback(indata, frames, time, status):
+            if status:
+                self.get_logger().warning(f"Audio status: {status}")
+            buffer_queue.put(indata.copy())
 
-                        # ── Prétraitement et resample vers 16 kHz ──
-                        pcm = self._preprocess_block(frame)
-                        if len(pcm) < 160:
-                            continue
+        with sd.InputStream(samplerate=self.TARGET_RATE,
+                            blocksize=self.BLOCKSIZE,
+                            dtype='float32',
+                            channels=self.CHANNELS,
+                            callback=audio_callback,
+                            device=self.device_index):
 
-                        # ── Découpe en trames de 160 pour le VAD ──
-                        for i in range(0, len(pcm) - 160 + 1, 160):
-                            block = (pcm[i:i + 160] * 32768).astype(np.int16).tobytes()
-                            try:
-                                is_speech = self.vad.is_speech(block, self.TARGET_RATE)
-                            except Exception as e:
-                                self.get_logger().warning(f"VAD error: {e}")
-                                continue
+            while not self.stop_evt.is_set():
+                audio_frames = deque()
+                silent_chunks = 0
+                speaking = False
 
-                            if is_speech:
-                                audio_frames.append(block)
-                                silent_frames = 0
-                                speaking = True
-                            elif speaking:
-                                silent_frames += 1
-                                if silent_frames > self.SILENCE_THRESHOLD:
-                                    break  # fin de phrase
+                while not self.stop_evt.is_set():
+                    try:
+                        chunk = buffer_queue.get(timeout=1.0)
+                    except queue.Empty:
+                        continue
 
-            except Exception as e:
-                self.get_logger().error(f"Stream error: {e}")
-                time.sleep(1)
-                continue
+                    pcm_chunk = (chunk[:, 0] * 32768).astype(np.int16).tobytes()
 
-            if not audio_frames:
-                self.get_logger().warning("📭 Aucun segment détecté par le VAD (silence ou bruit ?)")
-                continue
+                    is_speech = vad.is_speech(pcm_chunk, self.TARGET_RATE)
 
-            # Diagnostic : écrire ce qui a été capté
-            raw_audio = b"".join(audio_frames)
-            pcm = self._preprocess_block(raw_audio)
-            write("debug_audio.wav", self.TARGET_RATE, (pcm * 32768).astype(np.int16))
+                    if is_speech:
+                        audio_frames.append(chunk[:, 0])
+                        silent_chunks = 0
+                        speaking = True
+                    elif speaking:
+                        silent_chunks += 1
+                        if silent_chunks > self.SILENCE_THRESHOLD:
+                            break
 
-            raw_audio = b"".join(audio_frames)
-            pcm = self._preprocess_block(raw_audio)
+                if not audio_frames:
+                    continue
 
-            try:
-                segments_iter, _ = self.voice_model.transcribe(
-                    pcm,
-                    language=self.lang,
-                    beam_size=1,
-                    vad_filter=True,
-                    vad_parameters={"min_silence_duration_ms": 150},
-                )
-                segments = list(segments_iter)
-                text = " ".join(s.text for s in segments).strip()
+                audio_data = np.concatenate(audio_frames)
+                write("debug_float32.wav", self.TARGET_RATE, audio_data)
+
+                segments, _ = self.voice_model.transcribe(audio_data, language=self.lang, beam_size=1, vad_filter=True)
+                text = " ".join([s.text for s in segments]).strip()
 
                 if text:
-                    raw_conf = self._confidence(segments)
-                    self.get_logger().debug(f"confidence_raw={raw_conf:.6f}")
-                    conf = round(raw_conf, 3)
-                    msg = ListenResult(sentence=text, confidence=float(conf))
+                    msg = ListenResult(sentence=text, confidence=0.5)
                     self.result_pub.publish(msg)
-                    self.get_logger().info(f"📝 {text}  (conf={conf:.3f})")
+                    self.get_logger().info(f"📝 {text}")
 
-            except Exception as e:
-                self.get_logger().error(f"Whisper error: {e}")
-
-
-    # ─────────────────────────────────────────────────────────────────
+    def destroy_node(self):
+        self.stop_evt.set()
+        super().destroy_node()
 
 def main(args=None):
     rclpy.init(args=args)
@@ -225,14 +123,12 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info("⏹️ Arrêt demandé → sortie propre.")
+        node.get_logger().info("⏹️ Arrêt demandé...")
     finally:
         node.stop_evt.set()
-        node.audio_thread.join(timeout=1.0)
+        node.audio_thread.join()
         node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
-
+        rclpy.shutdown()
 
 if __name__ == "__main__":
     main()
