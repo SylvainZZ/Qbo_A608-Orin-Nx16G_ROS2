@@ -21,6 +21,8 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     is_calibrated_(false),
     is_calibrating_(false)
 {
+    uint8_t i2c_state = 0;
+
     // Paramètres
     this->declare_parameter("topic", "imu_state");
     this->declare_parameter("rate", 1.0);
@@ -30,14 +32,13 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     this->declare_parameter(this->get_name() + std::string(".is_calibrated"), false);
     this->declare_parameter(this->get_name() + std::string( ".last_calibrated"), 0.0);
 
-    uint8_t i2c_state = 0;
     if (driver_->getI2cDevicesState(i2c_state) >= 0) {
         has_gyro_ = i2c_state & 0x02;
         has_accel_ = i2c_state & 0x04;
         i2c_status_checked_ = true;
-        RCLCPP_INFO(this->get_logger(), "🧭 I2C Devices State: 0x%02X", i2c_state);
-        RCLCPP_INFO(this->get_logger(), "    Gyro detected: %s", has_gyro_ ? "yes" : "no");
-        RCLCPP_INFO(this->get_logger(), "    Accel detected: %s", has_accel_ ? "yes" : "no");
+        RCLCPP_DEBUG(this->get_logger(), "🧭 I2C Devices State: 0x%02X", i2c_state);
+        RCLCPP_DEBUG(this->get_logger(), "    Gyro detected: %s", has_gyro_ ? "yes" : "no");
+        RCLCPP_DEBUG(this->get_logger(), "    Accel detected: %s", has_accel_ ? "yes" : "no");
     } else {
         RCLCPP_WARN(this->get_logger(), "⚠️ Unable to query IMU device state via I2C at startup.");
     }
@@ -74,7 +75,11 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
 
     imu_calibrated_.data = false;
 
-    RCLCPP_INFO(get_logger(), "✅ ImuController initialized");
+    RCLCPP_INFO(this->get_logger(), "✅ ImuController initialized");
+    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
+    RCLCPP_INFO(this->get_logger(), "       IMU calibrated: %s", is_calibrated_ ? "yes" : "no");
+    RCLCPP_INFO(this->get_logger(), "       Last calibration timestamp: %.0f", last_calibrated_);
 }
 
 void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status) {

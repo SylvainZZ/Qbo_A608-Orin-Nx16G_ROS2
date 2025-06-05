@@ -29,8 +29,8 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     if (driver_->getI2cDevicesState(i2c_state) >= 0) {
         has_lcd_ = i2c_state & 0x08;
         i2c_status_checked_ = true;
-        RCLCPP_INFO(this->get_logger(), "🧭 I2C Devices State: 0x%02X", i2c_state);
-        RCLCPP_INFO(this->get_logger(), "    LCD detected: %s", has_lcd_ ? "yes" : "no");
+        RCLCPP_DEBUG(this->get_logger(), "🧭 I2C Devices State: 0x%02X", i2c_state);
+        RCLCPP_DEBUG(this->get_logger(), "    LCD detected: %s", has_lcd_ ? "yes" : "no");
     } else {
         RCLCPP_WARN(this->get_logger(), "⚠️ Unable to query LCD device state via I2C at startup.");
     }
@@ -52,6 +52,10 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     display_timer_ = this->create_wall_timer(
         std::chrono::duration<double>(5.0 / rate_),
         std::bind(&LcdController::updateLCD, this));
+
+    RCLCPP_INFO(this->get_logger(), "✅ LCDController initialized");
+    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
 
     display_lines_[0] = "Hostname: ???";
     // display_lines_[1] = "IP: ???";

@@ -17,6 +17,8 @@ qbo_arduqbo:
       enable_imu_base: true
       enable_imu_head: false
       enable_lcd: true
+      enable_nose: true
+      enable_mouth: true
 
 battery_ctrl:
   ros__parameters:
@@ -44,3 +46,14 @@ lcd_ctrl:
   ros__parameters:
     rate: 1.0
     topic: "/cmd_lcd"
+
+nose_ctrl:
+  ros__parameters:
+    rate: 10.0
+    topic: "/cmd_nose"
+
+mouth_ctrl:
+  ros__parameters:
+    rate: 10.0
+    topic: "/cmd_mouth"
+

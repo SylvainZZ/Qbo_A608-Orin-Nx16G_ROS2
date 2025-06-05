@@ -52,9 +52,15 @@ CBatteryController::CBatteryController(
         std::chrono::duration<double>(1.0 / rate_),
         [this]() { updater_.force_update(); });
 
-    RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized");
     // std::cout << "Nom du contrôleur: " << this->get_name() << std::endl;
-    RCLCPP_INFO(this->get_logger(), "Rate loaded for CBatteryController: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized");
+    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
+    RCLCPP_INFO(this->get_logger(), "       Battery type: %s", battery_type_.c_str());
+    RCLCPP_INFO(this->get_logger(), "       Nominal voltage: %.2f V", nominal_voltage_);
+    RCLCPP_INFO(this->get_logger(), "       Capacity: %.2f Ah", capacity_ah_);
+    RCLCPP_INFO(this->get_logger(), "       Warning level: %.2f V", warn_battery_level_);
+    RCLCPP_INFO(this->get_logger(), "       Error level: %.2f V", error_battery_level_);
 }
 
 void CBatteryController::loadParameters()

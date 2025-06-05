@@ -115,8 +115,10 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
     static_tf_broadcaster_->sendTransform(static_tf);
 
     RCLCPP_INFO(this->get_logger(), "✅ CBaseController initialized");
-    // std::cout << "Nom du contrôleur: " << this->get_name() << std::endl;
-    RCLCPP_INFO(this->get_logger(), "Rate loaded for CBaseController: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
+    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", cmd_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "       Odometry topic: %s", odom_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "       TF broadcast: %s", broadcast_tf_ ? "enabled" : "disabled");
 
 }
 

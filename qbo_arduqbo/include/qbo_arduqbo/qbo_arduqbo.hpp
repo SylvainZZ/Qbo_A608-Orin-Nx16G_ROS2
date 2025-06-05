@@ -11,6 +11,8 @@
 #include "qbo_arduqbo/controllers/base_controller.hpp"
 #include "qbo_arduqbo/controllers/imu_controller.hpp"
 #include "qbo_arduqbo/controllers/lcd_controller.hpp"
+#include "qbo_arduqbo/controllers/nose_controller.hpp"
+#include "qbo_arduqbo/controllers/mouth_controller.hpp"
 
 class QboArduqboManager {
 public:
@@ -26,12 +28,24 @@ private:
     rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
     // Flags
+    bool enable_qboard1_;
+    bool enable_qboard2_;
     bool enable_battery_;
     bool enable_imu_base_;
     bool enable_imu_head_;
     bool enable_base_;
     bool enable_lcd_;
-    bool enable_qboard1_;
-    bool enable_qboard2_;
+    bool enable_nose_;
+    bool enable_mouth_;
+
+    int qboard1_version_ = -1;
+    int qboard2_version_ = -1;
+
+    // Diagnostics
+    std::unique_ptr<diagnostic_updater::Updater> updater_;
+    rclcpp::TimerBase::SharedPtr diagnostic_timer_;
+
+    // ➕ Fonctions utilitaires internes
+    void logControllerStatus(const std::string &name, bool enabled, bool loaded);
 
 };

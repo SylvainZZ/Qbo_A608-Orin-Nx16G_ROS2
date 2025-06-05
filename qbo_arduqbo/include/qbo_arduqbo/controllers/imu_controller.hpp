@@ -38,6 +38,7 @@ private:
     std_msgs::msg::Bool imu_calibrated_;
     bool is_calibrated_;
     bool is_calibrating_;
+    double last_calibrated_;
     double rate_;
     bool has_gyro_ = false;
     bool has_accel_ = false;

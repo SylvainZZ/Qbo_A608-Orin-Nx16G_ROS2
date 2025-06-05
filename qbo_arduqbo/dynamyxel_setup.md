@@ -135,6 +135,10 @@ ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
 ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
 ros2 launch qbo_arduqbo qbo_full.launch.py
 ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/qbo-v2/qbo_ws/src/qbo_arduqbo/config/diagnostics_aggregator.yaml
+ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
+ros2 service call /mouth_ctrl/test_leds qbo_msgs/srv/TestMouthLeds
+
+
 
 
 **Auteur :** Sylvain Zwolinski

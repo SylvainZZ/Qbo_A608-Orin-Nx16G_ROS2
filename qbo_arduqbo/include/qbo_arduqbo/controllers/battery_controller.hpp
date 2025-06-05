@@ -36,10 +36,10 @@ private:
     // Estimation runtime
     std::deque<double> voltage_history_;
     double last_estimated_runtime_minutes_;
-    double error_battery_level_;
-    double warn_battery_level_;
-    double capacity_ah_;
-    double nominal_voltage_;
-    std::string battery_type_;
+    double error_battery_level_ = 12.0;
+    double warn_battery_level_= 12.0;
+    double capacity_ah_= 12.0;
+    double nominal_voltage_= 12.0;
+    std::string battery_type_ = "Unknown";
     double rate_;
 };

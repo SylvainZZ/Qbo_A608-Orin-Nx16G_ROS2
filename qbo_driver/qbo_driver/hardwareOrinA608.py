@@ -140,7 +140,8 @@ def main():
         node.get_logger().info("Shutdown requested (Ctrl+C)")
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

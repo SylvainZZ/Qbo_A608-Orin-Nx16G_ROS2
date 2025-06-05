@@ -1,0 +1,28 @@
+#pragma once
+
+#include <memory>
+#include <string>
+#include <rclcpp/rclcpp.hpp>
+#include <qbo_msgs/msg/mouth.hpp>
+#include <qbo_msgs/srv/test_mouth_leds.hpp>
+#include "qbo_arduqbo/drivers/qboduino_driver.h"
+
+class MouthController : public rclcpp::Node {
+public:
+  MouthController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+
+private:
+  // Souscription au topic du nez
+  rclcpp::Subscription<qbo_msgs::msg::Mouth>::SharedPtr mouth_sub_;
+  rclcpp::Service<qbo_msgs::srv::TestMouthLeds>::SharedPtr test_leds_srv_;
+  std::shared_ptr<QboDuinoDriver> driver_;
+
+  // Paramètres
+  double rate_;
+  std::string topic_;
+
+  // Callback ROS
+  void setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg);
+  void testMouthLedsCallback(const std::shared_ptr<qbo_msgs::srv::TestMouthLeds::Request>,
+                           std::shared_ptr<qbo_msgs::srv::TestMouthLeds::Response>);
+};
