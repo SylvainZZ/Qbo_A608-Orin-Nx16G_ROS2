@@ -36,6 +36,34 @@ def find_output_device(name_hint: str) -> str:
             return dev["name"]
     return None
 
+def find_default_output():
+    """
+    Récupère le périphérique de sortie audio par défaut.
+    Retourne :
+      - sd_index (int) pour `sounddevice`
+      - pulse_sink (str) pour `pactl`
+    """
+    # Pour sounddevice
+    try:
+        default_output = sd.default.device[1]  # (input, output)
+        dev = sd.query_devices(default_output)
+        print(f"[INFO] 🎧 Device par défaut détecté (sounddevice): {dev['name']}")
+    except Exception as e:
+        print(f"[WARN] Échec détection sounddevice: {e}")
+        default_output = None
+
+    # Pour pactl
+    try:
+        pulse_sink = subprocess.check_output(
+            ["pactl", "get-default-sink"], text=True
+        ).strip()
+        print(f"[INFO] 🔊 Sink PulseAudio par défaut : {pulse_sink}")
+    except Exception as e:
+        print(f"[WARN] Échec détection PulseAudio: {e}")
+        pulse_sink = None
+
+    return default_output, pulse_sink
+
 def find_input_source_name(name_hint: str) -> str:
     result = subprocess.run(["pactl", "list", "short", "sources"], stdout=subprocess.PIPE, text=True)
     for line in result.stdout.splitlines():
@@ -55,25 +83,53 @@ class QboTalkNode(Node):
     def __init__(self):
         super().__init__('qbo_talk')
 
-        self.declare_parameter("audio_out_device_name", "usb")
-        self.declare_parameter("audio_in_device_name", "jabra")
+        # Déclaration des paramètres
+        self.declare_parameter("audio_out_device_name", "default")
+        self.declare_parameter("audio_in_device_name", "default")
         self.declare_parameter("default_lang", "fr")
+        self.declare_parameter("audio_playback_volume", 70)
+        self.declare_parameter("mute_micro_during_playback", True)
 
-        self.device_name = self.get_parameter("audio_out_device_name").get_parameter_value().string_value
-        self.input_name_hint = self.get_parameter("audio_in_device_name").get_parameter_value().string_value
-        self.lang = self.get_parameter("default_lang").get_parameter_value().string_value
+        # Récupération des valeurs
+        self.device_name = self.get_parameter("audio_out_device_name").value
+        self.input_name_hint = self.get_parameter("audio_in_device_name").value
+        self.lang = self.get_parameter("default_lang").value
+        self.volume = int(self.get_parameter("audio_playback_volume").value)
+        self.mute_micro = bool(self.get_parameter("mute_micro_during_playback").value)
 
-        self.volume = 100
-        self.mute_micro = True
+        # Détection périphériques
+        if self.device_name == "default":
+            self.audio_device, self.pulseaudio_sink = find_default_output()
+        else:
+            self.audio_device, self.pulseaudio_sink = find_output_device(self.device_name)
+
         self.input_source = find_input_source_name(self.input_name_hint)
-        self.audio_device = find_output_device(self.device_name)
-        self.pulseaudio_sink = find_sink_name(self.device_name)
-        self.voice = PiperVoice.load(VOICE_MODELS[self.lang], use_cuda=False)
 
+        # Réglage du volume via PulseAudio
+        if self.pulseaudio_sink:
+            try:
+                subprocess.run(
+                    ["pactl", "set-sink-volume", self.pulseaudio_sink, f"{self.volume}%"],
+                    check=True
+                )
+            except subprocess.CalledProcessError as e:
+                self.get_logger().warn(f"Volume non appliqué : {e}")
+
+        # Chargement du modèle TTS
+        try:
+            self.voice = PiperVoice.load(VOICE_MODELS[self.lang], use_cuda=False)
+        except Exception as e:
+            self.get_logger().error(f"Erreur chargement voix '{self.lang}' : {e}")
+            raise
+
+        # Logs init
         self.get_logger().info(f"Langue initiale : {self.lang}")
         self.get_logger().info(f"Sortie audio : {self.audio_device}")
         self.get_logger().info(f"Entrée audio : {self.input_source}")
+        self.get_logger().info(f"Volume de lecture : {self.volume}%")
+        self.get_logger().info(f"Micro coupé pendant playback : {self.mute_micro}")
 
+        # Services & Subscriptions
         self.create_service(Text2Speach, "/qbo_driver/piper2wave_say", self.say_callback)
         self.create_subscription(String, "/system_lang", self.lang_callback, 10)
         self.create_subscription(String, "/system_out_volume", self.out_volume_callback, 10)

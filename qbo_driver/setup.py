@@ -1,10 +1,11 @@
 from setuptools import find_packages, setup
+import glob
 
 package_name = 'qbo_driver'
 
 setup(
     name=package_name,
-    version='0.1.2',
+    version='0.1.3',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
@@ -15,11 +16,12 @@ setup(
             'launch/gscam_imx219_launch.py',
             'launch/dual_camera_v412_launch.py'
         ]),
-        ('share/' + package_name, [
-            'config/thresholds.yaml',
-            'config/diagnostic_aggregator.yaml',
-            'config/RS/qbo.rive'
-        ]),
+        # Fichiers JSON d'entraînement
+        ('share/' + package_name + '/config/data_pairs',
+            glob.glob('config/data_pairs/*.json')),
+        # Dossier vide pour les futurs .faiss/.json générés
+        ('share/' + package_name + '/config/LLM',
+            glob.glob('config/LLM/*.faiss') + glob.glob('config/LLM/*.json')),
     ],
     install_requires=[
         "rclpy",
@@ -38,12 +40,10 @@ setup(
     license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
-            'diag_node = qbo_driver.diag_node:main',
             'qbo_listen = qbo_driver.listen_whisper:main',
             'qbo_talk = qbo_driver.talk_piper:main',
-            'qbo_brain = qbo_driver.brainRS:main',
-            'test_dxl_node = qbo_driver.pan_tilt_tester_node:main',
             'OrinA608Diag = qbo_driver.hardwareOrinA608:main',
+            'qbo_aiml = qbo_driver.aiml:main'
         ],
     },
 )

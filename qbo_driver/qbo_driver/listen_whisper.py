@@ -38,6 +38,10 @@ class ListenNode(Node):
         super().__init__("qbo_listen")
 
         self.declare_parameter("audio_in_device_name", "default")
+        # Paramètre pour volume micro
+        self.declare_parameter("mic_volume_percent", 70)
+        mic_volume = self.get_parameter("mic_volume_percent").get_parameter_value().integer_value
+
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "medium")
 
@@ -48,6 +52,15 @@ class ListenNode(Node):
         self.device_index, _ = find_device(device_hint)
 
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
+
+        # Ajuster le volume du micro via pactl
+        try:
+            import subprocess
+            source_name = "alsa_input.platform-sound.analog-stereo"
+            subprocess.run(["pactl", "set-source-volume", source_name, f"{mic_volume}%"], check=True)
+            self.get_logger().info(f"🔊 Volume micro réglé à {mic_volume}% via PulseAudio")
+        except Exception as e:
+            self.get_logger().warning(f"⚠️ Impossible de régler le volume du micro : {e}")
 
         self.get_logger().info("🔄 Chargement du modèle Whisper...")
         self.voice_model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
@@ -103,7 +116,7 @@ class ListenNode(Node):
                     continue
 
                 audio_data = np.concatenate(audio_frames)
-                write("debug_float32.wav", self.TARGET_RATE, audio_data)
+                # write("debug_float32.wav", self.TARGET_RATE, audio_data)
 
                 segments, _ = self.voice_model.transcribe(audio_data, language=self.lang, beam_size=1, vad_filter=True)
                 text = " ".join([s.text for s in segments]).strip()
