@@ -1,4 +1,0 @@
-source;share/qbo_msgs/local_setup.bash
-source;share/qbo_msgs/local_setup.dsv
-source;share/qbo_msgs/local_setup.sh
-source;share/qbo_msgs/local_setup.zsh

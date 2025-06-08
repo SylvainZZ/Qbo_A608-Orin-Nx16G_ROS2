@@ -1,5 +1,0 @@
-  File "/home/qbo-v2/qbo_ws/src/install/qbo_driver/lib/python3.10/site-packages/qbo_driver/listen.py", line 112
-    self.get_logger()info(
-                     ^^^^
-SyntaxError: invalid syntax
-

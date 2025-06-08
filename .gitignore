@@ -1,0 +1,15 @@
+# Ignorer les dossiers
+build/
+install/
+gscam2/
+log/
+ros2_shared/
+
+# Ignorer tous les fichiers temporaires
+*.tmp
+*.log
+
+# Ignorer les fichiers Python compilés
+__pycache__/
+*.pyc
+

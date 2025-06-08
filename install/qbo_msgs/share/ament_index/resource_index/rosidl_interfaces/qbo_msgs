@@ -1,6 +1,0 @@
-msg/ListenResult.idl
-msg/ListenResult.msg
-srv/Text2Speach.idl
-srv/Text2Speach.srv
-srv/Text2Speach_Request.msg
-srv/Text2Speach_Response.msg
