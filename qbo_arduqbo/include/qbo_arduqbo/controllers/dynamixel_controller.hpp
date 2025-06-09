@@ -36,7 +36,6 @@ public:
 
     void setAngle(float ang, float velocity = 1.0f);
     float getAngle();
-    void changeTorque(int torque);
 
     bool servoTorqueEnable(
         const std::shared_ptr<qbo_msgs::srv::TorqueEnable::Request> req,
@@ -54,6 +53,9 @@ public:
     float rad_per_tick_;
     float max_speed_;
     float range_;
+    uint16_t model_number_;  // Numéro de modèle détecté
+    int torque_limit_ = 1023;  // valeur par défaut
+
     std::string name_;
     std::string joint_name_;
 

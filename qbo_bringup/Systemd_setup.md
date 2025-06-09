@@ -1,107 +1,150 @@
-# ✅ Objectif : Lancer startup.launch.py automatiquement au démarrage
+# ✅ Qbo ROS 2 Bringup — systemd & timer setup
 
-Créer un service systemd qui :
+This guide explains how to automatically launch `qbo_startup.launch.py` using `systemd` with a post-boot delay via a `.timer`.
 
-    - Lance automatiquement ros2 launch mon_package startup.launch.py au boot.
+---
 
-    - S’exécute avec l’utilisateur (non root).
+## ✅ Goals
 
-    - Log les sorties via journalctl.
+- 🔁 Automatically start the bringup 20 seconds after boot
+- 👤 Run as non-root user (`qbo-v2`)
+- 📋 Log output with `journalctl`
+- 🔄 Auto-restart on failure
+- 🕓 Use a systemd `.timer` for robust post-boot triggering
 
-    - Redémarre en cas d’erreur.
+---
 
-    - Est activé automatiquement au démarrage.
-
-## 🧾 1. Crée un service systemd
+## 🧾 1. Create the service file
 
 ```bash
 sudo nano /etc/systemd/system/qbo_bringup.service
 ```
 
-## 🧱 2. Contenu du fichier qbo_bringup.service
+### Contents:
 
 ```ini
 [Unit]
 Description=Qbo ROS 2 Bringup
-After=network.target jtop.service
-Requires=jtop.service
+After=network-online.target jtop.service
+Requires=network-online.target jtop.service
+StartLimitIntervalSec=0
 
 [Service]
+Type=simple
 User=qbo-v2
 WorkingDirectory=/home/qbo-v2/qbo_ws/
 Environment="HOME=/home/qbo-v2"
 Environment="DISPLAY=:0.0"
-ExecStartPre=/bin/sleep 10
-ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/qbo-v2/qbo_ws/install/setup.bash && ros2 launch qbo_bringup qbo_startup.launch.py"
+ExecStart=/bin/bash -c "echo 'STARTING QBO BRINGUP' >> /tmp/qbo_bringup_debug.log && date >> /tmp/qbo_bringup_debug.log && source /opt/ros/humble/setup.bash && source /home/qbo-v2/qbo_ws/install/setup.bash && ros2 launch qbo_bringup qbo_startup.launch.py"
 Restart=on-failure
-RestartSec=5
+RestartSec=10
 StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=none
 ```
 
-## ⚙️ 3. Activer le service au boot
+---
+
+## ⏲️ 2. Create the timer file
+
+```bash
+sudo nano /etc/systemd/system/qbo_bringup.timer
+```
+
+### Contents:
+
+```ini
+[Unit]
+Description=Start Qbo Bringup after boot delay
+
+[Timer]
+OnBootSec=20
+Unit=qbo_bringup.service
+
+[Install]
+WantedBy=timers.target
+```
+
+---
+
+## ⚙️ 3. Enable and start the timer
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable qbo_bringup.service
-sudo systemctl start qbo_bringup.service
+sudo systemctl enable qbo_bringup.timer
+sudo systemctl start qbo_bringup.timer
 ```
 
-## 🔍 4. Suivre les logs
+---
+
+## 🔍 4. Monitoring
+
+### Timer status:
 
 ```bash
-# Voir l’état du service
+systemctl list-timers | grep qbo
+systemctl status qbo_bringup.timer
+```
+
+### Service status and logs:
+
+```bash
 systemctl status qbo_bringup.service
-
-# Voir les logs récents
 journalctl -u qbo_bringup.service
-
-# Suivre en direct
 journalctl -fu qbo_bringup.service
 ```
 
-## 🧪 5. Vérification au reboot
-Redémarre, puis dès le démarrage, connecte-toi et vérifie :
+### Debug log output:
+
 ```bash
-systemctl status qbo_bringup.service
+cat /tmp/qbo_bringup_debug.log
 ```
 
-# 🔧 Commandes principales
+---
 
-## ▶️ Lancer manuellement le service
+## 🧪 5. Post-reboot check
+
+After reboot, wait ~20s then run:
+
+```bash
+journalctl -u qbo_bringup.service
+```
+
+Or:
+
+```bash
+cat /tmp/qbo_bringup_debug.log
+```
+
+---
+
+# 🔧 Systemd Commands
+
+## Service
+
 ```bash
 sudo systemctl start qbo_bringup.service
-```
-
-## ⏹️ Arrêter le service
-```bash
 sudo systemctl stop qbo_bringup.service
-```
-
-## 🔁 Redémarrer le service
-```bash
 sudo systemctl restart qbo_bringup.service
 ```
 
-## ✅ Activer au boot
+## Timer
+
 ```bash
-sudo systemctl enable qbo_bringup.service
+sudo systemctl start qbo_bringup.timer
+sudo systemctl enable qbo_bringup.timer
+sudo systemctl stop qbo_bringup.timer
+sudo systemctl disable qbo_bringup.timer
 ```
 
-## ❌ Désactiver au boot
-```bash
-sudo systemctl disable qbo_bringup.service
-```
+---
 
-## 🛠️ En cas de modification du fichier .service
-Si tu modifies le fichier /etc/systemd/system/qbo_bringup.service, recharge systemd :
+## 🛠 When modifying the service or timer files
+
 ```bash
+sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
-```
-Puis redémarre le service :
-```bash
-sudo systemctl restart qbo_bringup.service
+sudo systemctl restart qbo_bringup.timer
 ```

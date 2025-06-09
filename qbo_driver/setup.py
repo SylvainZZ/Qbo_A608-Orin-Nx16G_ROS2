@@ -16,6 +16,8 @@ setup(
             'launch/gscam_imx219_launch.py',
             'launch/dual_camera_v412_launch.py'
         ]),
+        # Paramètres YAML du diagnostic Orin A608
+        ('share/' + package_name+ '/config', ['config/OrinA608Diag_param.yaml']),
         # Fichiers JSON d'entraînement
         ('share/' + package_name + '/config/data_pairs',
             glob.glob('config/data_pairs/*.json')),
