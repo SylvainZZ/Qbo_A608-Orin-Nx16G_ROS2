@@ -356,6 +356,7 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
 
 void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
+    RCLCPP_INFO(node_->get_logger(), "JointState reçu à t=%.3f", node_->now().seconds());
     joint_cmd_msg_ = *msg;
     has_new_cmd_ = true;
 }
@@ -363,7 +364,7 @@ void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::S
 void DynamixelController::cmdTimerCallback()
 {
     if (!has_new_cmd_) return;
-
+    RCLCPP_INFO(node_->get_logger(), "Commande exécutée à t=%.3f", node_->now().seconds());
     bool velocityIncluded = (joint_cmd_msg_.velocity.size() == joint_cmd_msg_.position.size());
 
     for (size_t i = 0; i < joint_cmd_msg_.name.size(); i++) {

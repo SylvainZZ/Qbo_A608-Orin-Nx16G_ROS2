@@ -84,7 +84,7 @@ class OrinA608Diagnostics(Node):
         self.updater.add("A608 Network", self.diag_net)
 
         # Timer: une mise à jour par seconde
-        self.create_timer(1.0, self.tick)
+        self.create_timer(2.0, self.tick)
 
     # ---------- Callbacks diagnostic_updater ----------
     def diag_power(self, stat: DiagnosticStatusWrapper):

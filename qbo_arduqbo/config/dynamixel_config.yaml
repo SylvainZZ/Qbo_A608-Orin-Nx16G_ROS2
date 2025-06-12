@@ -5,7 +5,7 @@ qbo_dynamixel:
     dynamixel.protocol_version: 1.0
 
     dynamixel_state_rate_hz: 1
-    dynamixel_joint_rate_hz: 30
+    dynamixel_joint_rate_hz: 40
 
     # DIAGNOSTICS
     diagnostic_temp_warn: 65.0
@@ -29,8 +29,8 @@ qbo_dynamixel:
     dynamixel.motors.motor_2.name: head_tilt_joint
     dynamixel.motors.motor_2.id: 8
     dynamixel.motors.motor_2.invert: false
-    dynamixel.motors.motor_2.max_angle_degrees: 47.0
-    dynamixel.motors.motor_2.min_angle_degrees: -10.0
+    dynamixel.motors.motor_2.max_angle_degrees: 20.0
+    dynamixel.motors.motor_2.min_angle_degrees: -30.0
     dynamixel.motors.motor_2.range: 300.0
     dynamixel.motors.motor_2.ticks: 1024
     dynamixel.motors.motor_2.neutral: 480

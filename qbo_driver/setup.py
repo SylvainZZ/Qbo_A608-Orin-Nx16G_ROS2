@@ -32,7 +32,6 @@ setup(
         "faster-whisper",
         "numpy",
         "scipy",
-        "rivescript",
         "qbo_msgs",
     ],
     zip_safe=True,
@@ -45,7 +44,9 @@ setup(
             'qbo_listen = qbo_driver.listen_whisper:main',
             'qbo_talk = qbo_driver.talk_piper:main',
             'OrinA608Diag = qbo_driver.hardwareOrinA608:main',
-            'qbo_aiml = qbo_driver.aiml:main'
+            'qbo_aiml = qbo_driver.aiml:main',
+            'qbo_diagnosticLogger = qbo_driver.diagnosticLog:main',
+            'qbo_test = qbo_driver.test_joint_latency:main'
         ],
     },
 )

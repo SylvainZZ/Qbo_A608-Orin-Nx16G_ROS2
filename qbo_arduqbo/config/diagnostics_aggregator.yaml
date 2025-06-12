@@ -1,6 +1,12 @@
 analyzers:
   ros__parameters:
     path: Qbo
+    qbo_arduqbo:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: System Status
+        startswith: ['qbo_arduqbo: Controller Status']
+        remove_prefix: ['qbo_arduqbo: ']
+
     battery:
       type: diagnostic_aggregator/GenericAnalyzer
       path: Battery Status

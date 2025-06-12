@@ -16,12 +16,12 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        Node(
-            package='qbo_arduqbo',
-            executable='qbo_arduqbo',
-            # name='qbo_arduqbo_node',
-            parameters=[qboards_config]
-        ),
+        # Node(
+        #     package='qbo_arduqbo',
+        #     executable='qbo_arduqbo',
+        #     # name='qbo_arduqbo_node',
+        #     parameters=[qboards_config]
+        # ),
         Node(
             package='qbo_arduqbo',
             executable='qbo_dynamixel',

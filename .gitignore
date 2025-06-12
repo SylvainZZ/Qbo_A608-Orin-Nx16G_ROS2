@@ -4,6 +4,7 @@ install/
 gscam2/
 log/
 ros2_shared/
+realsense-ros/
 
 # Ignorer tous les fichiers temporaires
 *.tmp
