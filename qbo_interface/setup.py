@@ -27,7 +27,6 @@ setup(
     entry_points={
         'console_scripts': [
             'smach_qbo = qbo_interface.smach_qbo:main',
-            'web_qbo = qbo_interface.web_qbo:main',
         ],
     },
 )

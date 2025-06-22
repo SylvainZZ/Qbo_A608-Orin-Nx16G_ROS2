@@ -93,8 +93,10 @@ void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapp
     status.add("Accelerometer Present", has_accel_ ? "yes" : "no");
 
     // 🟣 Infos techniques statiques
-    status.add("Accelerometer Model", "LIS35DE");
-    status.add("Gyroscope Model", "L3G400D");
+    status.add("_Accelerometer Model", "LIS35DE");
+    status.add("_I2C AdressLIS35DE", "0x1C");
+    status.add("_Gyroscope Model", "L3G400D");
+    status.add("_I2C AdressL3G400D", "0x69");
 
     // 🔴 Message explicite si erreur
     if (!has_gyro_ || !has_accel_) {

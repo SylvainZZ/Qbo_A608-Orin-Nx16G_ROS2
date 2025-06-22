@@ -19,14 +19,20 @@ int main(int argc, char **argv)
         node->declare_parameter("dynamixel.motor_keys", motor_keys);
         node->get_parameter("dynamixel.motor_keys", motor_keys);
 
+        // ✅ Vérification présence de config
+        if (motor_keys.empty()) {
+            RCLCPP_FATAL(node->get_logger(),
+                "❌ Aucun moteur n'est défini. Vérifie le fichier YAML (clé : dynamixel.motor_keys).");
+            return 1;
+        }
+
         for (const auto &key : motor_keys) {
             std::string full = "dynamixel.motors." + key + ".name";
             node->declare_parameter(full, key);
         }
 
         auto controller = std::make_shared<DynamixelController>(node);
-        RCLCPP_INFO(node->get_logger(), "✅ Contrôleur initialisé");
-
+        // RCLCPP_INFO(node->get_logger(), "✅ Contrôleur initialisé");
         rclcpp::spin(node);
     }
     catch (const std::exception &e)

@@ -14,18 +14,29 @@ def generate_launch_description():
         'config',
         'dynamixel_config.yaml'
     )
+    aggregator_config = os.path.join(
+        get_package_share_directory('qbo_arduqbo'),
+        'config',
+        'diagnostics_aggregator.yaml'
+    )
 
     return LaunchDescription([
-        # Node(
-        #     package='qbo_arduqbo',
-        #     executable='qbo_arduqbo',
-        #     # name='qbo_arduqbo_node',
-        #     parameters=[qboards_config]
-        # ),
+        Node(
+            package='qbo_arduqbo',
+            executable='qbo_arduqbo',
+            # name='qbo_arduqbo_node',
+            parameters=[qboards_config]
+        ),
         Node(
             package='qbo_arduqbo',
             executable='qbo_dynamixel',
             # name='qbo_dynamixel_node',
             parameters=[dynamixel_config]
+        ),
+        Node(
+            package='diagnostic_aggregator',
+            executable='aggregator_node',
+            # name='qbo_dynamixel_node',
+            parameters=[aggregator_config]
         )
     ])

@@ -35,7 +35,7 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
         RCLCPP_WARN(this->get_logger(), "⚠️ Unable to query LCD device state via I2C at startup.");
     }
 
-    lcd_sub_ = this->create_subscription<std_msgs::msg::String>(
+    lcd_sub_ = this->create_subscription<qbo_msgs::msg::LCD>(
         topic, 1, std::bind(&LcdController::setLCD, this, std::placeholders::_1));
 
     diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
@@ -66,12 +66,30 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     driver_->setLCD("Qbo Ready              ");
 }
 
-void LcdController::setLCD(const std_msgs::msg::String::SharedPtr msg)
+void LcdController::setLCD(const qbo_msgs::msg::LCD::SharedPtr msg)
 {
-    RCLCPP_DEBUG(this->get_logger(), "LCD command arrived: %s", msg->data.c_str());
-    std::string content = msg->data;
+    RCLCPP_DEBUG(this->get_logger(), "LCD command arrived: %s", msg->msg.c_str());
+    std::string content = msg->msg.substr(0, 20);
     content += std::string(20 - content.size(), ' ');
-    driver_->setLCD(content);
+
+    // Sauvegarder la ligne actuelle
+    if (!line_locked_) {
+        temp_line_override_ = content;
+        line_locked_ = true;
+    }
+
+    // Redémarrer le timer pour restaurer après 30s
+    if (lcd_reset_timer_) {
+        lcd_reset_timer_->cancel();
+    }
+
+    lcd_reset_timer_ = this->create_wall_timer(
+        std::chrono::seconds(30),
+        [this]() {
+            line_locked_ = false;
+            temp_line_override_.clear();
+            lcd_reset_timer_->cancel();  // stop auto
+        });
 }
 
 void LcdController::diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg)
@@ -84,8 +102,32 @@ void LcdController::diagCallback(const diagnostic_msgs::msg::DiagnosticArray::Sh
                 if (v.key == "IP Address") ip_address_ = "IP: " + v.value;
             }
         } else if (status.name.find("Battery Status") != std::string::npos) {
+            std::string voltage, runtime, charge_mode;
+            bool charging = false;
+
             for (const auto &v : status.values) {
-                if (v.key == "Voltage (V)") display_lines_[2] = "Batt: " + v.value + "V";
+                if (v.key == "Voltage (V)") voltage = v.value;
+                if (v.key == "Estimated Runtime (min)") runtime = v.value;
+                if (v.key == "Charge Mode Description") charge_mode = v.value;
+                if (v.key == "External Power" && v.value == "Yes") charging = true;
+            }
+
+            if (charging && !charge_mode.empty()) {
+                display_lines_[1] = charge_mode;
+            } else if (!voltage.empty() && !runtime.empty()) {
+                try {
+                    int runtime_min = static_cast<int>(std::stod(runtime));
+                    int h = runtime_min / 60;
+                    int m = runtime_min % 60;
+                    std::ostringstream oss;
+                    oss << "Batt: " << voltage << "V "
+                        << h << "h" << std::setfill('0') << std::setw(2) << m;
+                    display_lines_[1] = oss.str();
+                } catch (...) {
+                    display_lines_[1] = "Batt: " + voltage + "V";
+                }
+            } else {
+                display_lines_[1] = "Batt: " + voltage + "V";
             }
         } else if (status.name.find("Temp") != std::string::npos) {
             for (const auto &v : status.values) {
@@ -98,19 +140,30 @@ void LcdController::diagCallback(const diagnostic_msgs::msg::DiagnosticArray::Sh
 
 void LcdController::updateLCD()
 {
+    auto padOrTrim = [](const std::string& input, size_t width = 20) -> std::string {
+        if (input.size() >= width)
+            return input.substr(0, width);
+        return input + std::string(width - input.size(), ' ');
+    };
+
     std::string line0 = show_hostname_ ? hostname_ : ip_address_;
     show_hostname_ = !show_hostname_;  // alterner à chaque appel (5s)
 
     std::string lines[4];
-    lines[0] = line0 + std::string(20 - line0.size(), ' ');
-    for (int i = 1; i < 4; ++i) {
-        lines[i] = display_lines_[i] + std::string(20 - display_lines_[i].size(), ' ');
+    lines[0] = padOrTrim(line0);
+    if (line_locked_ && !temp_line_override_.empty()) {
+        lines[1] = padOrTrim(temp_line_override_);
+    } else {
+        lines[1] = padOrTrim(display_lines_[1]);
     }
+    lines[2] = padOrTrim(display_lines_[2]);
+    lines[3] = padOrTrim(display_lines_[3]);
 
     driver_->setLCD(lines[0]);
-    // driver_->setLCD("1" + lines[1]);
-    // driver_->setLCD("22" + lines[2]);
-    // driver_->setLCD("333" + lines[3]);
+    // Si ton LCD supporte des commandes par ligne :
+    driver_->setLCD("1" + lines[1]);
+    // driver_->setLCD("2" + lines[2]);
+    // driver_->setLCD("3" + lines[3]);
 }
 
 void LcdController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status) {
@@ -123,7 +176,8 @@ void LcdController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapp
     status.add("LCD Present", has_lcd_ ? "yes" : "no");
 
     // 🟣 Infos techniques statiques
-    status.add("LCD Model", "A trouver");
+    status.add("_LCD Model", "C2042A");
+    status.add("_I2C_Adress", "0x63");
 
     // 🔴 Message explicite si erreur
     if (!has_lcd_) {

@@ -2,8 +2,8 @@ OrinA608Diag_node:
   ros__parameters:
     power_warning_threshold: 40.0
     power_error_threshold: 60.0
-    temp_warning_threshold: 50.0
-    temp_error_threshold: 65.0
+    temp_warning_threshold: 65.0
+    temp_error_threshold: 70.0
     fan_min_threshold: 20.0
     ram_warning_threshold: 80.0
     ram_error_threshold: 95.0

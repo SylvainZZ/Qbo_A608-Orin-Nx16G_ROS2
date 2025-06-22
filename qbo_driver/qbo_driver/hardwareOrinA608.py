@@ -92,9 +92,9 @@ class OrinA608Diagnostics(Node):
         cpuGpu = self._mw_to_w(s.get(JTOP_MAP["PowerInstCPUGPU"]))
         soc = self._mw_to_w(s.get(JTOP_MAP["PowerInstSOC"]))
         total = self._mw_to_w(s.get(JTOP_MAP["PowerInstVDD_IN"]))
-        stat.add("CPU W", f"{cpuGpu:.1f}" if cpuGpu is not None else "n/a")
-        stat.add("SOC W", f"{soc:.1f}" if soc is not None else "n/a")
-        stat.add("VDD_IN W", f"{total:.1f}" if total is not None else "n/a")
+        stat.add("CPU W", f"{cpuGpu:.1f} W" if cpuGpu is not None else "n/a")
+        stat.add("SOC W", f"{soc:.1f} W" if soc is not None else "n/a")
+        stat.add("VDD_IN W", f"{total:.1f} W" if total is not None else "n/a")
 
         # État du diagnostic basé uniquement sur le total
         if total is None:
@@ -112,8 +112,8 @@ class OrinA608Diagnostics(Node):
         s = self.jetson.stats
         cpu = s.get(JTOP_MAP["TempCPU"])
         gpu = s.get(JTOP_MAP["TempGPU"])
-        stat.add("CPU °C", f"{cpu:.1f}" if cpu is not None else "n/a")
-        stat.add("GPU °C", f"{gpu:.1f}" if gpu is not None else "n/a")
+        stat.add("CPU °C", f"{cpu:.1f} °c" if cpu is not None else "n/a")
+        stat.add("GPU °C", f"{gpu:.1f} °c" if gpu is not None else "n/a")
 
         # Déterminer le niveau de diagnostic
 
@@ -172,7 +172,7 @@ class OrinA608Diagnostics(Node):
         ram = psutil.virtual_memory().percent
         self._update_history(self.ram_history, ram)
         avg_ram = sum(v for _, v in self.ram_history) / len(self.ram_history)
-        stat.add("RAM %", f"{ram:.1f}")
+        stat.add("RAM %", f"{ram:.1f} %")
         if avg_ram >= self.ram_err:
             level = DiagnosticStatus.ERROR
             messages.append(f"RAM avg {avg_ram:.1f}% (error)")
@@ -184,7 +184,7 @@ class OrinA608Diagnostics(Node):
         cpu = psutil.cpu_percent(interval=0.1)
         self._update_history(self.cpu_history, cpu)
         avg_cpu = sum(v for _, v in self.cpu_history) / len(self.cpu_history)
-        stat.add("CPU %", f"{cpu:.1f}")
+        stat.add("CPU %", f"{cpu:.1f} %")
         if avg_cpu >= self.cpu_err:
             level = DiagnosticStatus.ERROR
             messages.append(f"CPU avg {avg_cpu:.1f}% (error)")
@@ -197,7 +197,7 @@ class OrinA608Diagnostics(Node):
         if isinstance(gpu, (int, float)):
             self._update_history(self.gpu_history, gpu)
             avg_gpu = sum(v for _, v in self.gpu_history) / len(self.gpu_history)
-            stat.add("GPU %", f"{gpu:.1f}")
+            stat.add("GPU %", f"{gpu:.1f} %")
             if avg_gpu >= self.gpu_err:
                 level = DiagnosticStatus.ERROR
                 messages.append(f"GPU avg {avg_gpu:.1f}% (error)")

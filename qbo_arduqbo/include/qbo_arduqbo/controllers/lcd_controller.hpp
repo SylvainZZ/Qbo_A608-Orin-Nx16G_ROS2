@@ -9,7 +9,7 @@
 #include <string>
 #include <array>
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
+#include <qbo_msgs/msg/lcd.hpp>
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include "qbo_arduqbo/drivers/qboduino_driver.h"
@@ -21,7 +21,7 @@ public:
 
 private:
   // Souscriptions
-  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr lcd_sub_;
+  rclcpp::Subscription<qbo_msgs::msg::LCD>::SharedPtr lcd_sub_;
   rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
 
   // Timer pour mise à jour régulière
@@ -31,7 +31,7 @@ private:
   // rclcpp::TimerBase::SharedPtr lcd_timer_;
 
   // Callback ROS
-  void setLCD(const std_msgs::msg::String::SharedPtr msg);
+  void setLCD(const qbo_msgs::msg::LCD::SharedPtr msg);
   void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg);
   void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
   void updateLCD();
@@ -45,6 +45,10 @@ private:
   std::string soc_ = "--";
   std::string battery_voltage_ = "--";
   std::string est_runtime_ = "--";
+
+  std::string temp_line_override_;
+  rclcpp::TimerBase::SharedPtr lcd_reset_timer_;
+  bool line_locked_ = false;
 
   // Mise à jour des lignes du LCD
   std::array<std::string, 4> lcd_lines_;

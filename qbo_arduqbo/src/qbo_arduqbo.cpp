@@ -194,18 +194,18 @@ void QboArduqboManager::setup() {
 
     updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
-        status.add("QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
-        status.add("QBoard1 Version", qboard1_version_);
-        status.add("QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
-        status.add("QBoard2 Version", qboard2_version_);
-        status.add("QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
+        status.add("_QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
+        status.add("_QBoard1 Version", qboard1_version_);
+        status.add("_QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
+        status.add("_QBoard2 Version", qboard2_version_);
+        status.add("_QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
 
-        status.add("Base", enable_base_ ? "Enabled" : "Disabled");
-        status.add("IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
-        status.add("LCD", enable_lcd_ ? "Enabled" : "Disabled");
-        status.add("IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
-        status.add("Nose", enable_nose_ ? "Enabled" : "Disabled");
-        status.add("Mouth", enable_mouth_ ? "Enabled" : "Disabled");
+        status.add("_Base", enable_base_ ? "Enabled" : "Disabled");
+        status.add("_IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
+        status.add("_LCD", enable_lcd_ ? "Enabled" : "Disabled");
+        status.add("_IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
+        status.add("_Nose", enable_nose_ ? "Enabled" : "Disabled");
+        status.add("_Mouth", enable_mouth_ ? "Enabled" : "Disabled");
     });
 
     diagnostic_timer_ = node_->create_wall_timer(

@@ -48,4 +48,3 @@ analyzers:
         path: orin-nx-16g
         startswith: ['OrinA608Diag_node']
         remove_prefix: ['OrinA608Diag_node']
-

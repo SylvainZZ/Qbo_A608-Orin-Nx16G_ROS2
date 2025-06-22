@@ -4,6 +4,8 @@
 #include <string>
 #include <cmath>
 #include <set>
+#include <sstream>
+#include <iomanip>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
@@ -35,6 +37,8 @@ private:
   bool setOdometryService(const std::shared_ptr<qbo_msgs::srv::SetOdometry::Request>,
                    std::shared_ptr<qbo_msgs::srv::SetOdometry::Response>);
 
+  double estimateMotorsPowerFromOdometry(double linear_speed, double angular_speed);
+
   // Driver série vers la base Q.bo
   std::shared_ptr<QboDuinoDriver> driver_;
 
@@ -46,6 +50,7 @@ private:
   // État interne du robot
   float v_linear_, v_angular_, x_, y_, th_;
   bool v_dirty_;
+  double last_estimated_motor_power_ = 0.0;
 
   // Interfaces ROS 2
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twist_sub_;

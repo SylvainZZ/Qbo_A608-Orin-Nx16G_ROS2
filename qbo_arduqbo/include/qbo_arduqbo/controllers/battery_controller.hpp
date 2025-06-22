@@ -2,9 +2,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "qbo_arduqbo/drivers/i2c_bus_driver.hpp"
-#include "qbo_msgs/msg/battery_level.hpp"
-
 #include <diagnostic_updater/diagnostic_updater.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_updater/publisher.hpp>
 
 #include <deque>
@@ -18,11 +17,11 @@ public:
 
 private:
     void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
+    void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg);
     void loadParameters();
 
     // ROS2
-    // std::shared_ptr<rclcpp::Node> node_;
-    rclcpp::Publisher<qbo_msgs::msg::BatteryLevel>::SharedPtr battery_pub_;
+    rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
     diagnostic_updater::Updater updater_;
 
     // Accès bas-niveau I2C
@@ -32,6 +31,9 @@ private:
     std::string name_;
     uint8_t level_;
     uint8_t stat_;
+    double A608_power_w_ = -1.0;
+    double fixed_extra_power_w = -1.0;
+    double total_power_w = -1.0;
 
     // Estimation runtime
     std::deque<double> voltage_history_;

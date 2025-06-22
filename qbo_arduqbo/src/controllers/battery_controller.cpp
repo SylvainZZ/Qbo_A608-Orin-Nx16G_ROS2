@@ -38,8 +38,8 @@ CBatteryController::CBatteryController(
     this->get_parameter("topic", topic);
     this->get_parameter("rate", rate_);
 
-    // Publisher
-    battery_pub_ = this->create_publisher<qbo_msgs::msg::BatteryLevel>(topic, 1);
+    diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+        "/diagnostics", 10, std::bind(&CBatteryController::diagCallback, this, std::placeholders::_1));
 
     loadParameters();
 
@@ -102,11 +102,19 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     if (runtime_publish_counter >= 20) {
         runtime_publish_counter = 0;
 
-        double smoothed_voltage = std::accumulate(voltage_history_.begin(), voltage_history_.end(), 0.0) / voltage_history_.size();
-        double estimated_current_draw = (14.3 - smoothed_voltage) * 2.0;
+        // Hypothèse : on a bien reçu une valeur valide
+        if (A608_power_w_ > 0.0) {
+            fixed_extra_power_w = 2.5; // ← à ajuster selon tes mesures
 
-        if (estimated_current_draw > 0.0) {
+            total_power_w = A608_power_w_ + fixed_extra_power_w;
+
+            // On suppose que le voltage moyen = tension mesurée via voltage_history_
+            double smoothed_voltage = std::accumulate(voltage_history_.begin(), voltage_history_.end(), 0.0) / voltage_history_.size();
+
+            double estimated_current_draw = total_power_w / smoothed_voltage;
+
             double estimated_runtime_minutes = (capacity_ah_ / estimated_current_draw) * 60.0;
+
             if (std::isfinite(estimated_runtime_minutes)) {
                 if (last_estimated_runtime_minutes_ < 0.0 ||
                     std::abs(estimated_runtime_minutes - last_estimated_runtime_minutes_) > 10.0) {
@@ -118,10 +126,11 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     }
 
     status.add("Voltage (V)", formatDouble(voltage));
-    status.add("Type", battery_type_);
-    status.add("Nominal Voltage (V)", formatDouble(nominal_voltage_));
-    status.add("Capacity (Ah)", formatDouble(capacity_ah_));
+    status.add("_Type", battery_type_);
+    status.add("_Nominal Voltage (V)", formatDouble(nominal_voltage_));
+    status.add("_Capacity (Ah)", formatDouble(capacity_ah_));
     status.add("Status", std::to_string(stat_));
+    status.add("_I2C_Adress", "0x14");
 
     uint8_t charge_mode = (stat_ >> 3) & 0x07;  // bits 5-3
     bool ext_power = (stat_ >> 2) & 0x01;       // bit 2
@@ -155,7 +164,9 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 
     if (last_estimated_runtime_minutes_ > 0.0) {
         status.add("Estimated Runtime (min)", formatDouble(last_estimated_runtime_minutes_));
+        status.add("Estimated Power (W)", formatDouble(total_power_w));
     }
+    status.add("Estimated Extras W (W)", formatDouble(fixed_extra_power_w));
 
     // Niveau batterie
     if (voltage < error_battery_level_) {
@@ -165,11 +176,17 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     } else {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Battery OK");
     }
+}
 
-    // Publication ROS du BatteryLevel
-    qbo_msgs::msg::BatteryLevel msg;
-    msg.header.stamp = this->now();
-    msg.level = voltage;
-    msg.stat = stat_;
-    battery_pub_->publish(msg);
+void CBatteryController::diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg) {
+    for (const auto& status : msg->status) {
+        if (status.name.find("A608 Power") != std::string::npos) {
+            for (const auto& value : status.values) {
+                if (value.key == "VDD_IN W") {
+                    A608_power_w_ = std::stod(value.value);
+                    return;  // dès qu’on l’a trouvé, inutile de continuer
+                }
+            }
+        }
+    }
 }

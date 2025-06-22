@@ -1,126 +1,185 @@
-#!/usr/bin/env python3
-
 import rclpy
+import time
 from rclpy.node import Node
-from std_msgs.msg import String
 from diagnostic_msgs.msg import DiagnosticArray
-from qbo_msgs.msg import Nose, LCD  # Adapter si message différent
+from qbo_interface.web_qbo import QboWebServer, run_web_server
+from qbo_msgs.msg import Nose
 import smach
 import subprocess
 import threading
-from qbo_interface.utils.launch_utils import launch_ros_launch, stop_process
+import signal
 
+
+class InitSystem(smach.State):
+    def __init__(self, supervisor):
+        smach.State.__init__(self, outcomes=['ok', 'failed'], input_keys=['nodes_expected'])
+        self.supervisor = supervisor
+        self.supervisor.current_state = "INIT SYSTEM"
+
+    def execute(self, userdata):
+        self.supervisor.get_logger().info("[InitSystem] Checking required nodes...")
+
+        # Attendre un peu le remplissage du graphe
+        time.sleep(3.0)
+
+        # Obtenir tous les nœuds visibles dans ROS
+        node_list = self.supervisor.get_node_names()
+        self.supervisor.get_logger().info(f"[InitSystem] Detected nodes: {node_list}")
+
+        missing = [n for n in userdata.nodes_expected if n not in node_list]
+        if missing:
+            self.supervisor.get_logger().error(f"Missing nodes: {missing}")
+            return 'failed'
+
+        self.supervisor.get_logger().info("All required nodes are active.")
+        return 'ok'
+
+
+class DiagnosticRouter(smach.State):
+    def __init__(self, supervisor):
+        smach.State.__init__(self, outcomes=['exit'], output_keys=['warnAction', 'errorAction'])
+        self.supervisor = supervisor
+        self.supervisor.current_state = "DIAGNOSTIC ROUTER"
+        self._warn_dict = {}
+        self._error_dict = {}
+        self._running = True
+        self._last_led_state = None  # Pour éviter les publications inutiles
+
+        # Register signal handler for Ctrl+C
+        signal.signal(signal.SIGINT, self._shutdown_handler)
+
+        self.sub = self.supervisor.create_subscription(
+            DiagnosticArray,
+            '/diagnostics',
+            self._diagnostic_callback,
+            10
+        )
+
+    def _shutdown_handler(self, signum, frame):
+        self.supervisor.get_logger().info("[DiagnosticRouter] Caught Ctrl+C, shutting down cleanly...")
+        self._running = False
+        self.supervisor.set_led_color(0)  # Éteindre ici seulement
+
+    def _update_led_state(self):
+        if self._error_dict:
+            desired_color = 1  # Rouge
+        elif self._warn_dict:
+            desired_color = 5  # Orange
+        else:
+            desired_color = 0  # Off
+
+        if desired_color != self._last_led_state:
+            self.supervisor.get_logger().info(f"[LED] Desired color: {desired_color}, Last color: {self._last_led_state}")
+            self.supervisor.set_led_color(desired_color)
+            self._last_led_state = desired_color
+
+    def _diagnostic_callback(self, msg):
+        updated = False
+
+        for status in msg.status:
+            level = status.level
+            if isinstance(level, bytes):
+                level = int.from_bytes(level, 'little')
+
+            key = f"{status.hardware_id}/{status.name}"
+
+            if level == 1:
+                if key not in self._warn_dict:
+                    self._warn_dict[key] = (status.message,)
+                    updated = True
+
+            elif level == 2:
+                if key not in self._error_dict:
+                    self._error_dict[key] = (status.message,)
+                    updated = True
+
+            elif level == 0:
+                if key in self._warn_dict:
+                    del self._warn_dict[key]
+                    updated = True
+                if key in self._error_dict:
+                    del self._error_dict[key]
+                    updated = True
+
+        # self.supervisor.get_logger().info(f"[Diag] WARNs: {list(self._warn_dict.keys())}")
+        # self.supervisor.get_logger().info(f"[Diag] ERRORs: {list(self._error_dict.keys())}")
+        # self.supervisor.get_logger().info(f"[LED] Update triggered - warn: {len(self._warn_dict)}, error: {len(self._error_dict)}")
+
+        if updated:
+            self._update_led_state()
+
+
+    def execute(self, userdata):
+        self.supervisor.get_logger().info("[DiagnosticRouter] Monitoring diagnostics...")
+        try:
+            while self._running and rclpy.ok():
+                rclpy.spin_once(self.supervisor, timeout_sec=0.1)
+        finally:
+            userdata.warnAction = self._warn_dict
+            userdata.errorAction = self._error_dict
+
+        return 'exit'
 
 class QboSupervisor(Node):
     def __init__(self):
         super().__init__('qbo_supervisor')
-        self.diagnostic_sub = self.create_subscription(
-            DiagnosticArray,
-            '/diagnostics',
-            self.diagnostic_callback,
-            10
-        )
-        self.launch_proc = None
-
         self.nose_pub = self.create_publisher(Nose, '/cmd_nose', 10)
-        self.lcd_pub = self.create_publisher(LCD, '/cmd_lcd', 10)
-
-        self.latest_level = 0  # 0=OK, 1=Warn, 2=Error
-
-    def diagnostic_callback(self, msg):
-        level = 0
-        for status in msg.status:
-            level = max(level, status.level)  # garde le niveau le plus critique
-        self.latest_level = level
+        self.current_state = 'UNKNOWN'
+        self.warn_dict = {}
+        self.error_dict = {}
 
     def set_led_color(self, color):
         msg = Nose()
         msg.color = color
         self.nose_pub.publish(msg)
 
-    def set_lcd_message(self, text):
-        msg = LCD()
-        msg.text = text[:20]  # Troncature pour affichage LCD
-        self.lcd_pub.publish(msg)
+    def get_warn_dict(self):
+        return self.warn_dict
 
+    def get_error_dict(self):
+        return self.error_dict
 
-# -----------------------------
-# SMACH States
-# -----------------------------
-class InitSystem(smach.State):
-    def __init__(self, supervisor: QboSupervisor):
-        smach.State.__init__(self, outcomes=['done'])
-        self.supervisor = supervisor
+    def get_smach_status(self):
+        return {
+            'state': self.current_state,
+            'warns': list(self.warn_dict.keys()),
+            'errors': list(self.error_dict.keys())
+        }
 
-    def execute(self, userdata):
-        self.supervisor.current_state = 'INIT'
-        self.supervisor.get_logger().info("Initialisation système...")
-        return 'done'
-
-
-class LaunchControllers(smach.State):
-    def __init__(self, supervisor: QboSupervisor):
-        smach.State.__init__(self, outcomes=['launched'])
-        self.supervisor = supervisor
-
-    def execute(self, userdata):
-        self.supervisor.current_state = 'LAUNCH_CONTROLLERS'
-        self.supervisor.get_logger().info("Lancement des contrôleurs Qbo...")
-        self.supervisor.launch_proc = launch_ros_launch('qbo_arduqbo', 'qbo_full.launch.py')
-        return 'launched'
-
-
-class MonitorDiagnostics(smach.State):
-    def __init__(self, supervisor: QboSupervisor):
-        smach.State.__init__(self, outcomes=['ok', 'warn', 'error'])
-        self.supervisor = supervisor
-
-    def execute(self, userdata):
-        self.supervisor.get_logger().info("Surveillance des diagnostics...")
-
-        # boucle de surveillance
-        while rclpy.ok():
-            level = self.supervisor.latest_level
-            if level == 0:
-                self.supervisor.set_led_color(4)  # Vert
-                # self.supervisor.set_lcd_message("Status OK")
-                return 'ok'
-            elif level == 1:
-                self.supervisor.set_led_color(5)  # Jaune
-                # self.supervisor.set_lcd_message("Warning détecté")
-                return 'warn'
-            elif level == 2:
-                self.supervisor.set_led_color(1)  # Rouge
-                # self.supervisor.set_lcd_message("Erreur critique")
-                return 'error'
-
-
+# Utilisation dans ta machine principale :
 def main():
     rclpy.init()
     node = QboSupervisor()
 
-    # Thread pour garder ROS 2 actif pendant SMACH
+    # Lancer le serveur web avec le même node
+    web_server = QboWebServer(node)
+    web_thread = threading.Thread(target=run_web_server, args=(web_server,), daemon=True)
+    web_thread.start()
+
+    # Thread ROS 2
     spin_thread = threading.Thread(target=rclpy.spin, args=(node,), daemon=True)
     spin_thread.start()
 
-    # Construction de la machine
-    sm = smach.StateMachine(outcomes=['end'])
+    sm = smach.StateMachine(outcomes=['end', 'failed', 'exit'])
+    sm.userdata.nodes_expected = [
+        'OrinA608Diag_node', 'analyzers', 'base_ctrl',
+        'battery_ctrl', 'imu_ctrl', 'lcd_ctrl',
+        'mouth_ctrl', 'nose_ctrl', 'qbo_arduqbo', 'qbo_dynamixel'
+    ]
+    sm.userdata.warnAction = {}
+    sm.userdata.errorAction = {}
 
     with sm:
-        smach.StateMachine.add('INIT', InitSystem(node), transitions={'done': 'START_CONTROLLERS'})
-        smach.StateMachine.add('START_CONTROLLERS', LaunchControllers(node), transitions={'launched': 'MONITOR'})
-        smach.StateMachine.add('MONITOR', MonitorDiagnostics(node), transitions={
-            'ok': 'MONITOR',
-            'warn': 'MONITOR',
-            'error': 'MONITOR'
-        })
+        smach.StateMachine.add('INIT_SYSTEM', InitSystem(node),
+                               transitions={'ok': 'DIAGNOSTIC_ROUTER', 'failed': 'failed'})
 
-    # Exécution
+        smach.StateMachine.add('DIAGNOSTIC_ROUTER', DiagnosticRouter(node),
+                               transitions={'exit': 'end'})
+
     try:
         outcome = sm.execute()
-        node.get_logger().info(f"Machine terminée avec l'état : {outcome}")
+        node.get_logger().info(f"State machine ended with outcome: {outcome}")
     finally:
-        stop_process(node.launch_proc)
         node.destroy_node()
         rclpy.shutdown()
 

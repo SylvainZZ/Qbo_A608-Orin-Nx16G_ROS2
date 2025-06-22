@@ -184,6 +184,10 @@ void BaseController::timerCallback() {
         }
         v_dirty_ = false;
     }
+    // Demande d'estimation puissance
+    double motor_power = estimateMotorsPowerFromOdometry(dx, dth);
+    last_estimated_motor_power_ = motor_power;
+
 }
 
 void BaseController::publishStaticTF() {
@@ -200,6 +204,32 @@ void BaseController::publishStaticTF() {
     static_tf_broadcaster_->sendTransform(static_tf);
     static_tf_sent_ = true;
 }
+
+double BaseController::estimateMotorsPowerFromOdometry(double linear_speed, double angular_speed)
+{
+    // Constantes physiques
+    const double robot_mass = 8.0;        // kg
+    const double gravity = 9.81;          // m/s²
+    const double rolling_resistance = 0.015; // coefficient Cr
+    const double motor_efficiency = 0.7;  // hypothétique rendement moteur
+    // const double voltage = 12.0;          // V
+
+    // Force de résistance
+    double F_r = robot_mass * gravity * rolling_resistance; // en N
+
+    // Puissance mécanique nécessaire
+    double power_mech = F_r * std::abs(linear_speed); // en W
+
+    // Ajout (optionnel) d’un terme pour tourner (effort inertiel)
+    double power_turn = 2.0 * std::abs(angular_speed); // empirique
+    power_mech += power_turn;
+
+    // Estimation de la puissance électrique consommée
+    double power_elec = power_mech / motor_efficiency;
+
+    return power_elec;
+}
+
 
 void BaseController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status)
 {
@@ -219,14 +249,17 @@ void BaseController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrap
     status.add("Right Motor OK", right_motor_ok ? "yes" : "no");
 
     // 🟣 Infos techniques statiques
-    status.add("Motor Model", "EMG30");
-    status.add("Rated Voltage", "12V");
-    status.add("Rated Torque", "1.5 kg.cm");
-    status.add("Rated Speed", "170 rpm");
-    status.add("No-load Speed", "216 rpm");
-    status.add("Stall Current", "2.5 A");
-    status.add("Reduction Gearbox", "30:1");
-    status.add("Encoder CPR", "360 counts/turn");
+    status.add("_Motor Model", "EMG30");
+    status.add("_Rated Voltage", "12V");
+    status.add("_Rated Torque", "1.5 kg.cm");
+    status.add("_Rated Speed", "170 rpm");
+    status.add("_No-load Speed", "216 rpm");
+    status.add("_Stall Current", "2.5 A");
+    status.add("_Reduction Gearbox", "30:1");
+    status.add("_Encoder CPR", "360 counts/turn");
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << last_estimated_motor_power_ << " W";
+    status.add("Estimation consommation moteurs", oss.str());
 
     // 🔴 Si un ou deux moteurs sont KO, message global explicite
     if (!left_motor_ok || !right_motor_ok) {

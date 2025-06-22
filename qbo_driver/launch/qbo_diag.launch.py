@@ -6,6 +6,7 @@ import os
 def generate_launch_description():
     param_file = os.path.join(
         get_package_share_directory('qbo_driver'),
+        'config',
         'OrinA608Diag_param.yaml'
     )
 

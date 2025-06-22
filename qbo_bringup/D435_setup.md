@@ -37,6 +37,8 @@ cmake .. \
   -DCMAKE_BUILD_TYPE=Release \
   -DFORCE_RSUSB_BACKEND=ON \
   -DBUILD_WITH_CUDA=ON \
+  -DBUILD_GRAPHICAL_EXAMPLES=OFF \
+  -DBUILD_TOOLS=OFF \
   -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
   -DCMAKE_CUDA_ARCHITECTURES=87
 
@@ -110,3 +112,77 @@ Then select `/camera/color/image_raw` from the dropdown menu to view the RGB str
 ---
 
 ✅ You're now ready to use the RealSense D435 with ROS 2 on your Jetson Orin NX!
+
+---
+
+## 🐞 Troubleshooting — Compilation errors in `realsense2_camera`
+
+If you encounter build errors such as:
+
+```text
+error: ‘class rs2::motion_frame’ has no member named ‘get_combined_motion_data’
+error: ‘class rs2::auto_calibrated_device’ has no member named ‘get_calibration_config’
+```
+
+It usually means that your ROS 2 workspace is compiling `realsense2_camera` against an incompatible version of `librealsense2`.
+
+This happens if `ros-humble-librealsense2` is installed from the package manager, and it overrides the manually compiled SDK.
+
+---
+
+### ✅ Solution: Remove conflicting system package and recompile cleanly
+
+1. **Check if the conflicting package is installed**:
+
+```bash
+dpkg -l | grep librealsense
+```
+
+If you see:
+
+```text
+ros-humble-librealsense2
+```
+
+→ this must be removed.
+
+2. **Remove the conflicting version**:
+
+```bash
+sudo apt remove ros-humble-librealsense2
+```
+
+3. **Clean and rebuild your ROS 2 workspace**:
+
+```bash
+cd ~/qbo_ws
+rm -rf build/ install/ log/
+colcon build --symlink-install \
+  --packages-select realsense2_camera \
+  --cmake-args -DCMAKE_PREFIX_PATH=/usr/local
+```
+
+4. **Verify the correct library is linked**:
+
+```bash
+ldd install/realsense2_camera/lib/realsense2_camera/realsense2_camera_node | grep librealsense
+```
+
+Expected result:
+
+```text
+librealsense2.so => /usr/local/lib/librealsense2.so
+```
+
+---
+
+### 💡 Tip
+
+Always avoid mixing:
+- `librealsense` compiled manually in `/usr/local`  
+**with**
+- ROS packages prebuilt from APT that ship their own version of `librealsense`.
+
+They will conflict unless you're very strict with `CMAKE_PREFIX_PATH`.
+
+---
