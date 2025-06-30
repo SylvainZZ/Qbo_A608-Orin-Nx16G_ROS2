@@ -13,6 +13,12 @@ NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
         topic_, 10,
         std::bind(&NoseController::setNose, this, std::placeholders::_1));
 
+    test_leds_srv_ = this->create_service<qbo_msgs::srv::TestLeds>(
+        this->get_name() + std::string("/test_leds"),
+        std::bind(&NoseController::testNoseLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
+    );
+
+
     RCLCPP_INFO(this->get_logger(), "✅ NoseController initialized");
     RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
     RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic_.c_str());
@@ -32,4 +38,21 @@ void NoseController::setNose(const qbo_msgs::msg::Nose::SharedPtr msg)
         RCLCPP_ERROR(this->get_logger(), "Unable to send nose color to the Arduino.");
     else
         RCLCPP_DEBUG(this->get_logger(), "Nose color %d sent to Arduino.", msg->color);
+}
+
+void NoseController::testNoseLedsCallback(
+    const std::shared_ptr<qbo_msgs::srv::TestLeds::Request>,
+    std::shared_ptr<qbo_msgs::srv::TestLeds::Response> res)
+{
+    RCLCPP_INFO(this->get_logger(), "🚦 Starting LED test sequence");
+
+    int code = driver_->testNose();
+    if (code < 0) {
+        RCLCPP_WARN(this->get_logger(), "⚠️ testNose sent, but no response received (as expected)");
+        res->success = true;  // ✅ car l'action a été envoyée avec succès
+        res->message = "Nose test sent, no response expected";
+    } else {
+        res->success = true;
+        res->message = "Nose test executed successfully";
+    }
 }

@@ -13,6 +13,7 @@
 #include "qbo_arduqbo/controllers/lcd_controller.hpp"
 #include "qbo_arduqbo/controllers/nose_controller.hpp"
 #include "qbo_arduqbo/controllers/mouth_controller.hpp"
+#include "qbo_arduqbo/controllers/audio_controller.hpp"
 
 class QboArduqboManager {
 public:
@@ -37,6 +38,7 @@ private:
     bool enable_lcd_;
     bool enable_nose_;
     bool enable_mouth_;
+    bool enable_audio_;
 
     int qboard1_version_ = -1;
     int qboard2_version_ = -1;

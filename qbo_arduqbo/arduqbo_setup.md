@@ -100,12 +100,16 @@ ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
 # 5 = Yellow (Green+Red)
 # 6 = Magenta (Blue+Red)
 # 7 = White (RGB on)
+
+ros2 service call /nose_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 ```
 
 
 ### Tester les LED de la bouche
 ```bash
-ros2 service call /test_mouth std_srvs/srv/Trigger "{}"
+ros2 service call /mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
+ros2 service call /audio_ctrl/set_mouth_animation qbo_msgs/srv/SetMouthAnimation "{enable: true}"
+
 ```
 
 ## 🩺 Diagnostic

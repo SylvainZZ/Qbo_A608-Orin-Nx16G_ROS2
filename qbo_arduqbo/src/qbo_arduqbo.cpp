@@ -34,6 +34,7 @@ void QboArduqboManager::setup() {
     declare_and_get_param("enable_lcd", enable_lcd_, false);
     declare_and_get_param("enable_nose", enable_nose_, false);
     declare_and_get_param("enable_mouth", enable_mouth_, false);
+    declare_and_get_param("enable_audio", enable_audio_, false);
 
     std::string port1, port2;
     int baud1, baud2;
@@ -66,6 +67,7 @@ void QboArduqboManager::setup() {
         status.add("IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
         status.add("Nose", enable_nose_ ? "Enabled" : "Disabled");
         status.add("Mouth", enable_mouth_ ? "Enabled" : "Disabled");
+        status.add("Audio", enable_audio_ ? "Enabled" : "Disabled");
     });
 
     diagnostic_timer_ = node_->create_wall_timer(
@@ -169,6 +171,17 @@ void QboArduqboManager::setup() {
         }
         logControllerStatus("Mouth", enable_mouth_, loaded);
 
+        loaded = false;
+        if (enable_audio_) {
+            auto audio_ctrl = std::make_shared<AudioController>(
+                arduino_driver_,
+                rclcpp::NodeOptions().append_parameter_override("name", "audio_ctrl")
+            );
+            controllers_.push_back(audio_ctrl);
+            loaded = true;
+        }
+        logControllerStatus("Audio", enable_audio_, loaded);
+
     } else {
         RCLCPP_WARN(node_->get_logger(), "❌ Head board communication disabled by config");
     }
@@ -206,6 +219,7 @@ void QboArduqboManager::setup() {
         status.add("_IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
         status.add("_Nose", enable_nose_ ? "Enabled" : "Disabled");
         status.add("_Mouth", enable_mouth_ ? "Enabled" : "Disabled");
+        status.add("_Audio", enable_audio_ ? "Enabled" : "Disabled");
     });
 
     diagnostic_timer_ = node_->create_wall_timer(

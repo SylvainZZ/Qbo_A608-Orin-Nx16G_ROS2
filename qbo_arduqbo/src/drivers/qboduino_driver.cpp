@@ -103,8 +103,8 @@ QboDuinoDriver::QboDuinoDriver(std::string port1, int baud1, std::string port2, 
 int QboDuinoDriver::read(cereal::CerealPort *ser, std::string &lectura, long timeout)
 {
     std::string buf;
-    int leidos = 0;
-    int totalLeidos = 0;
+    // int leidos = 0;
+    // int totalLeidos = 0;
 
     try
     {
@@ -383,6 +383,16 @@ int QboDuinoDriver::setMouth(uint8_t b0, uint8_t b1, uint8_t b2)
     return (lockAndSendComand("head", comand, resp, data));
 }
 
+int QboDuinoDriver::testMouth()
+{
+    std::vector<dataUnion> data, sent;
+
+    CComando comand = comandosSet_.testMouth;
+    int code = lockAndSendComand("head", comand, data, sent);
+    // printf("command (code: %d)\n", code);
+    return code;
+}
+
 int QboDuinoDriver::setNose(uint8_t nose)
 {
     dataUnion d;
@@ -391,7 +401,31 @@ int QboDuinoDriver::setNose(uint8_t nose)
     data.push_back(d);
 
     CComando comand = comandosSet_.nose;
-    return (lockAndSendComand("head", comand, resp, data));
+    int code = lockAndSendComand("head", comand, resp, data);
+    // printf("command (code: %d)\n", code);
+    return code;
+}
+
+int QboDuinoDriver::testNose()
+{
+    std::vector<dataUnion> data, sent;
+
+    CComando comand = comandosSet_.testNose;
+    int code = lockAndSendComand("head", comand, data, sent);
+    // printf("command (code: %d)\n", code);
+    return code;
+}
+
+int QboDuinoDriver::setMouthAnimation(bool enable)
+{
+    std::vector<dataUnion> data, sent;
+
+    dataUnion param;
+    param.b = static_cast<uint8_t>(enable);
+    sent.push_back(param);
+
+    CComando comand = comandosSet_.setMouthAnimation;
+    return lockAndSendComand("head", comand, data, sent);
 }
 
 int QboDuinoDriver::setLCD(std::string msg)
@@ -418,19 +452,27 @@ int QboDuinoDriver::setLCD(std::string msg)
 //     return code;
 // }
 
-// int QboDuinoDriver::getMics(uint16_t &m0, uint16_t &m1, uint16_t &m2)
-// {
-//     std::vector<dataUnion> data, sent;
+int QboDuinoDriver::getMicReport(int16_t &ambient_noise, uint8_t &sound_direction, uint16_t &m0, uint16_t &m1, uint16_t &m2)
+{
+    std::vector<dataUnion> data, sent;
 
-//     CComando comand = comandosSet_.getMics;
-//     int code = lockAndSendComand("head", comand, data, sent);
-//     if (code < 0)
-//         return code;
-//     m0 = (uint16_t)data[0].h;
-//     m1 = (uint16_t)data[1].h;
-//     m2 = (uint16_t)data[2].h;
-//     return code;
-// }
+    CComando command = comandosSet_.getMicReport;  // correspond à 0x4B
+    int code = lockAndSendComand("head", command, data, sent);
+    // printf("➡️ getMicReport: code=%d, data.size()=%zu\n", code, data.size());
+    // for (size_t i = 0; i < data.size(); ++i) {
+    //     printf("  data[%zu] = h:%d b:%u\n", i, data[i].h, data[i].b);
+    // }
+    if (code < 0) return -1;
+
+    // Ordre de retour Arduino : [amb (h), dir (b), mic0 (h), mic1 (h), mic2 (h)]
+    ambient_noise   = data[0].h;
+    sound_direction = data[1].b;
+    m0 = data[2].h;
+    m1 = data[3].h;
+    m2 = data[4].h;
+
+    return code;
+}
 
 // int QboDuinoDriver::setMic(uint8_t mic)
 // {
@@ -539,7 +581,7 @@ int QboDuinoDriver::getAdcReads(std::vector<uint8_t> addreses, std::vector<unsig
     readedValues.clear();
     if (addreses.size() == 0)
         return 1;
-    for (int i = 0; i < addreses.size(); i++)
+    for (size_t i = 0; i < addreses.size(); i++)
     {
         d.b = addreses[i];
         sent.push_back(d);
@@ -593,6 +635,7 @@ int QboDuinoDriver::resetStall()
 
     CComando comand = comandosSet_.resetStall;
     int code = lockAndSendComand("base", comand, data, sent);
+    printf("command (code: %d)\n", code);
     return code;
 }
 

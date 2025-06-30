@@ -127,6 +127,9 @@ class QboSupervisor(Node):
         self.current_state = 'UNKNOWN'
         self.warn_dict = {}
         self.error_dict = {}
+        # Pour l'affichage graphique
+        self.state_list = []
+        self.transition_list = []
 
     def set_led_color(self, color):
         msg = Nose()
@@ -139,11 +142,15 @@ class QboSupervisor(Node):
     def get_error_dict(self):
         return self.error_dict
 
-    def get_smach_status(self):
+    def define_state_machine_structure(self, state_list, transition_list):
+        self.state_list = state_list
+        self.transition_list = transition_list
+
+    def get_smach_graph(self):
         return {
-            'state': self.current_state,
-            'warns': list(self.warn_dict.keys()),
-            'errors': list(self.error_dict.keys())
+            "states": self.state_list,
+            "transitions": self.transition_list,
+            "active": self.current_state
         }
 
 # Utilisation dans ta machine principale :
@@ -177,6 +184,14 @@ def main():
                                transitions={'exit': 'end'})
 
     try:
+        node.define_state_machine_structure(
+            state_list=["INIT_SYSTEM", "DIAGNOSTIC_ROUTER", "SHUTDOWN"],
+            transition_list=[
+                {"from": "INIT_SYSTEM", "to": "DIAGNOSTIC_ROUTER", "label": "ok"},
+                {"from": "INIT_SYSTEM", "to": "SHUTDOWN", "label": "failed"},
+                {"from": "DIAGNOSTIC_ROUTER", "to": "SHUTDOWN", "label": "exit"}
+            ]
+        )
         outcome = sm.execute()
         node.get_logger().info(f"State machine ended with outcome: {outcome}")
     finally:

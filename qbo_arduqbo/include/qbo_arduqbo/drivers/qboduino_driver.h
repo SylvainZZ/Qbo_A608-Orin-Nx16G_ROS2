@@ -107,10 +107,13 @@ public:
   // int getHeadServosPositions(std::vector<unsigned short> &tics);
   // int getEyesServosPositions(std::vector<unsigned short> &tics);
   int setMouth(uint8_t b0, uint8_t b1, uint8_t b2);
+  int testMouth();
   int setNose(uint8_t color);
+  int testNose();
+  int setMouthAnimation(bool enable);
   int setLCD(std::string msg);
   // int getBattery(float &level, uint8_t &stat);
-  // int getMics(uint16_t &m0, uint16_t &m1, uint16_t &m2);
+  int getMicReport(int16_t &ambient_noise, uint8_t &sound_direction, uint16_t &m0, uint16_t &m1, uint16_t &m2);
   // int setMic(uint8_t mic);
   int setAutoupdateSensors(std::map<uint8_t,uint8_t> sensors);
   int getDistanceSensors(std::map<uint8_t, unsigned short> &sensorsDistances);

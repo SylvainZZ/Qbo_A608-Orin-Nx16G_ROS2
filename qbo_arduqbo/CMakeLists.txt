@@ -79,6 +79,11 @@ add_library(mouth_controller src/controllers/mouth_controller.cpp)
 target_link_libraries(mouth_controller qbo_serial)
 ament_target_dependencies(mouth_controller rclcpp qbo_msgs)
 
+add_library(audio_controller src/controllers/audio_controller.cpp)
+target_link_libraries(audio_controller qbo_serial)
+ament_target_dependencies(audio_controller rclcpp qbo_msgs)
+
+
 # ====================================
 # EXECUTABLES
 # ====================================
@@ -107,6 +112,7 @@ target_link_libraries(qbo_arduqbo
   lcd_controller
   nose_controller
   mouth_controller
+  audio_controller
 )
 ament_target_dependencies(qbo_arduqbo
   rclcpp std_msgs diagnostic_msgs diagnostic_updater qbo_msgs
@@ -126,6 +132,7 @@ install(TARGETS
   lcd_controller
   nose_controller
   mouth_controller
+  audio_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 

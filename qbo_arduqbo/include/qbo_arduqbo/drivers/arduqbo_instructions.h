@@ -33,17 +33,17 @@
 class CComando
 {
 public:
-    CComando(uint8_t number, int outDataLen, int inDataLen, std::string outType = "b", std::string inType = "b");
-    int serialize(std::vector<dataUnion> outData, std::string &serializedData);
-    int deserialize(std::string inData, std::vector<dataUnion> &recivedData);
+    CComando(uint8_t number, int inputLength, int outputLength, std::string inputType = "b", std::string outputType = "b");
+    int serialize(std::vector<dataUnion> inputData, std::string &serializedData);
+    int deserialize(std::string inData, std::vector<dataUnion> &receivedData);
 
 protected:
-    int calcsize(std::string &type);
+    int calcsize(const std::string &type);
     uint8_t number_;
-    int outDataLen_;
-    int inDataLen_;
-    std::string outType_;
-    std::string inType_;
+    int inputLength_;
+    int outputLength_;
+    std::string inputType_;
+    std::string outputType_;
 };
 
 class ComandosSet
@@ -61,44 +61,50 @@ public:
     CComando lcd;
     CComando setParametersSensors;
     CComando mouth;
+    CComando testMouth;
+    CComando setMouthAnimation;
     CComando nose;
+    CComando testNose;
     // CComando setServo;
     // CComando getServo;
     // CComando getHeadServos;
     // CComando getEyeServos;
     // CComando setMic;
-    // CComando getMics;
+    CComando getMicReport;
     CComando getIMU;
     CComando calibrateIMU;
     CComando resetStall;
     CComando getMotorsState;
     CComando getI2cState;
-    ComandosSet() : version(0x40, 0, 2),
-                    setSpeed(0x4d, 2, 0, "f"),
-                    setOdometry(0x42, 3, 0, "f"),
-                    getOdometry(0x59, 0, 3, "b", "f"),
+    // CComando(id, inputLength, outputLength, inputType, outputType)
+    ComandosSet() : version(0x40, 0, 2, "", "bb"),
+                    setSpeed(0x4d, 2, 0, "f", ""),
+                    setOdometry(0x42, 3, 0, "f", ""),
+                    getOdometry(0x59, 0, 3, "", "fff"),
                     // getBattery(0x57, 0, 2),
                     getInfraRed(0x46, 0, 3),
-                    getAllSensors(0x4e, 0, -1, "b", "xbh"),
+                    getAllSensors(0x4e, 0, -1, "", "xbh"),
                     setAutoupdateSrfs(0x72, -1, 0),
                     adcReads(0x73, -1, -1, "b", "h"),
                     lcd(0x4c, 1, 0, "s"),
                     setParametersSensors(0x71, 4, 0, "f"),
                     mouth(0x44, 3, 0),
+                    testMouth(0x54, 0, 0, "", ""),
+                    setMouthAnimation(0x53, 1, 0, "b", ""),
                     nose(0x45, 1, 0),
+                    testNose(0x55, 0, 0, "", ""),
                     // setServo(0x53, 3, 0, "bhh"),
                     // getServo(0x5d, 1, 1, "b", "h"),
                     // getHeadServos(0x5c, 0, 2, "b", "h"),
                     // getEyeServos(0x5f, 0, 2, "b", "h"),
                     // setMic(0x4a, 1, 0),
-                    // getMics(0x4b, 0, 3, "b", "h"),
-                    getIMU(0x74, 0, 6, "b", "hhhhhh"),
+                    getMicReport(0x4B, 0, 5, "", "hbhhh"),
+                    getIMU(0x74, 0, 6, "", "hhhhhh"),
                     calibrateIMU(0x63, 0, 1),
                     resetStall(0x80, 0, 0),
                     getMotorsState(0x81, 0, 1),
                     getI2cState(0x82, 0, 1)
-    {
-    }
+    {}
 };
 
 #endif

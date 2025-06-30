@@ -12,6 +12,11 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/qbo_interface/launch', ['launch/smach_qbo.launch.py']),
         ('share/qbo_interface/config', []),
+        ('share/qbo_interface/web', [
+            'web/index.html',
+            'web/style.css',
+            'web/script.js'
+        ]),
     ],
     install_requires=[
         "rclpy",

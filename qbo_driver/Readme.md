@@ -77,7 +77,7 @@ Exemple :
 ```bash
 ros2 topic pub /out_volume std_msgs/String '{data: "80"}'
 ```
-
+ros2 service call /qbo_driver/piper2wave_say qbo_msgs/srv/Text2Speach "{sentence: 'Bonjour je parle en direct '}"
 ---
 
 ## 🛠️ Paramètres ROS2 internes (qbo_talk)

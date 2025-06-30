@@ -19,6 +19,7 @@ qbo_arduqbo:
       enable_lcd: true
       enable_nose: true
       enable_mouth: true
+      enable_audio: true
 
 battery_ctrl:
   ros__parameters:
@@ -56,4 +57,9 @@ mouth_ctrl:
   ros__parameters:
     rate: 10.0
     topic: "/cmd_mouth"
+
+audio_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "/mic_report"
 

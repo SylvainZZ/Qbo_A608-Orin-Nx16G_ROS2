@@ -26,185 +26,209 @@
 
 // TODO: Comentar el código
 
-CComando::CComando(uint8_t number, int outDataLen, int inDataLen, std::string outType, std::string inType) : number_(number), outDataLen_(outDataLen), inDataLen_(inDataLen), outType_(outType), inType_(inType)
-{
-}
+CComando::CComando(uint8_t number, int inputLength, int outputLength,
+                   std::string inputType, std::string outputType)
+: number_(number),
+  inputLength_(inputLength),
+  outputLength_(outputLength),
+  inputType_(inputType),
+  outputType_(outputType)
+{}
 
-int CComando::calcsize(std::string &type)
+int CComando::calcsize(const std::string &type)
 {
     int size = 0;
-    for (unsigned int i = 0; i < type.size(); i++)
+    for (char c : type)
     {
-        switch (type[i])
+        switch (c)
         {
-        case 'b':
-            size += sizeof(uint8_t);
-            break;
-        case 'h':
-            size += sizeof(unsigned short);
-            break;
-        case 'f':
-            size += sizeof(float);
-            break;
-        case 'l':
-            size += sizeof(long);
-            break;
-        case 's':
-            size += sizeof(char);
-            break;
+        case 'b': size += 1; break;
+        case 'h': size += 2; break;
+        case 'f': size += 4; break;
+        case 'l': size += 4; break;
+        case 's': size += 1; break; // string char
         }
     }
     return size;
 }
 
-int CComando::serialize(std::vector<dataUnion> outData, std::string &serializedData)
+
+int CComando::serialize(std::vector<dataUnion> inputData, std::string &serializedData)
 {
-    if (outDataLen_ != -1 && (int)outData.size() != outDataLen_)
+    if (inputLength_ != -1 && (int)inputData.size() != inputLength_)
         return -1;
+
     serializedData.clear();
     serializedData.push_back(number_);
-    if (outDataLen_ == 0)
+
+    if (inputLength_ == 0)
+    {
         serializedData.push_back(0x00);
+    }
     else
     {
-        int outDataLen = outDataLen_;
-        if (outDataLen_ == -1)
-            outDataLen = (int)outData.size();
-        std::string outType;
-        if (outType_.size() == 1)
+        int inputLength = inputLength_;
+        if (inputLength == -1)
+            inputLength = (int)inputData.size();
+
+        std::string inputType;
+        if (inputType_.size() == 1)
         {
-            for (int i = 0; i < outDataLen; i++)
-                outType += outType_;
+            for (int i = 0; i < inputLength; i++)
+                inputType += inputType_;
         }
         else
         {
-            if (outType_[0] != 'x' && (int)outType_.size() != outDataLen)
+            if (inputType_[0] != 'x' && (int)inputType_.size() != inputLength)
                 return -1;
             std::string type;
-            if (outType_[0] != 'x')
+            if (inputType_[0] != 'x')
             {
-                type = outType_;
+                type = inputType_;
             }
             else
             {
-                std::string xType(outType_);
+                std::string xType(inputType_);
                 xType.erase(0, 1);
-                for (int i = 0; i < (outDataLen / calcsize(xType)); i++)
+                for (int i = 0; i < (inputLength / calcsize(xType)); i++)
                     type += xType;
             }
-            outType = type;
+            inputType = type;
         }
-        if (outDataLen != outData.size())
+
+        if (inputLength != (int)inputData.size())
             return -1;
+
         std::string sd;
         uint8_t *data_p;
-        for (int i = 0; i < outDataLen; i++)
+
+        for (int i = 0; i < inputLength; i++)
         {
-            switch (outType[i])
+            switch (inputType[i])
             {
             case 'b':
-                sd.push_back(outData[i].b);
+                sd.push_back(inputData[i].b);
                 break;
             case 'h':
-                data_p = (uint8_t *)(&outData[i].h);
+                data_p = (uint8_t *)(&inputData[i].h);
                 sd.push_back(data_p[0]);
                 sd.push_back(data_p[1]);
                 break;
             case 'f':
-                data_p = (uint8_t *)(&outData[i].f);
-                sd.push_back(data_p[0]);
-                sd.push_back(data_p[1]);
-                sd.push_back(data_p[2]);
-                sd.push_back(data_p[3]);
+                data_p = (uint8_t *)(&inputData[i].f);
+                for (int j = 0; j < 4; ++j)
+                    sd.push_back(data_p[j]);
                 break;
             case 'l':
-                data_p = (uint8_t *)(&outData[i].l);
-                sd.push_back(data_p[0]);
-                sd.push_back(data_p[1]);
-                sd.push_back(data_p[2]);
-                sd.push_back(data_p[3]);
+                data_p = (uint8_t *)(&inputData[i].l);
+                for (int j = 0; j < 4; ++j)
+                    sd.push_back(data_p[j]);
                 break;
             case 's':
-                sd += outData[i].s;
+                sd += inputData[i].s;
                 break;
             }
         }
+
         serializedData.push_back(sd.size());
         serializedData += sd;
     }
+
+    // printf("🧾 serialize(): id=0x%02X, inputLength=%d, outputLength=%d, inputType=%s, outputType=%s\n",
+    //        number_, inputLength_, outputLength_, inputType_.c_str(), outputType_.c_str());
+
     return 1;
 }
 
+
 // TODO: Revisar éste método que a veces da error
-int CComando::deserialize(std::string inData, std::vector<dataUnion> &recivedData)
+int CComando::deserialize(std::string inData, std::vector<dataUnion> &receivedData)
 {
-    recivedData.clear();
+    receivedData.clear();
+
+    if (outputLength_ == 0) {
+        // printf("ℹ️ No response expected for command 0x%02X\n", number_);
+        return 1;
+    }
+
+    if (inData.size() < 2)
+        return -1;
+
     uint8_t cn = static_cast<uint8_t>(inData[0]);
     uint8_t idl = static_cast<uint8_t>(inData[1]);
 
-    int inDataLen = inDataLen_;
-    if (inDataLen == -1)
-        inDataLen = idl / calcsize(inType_);
+    int outputLength = outputLength_;
+    if (outputLength == -1)
+        outputLength = idl / calcsize(outputType_);
 
-    std::string inType;
-    if (inType_.size() == 1)
+    std::string typePattern;
+    if (outputType_.size() == 1)
     {
-        for (int i = 0; i < inDataLen; i++)
-            inType += inType_;
+        for (int i = 0; i < outputLength; i++)
+            typePattern += outputType_;
     }
     else
     {
-        if (inType_[0] != 'x' && (int)inType_.size() != inDataLen)
+        if (outputType_[0] != 'x' && (int)outputType_.size() != outputLength)
             return -1;
         std::string type;
-        if (inType_[0] != 'x')
+        if (outputType_[0] != 'x')
         {
-            type = inType_;
+            type = outputType_;
         }
         else
         {
-            std::string xType(inType_);
+            std::string xType(outputType_);
             xType.erase(0, 1);
-            for (int i = 0; i < inDataLen; i++)
+            for (int i = 0; i < outputLength; i++)
                 type += xType;
-            inDataLen = type.size();
+            outputLength = type.size();
         }
-        inType = type;
+        typePattern = type;
     }
 
-    if (cn != number_ || idl != calcsize(inType))
+    // printf("🚨 deserialize : cn=0x%02X (expected 0x%02X), idl=%d (expected %d from outputType=%s)\n",
+    //        cn, number_, idl, calcsize(typePattern), typePattern.c_str());
+
+    if (cn != number_ || idl != calcsize(typePattern))
         return -1;
-    if (inDataLen == 0)
+
+    if (outputLength == 0)
         return 1;
+
     dataUnion data;
     uint8_t readed = 2;
     uint8_t *data_p = (uint8_t *)(inData.c_str());
-    for (int i = 0; i < inDataLen; i++)
+
+    for (int i = 0; i < outputLength; i++)
     {
-        switch (inType[i])
+        switch (typePattern[i])
         {
         case 'b':
             data.b = static_cast<uint8_t>(inData[readed]);
-            readed += sizeof(uint8_t);
+            readed += 1;
             break;
         case 'h':
             data.h = *((short *)(data_p + readed));
-            readed += sizeof(short);
+            readed += 2;
             break;
         case 'f':
             data.f = *((float *)(data_p + readed));
-            readed += sizeof(float);
+            readed += 4;
             break;
         case 'l':
             data.l = *((long *)(data_p + readed));
-            readed += sizeof(long);
+            readed += 4;
             break;
         case 's':
             data.s = std::string((char *)(data_p + readed));
             readed += data.s.size();
             break;
         }
-        recivedData.push_back(data);
+        receivedData.push_back(data);
     }
+
     return 1;
 }
+
+

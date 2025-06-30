@@ -13,7 +13,7 @@ MouthController::MouthController(std::shared_ptr<QboDuinoDriver> driver, const r
         topic_, 10,
         std::bind(&MouthController::setMouth, this, std::placeholders::_1));
 
-    test_leds_srv_ = this->create_service<qbo_msgs::srv::TestMouthLeds>(
+    test_leds_srv_ = this->create_service<qbo_msgs::srv::TestLeds>(
         this->get_name() + std::string("/test_leds"),
         std::bind(&MouthController::testMouthLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
     );
@@ -35,7 +35,7 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
     uint32_t data = 0;
     for (int i = 0; i < 20; ++i) {
         if (msg->mouth_image[i]) {
-            data |= (1 << i);
+            data |= (1 << (23 - i));  // 👈 CE CODE EST CORRECT si mouth_image est bien ordonné ligne/colonne
         }
     }
 
@@ -44,7 +44,7 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
     uint8_t b2 = (data >> 7) & 0x7F;   // middle 7 bits
     uint8_t b1 = data & 0x7F;          // bottom 7 bits
 
-    int code = driver_->setMouth(b1, b2, b3);
+    int code = driver_->setMouth(b3, b2, b1);
     if (code < 0) {
         RCLCPP_ERROR(this->get_logger(), "Unable to send mouth command");
     } else {
@@ -53,30 +53,21 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
 }
 
 void MouthController::testMouthLedsCallback(
-    const std::shared_ptr<qbo_msgs::srv::TestMouthLeds::Request>,
-    std::shared_ptr<qbo_msgs::srv::TestMouthLeds::Response> res)
+    const std::shared_ptr<qbo_msgs::srv::TestLeds::Request>,
+    std::shared_ptr<qbo_msgs::srv::TestLeds::Response> res)
 {
     RCLCPP_INFO(this->get_logger(), "🚦 Starting LED test sequence");
 
-    for (int i = 0; i < 20; ++i) {
-        std::array<bool, 20> leds = {false};
-        leds[i] = true;
-
-        qbo_msgs::msg::Mouth msg;
-        msg.header.stamp = this->now();
-        msg.mouth_image.insert(msg.mouth_image.begin(), leds.begin(), leds.end());
-
-        // Appelle directement la fonction existante si possible
-        this->setMouth(std::make_shared<qbo_msgs::msg::Mouth>(msg));
-        rclcpp::sleep_for(std::chrono::milliseconds(250));
-
-    // Extinction de toutes les LED à la fin du test
-    msg.mouth_image.resize(20, false);  // 20 LED éteintes
-    this->setMouth(std::make_shared<qbo_msgs::msg::Mouth>(msg));
+    int code = driver_->testMouth();
+    if (code < 0) {
+        RCLCPP_WARN(this->get_logger(), "⚠️ testMouth sent, but no response received (as expected)");
+        res->success = true;  // ✅ car l'action a été envoyée avec succès
+        res->message = "Mouth test sent, no response expected";
+    } else {
+        res->success = true;
+        res->message = "Mouth test executed successfully";
     }
-
-    res->success = true;
-    res->message = "All LEDs tested successfully";
 }
+
 
 
