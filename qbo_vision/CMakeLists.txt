@@ -1,16 +1,44 @@
 cmake_minimum_required(VERSION 3.8)
 project(qbo_vision)
 
+# --------------------
+# Options de compilation
+# --------------------
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+# --------------------
+# Trouver les dépendances nécessaires
+# --------------------
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(image_transport REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(qbo_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
+
+# OpenCV
+find_package(OpenCV REQUIRED)
+
+# Include dirs
+include_directories(include ${OpenCV_INCLUDE_DIRS})
+
+add_executable(face_follower_node
+  src/face_follower.cpp
+)
+ament_target_dependencies(face_follower_node
+  rclcpp
+  sensor_msgs
+  geometry_msgs
+  qbo_msgs
+  cv_bridge
+  OpenCV
+)
+install(TARGETS face_follower_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 add_executable(imx219_camera_node src/imx219_camera_node.cpp)
 ament_target_dependencies(imx219_camera_node rclcpp sensor_msgs cv_bridge)

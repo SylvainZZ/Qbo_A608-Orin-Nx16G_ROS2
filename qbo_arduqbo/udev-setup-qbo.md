@@ -18,6 +18,7 @@ Pour éviter ce comportement, on utilise des **règles UDEV** permettant de cré
 ### 1. Créer le fichier de règles
 
 ```bash
+sudo adduser $USER dialout
 sudo nano /etc/udev/rules.d/99-usb-serial.rules
 ```
 

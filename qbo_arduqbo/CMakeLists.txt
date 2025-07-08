@@ -23,6 +23,8 @@ find_package(nav_msgs REQUIRED)
 find_package(dynamixel_workbench_toolbox REQUIRED)
 find_package(diagnostic_updater REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
+find_package(diagnostic_aggregator REQUIRED)
+find_package(rqt_robot_monitor REQUIRED)
 find_package(qbo_msgs REQUIRED)
 
 include_directories(include)

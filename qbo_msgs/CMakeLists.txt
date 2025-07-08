@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Nose.msg"
   "msg/Mouth.msg"
   "msg/MicReport.msg"
+  "msg/FacePosAndDist.msg"
   "srv/Text2Speach.srv"
   "srv/TorqueEnable.srv"
   "srv/SetOdometry.srv"
