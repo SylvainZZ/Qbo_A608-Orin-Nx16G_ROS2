@@ -30,8 +30,8 @@ qbo_dynamixel:
     dynamixel.motors.motor_2.name: head_tilt_joint
     dynamixel.motors.motor_2.id: 8
     dynamixel.motors.motor_2.invert: false
-    dynamixel.motors.motor_2.max_angle_degrees: 40.0
-    dynamixel.motors.motor_2.min_angle_degrees: -25.0
+    dynamixel.motors.motor_2.max_angle_degrees: 20.0
+    dynamixel.motors.motor_2.min_angle_degrees: -30.0
     dynamixel.motors.motor_2.range: 300.0
     dynamixel.motors.motor_2.ticks: 1024
     dynamixel.motors.motor_2.neutral: 480

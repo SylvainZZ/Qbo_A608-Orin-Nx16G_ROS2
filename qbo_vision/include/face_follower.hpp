@@ -1,3 +1,27 @@
+/*
+ * Software License Agreement (GPLv2 License)
+ *
+ * Copyright (c) 2012 Thecorpora, S.L.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ *
+ * Author: Arturo Bajuelos <arturo@openqbo.com>
+ * Author: Sylvain <sylvain-zwolinski@orange.fr>
+ */
+
 #ifndef QBO_VISION_FACE_FOLLOWER_HPP_
 #define QBO_VISION_FACE_FOLLOWER_HPP_
 
@@ -18,7 +42,7 @@
 class FaceFollower : public rclcpp::Node
 {
 public:
-    FaceFollower();
+    FaceFollower(const rclcpp::NodeOptions & options);
     ~FaceFollower() = default;
 
     void headToZeroPosition();  // appelé à la fin du main
@@ -32,6 +56,11 @@ private:
 
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr base_control_pub_;
+
+    rclcpp::Time last_scan_move_;     // horodatage du dernier mouvement aléatoire
+    rclcpp::Time pause_start_time_;
+    rclcpp::Duration scan_interval_ = rclcpp::Duration::from_seconds(1.0);
+    rclcpp::Duration pause_duration_ = rclcpp::Duration::from_seconds(3.0);
 
     // Paramètres ROS
     void declare_and_get_parameters();
@@ -61,6 +90,23 @@ private:
     // PID Yaw (rotation base)
     float yaw_prev_, yaw_act_, diff_yaw_;
     float kp_yaw_, ki_yaw_, kd_yaw_;
+    // Random
+    float last_pan_ = 0.0f;
+    float last_tilt_ = 0.0f;
+    float min_angle_step_ = 0.1f;  // rad
+
+    enum class ScanPhase { INIT, PAN, RETURN, PAUSE };
+    ScanPhase scan_phase_ = ScanPhase::INIT;
+
+    std::vector<float> tilt_levels_;
+    int tilt_index_ = 0;
+
+    float pan_step_;
+    float current_pan_;
+    float current_tilt_;
+    bool sens_aller_ = true;
+    float last_sent_pan_ = 999.0f;
+    float last_sent_tilt_ = 999.0f;
 
     // Callbacks
     void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);

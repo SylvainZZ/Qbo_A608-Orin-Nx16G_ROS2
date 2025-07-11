@@ -1,43 +1,85 @@
+/*
+ * Software License Agreement (GPLv2 License)
+ *
+ * Copyright (c) 2012 Thecorpora, S.L.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ *
+ * Author: Arturo Bajuelos <arturo@openqbo.com>
+ * Author: Sylvain <sylvain-zwolinski@orange.fr>
+ */
+
 #include "../include/face_follower.hpp"
+#include <signal.h>  // pour signal()
 
 
-FaceFollower::FaceFollower()
-: rclcpp::Node("face_follower")
+FaceFollower::FaceFollower(const rclcpp::NodeOptions & options)
+: rclcpp::Node("qbo_face_following", options)
 {
     RCLCPP_INFO(this->get_logger(), "Initializing Qbo face follower node");
     onInit();
     RCLCPP_INFO(this->get_logger(), "Ready for face following. Waiting for face positions");
 }
 
-// FaceFollower::~FaceFollower()
-// {
-// 	// deleteROSParams();
-// 	printf("Qbo face tracking successfully ended\n");
-// }
 
 void FaceFollower::declare_and_get_parameters()
 {
     this->declare_parameter("move_base", false);
     this->declare_parameter("move_head", true);
+    this->declare_parameter("send_stop", true);
+
+    this->declare_parameter("search_pan_vel", 0.3);
+    this->declare_parameter("search_pan_step", 0.2);
     this->declare_parameter("search_min_pan", -0.3);
     this->declare_parameter("search_max_pan", 0.3);
-    this->declare_parameter("search_pan_vel", 0.3);
-    this->declare_parameter("search_min_tilt", 0.7);
-    this->declare_parameter("search_max_tilt", 0.7);
+
     this->declare_parameter("search_tilt_vel", 0.3);
+    this->declare_parameter("search_tilt_levels", std::vector<double>{-0.5, 0.0, 0.3});
+    this->declare_parameter("search_min_tilt", -0.5);
+    this->declare_parameter("search_max_tilt", 0.3);
+
+    this->declare_parameter("scan_interval", 1.0);
+    this->declare_parameter("search_pause_duration", 3.0);
+
     this->declare_parameter("desired_distance", 1.0);
-    this->declare_parameter("send_stop", true);
+
 
     this->get_parameter("move_base", move_base_bool_);
     this->get_parameter("move_head", move_head_bool_);
+    this->get_parameter("send_stop", send_stop_);
+
+    this->get_parameter("search_pan_vel", search_pan_vel_);
+    this->get_parameter("search_pan_step", pan_step_);
     this->get_parameter("search_min_pan", search_min_pan_);
     this->get_parameter("search_max_pan", search_max_pan_);
-    this->get_parameter("search_pan_vel", search_pan_vel_);
+
+    this->get_parameter("search_tilt_vel", search_tilt_vel_);
+    std::vector<double> tilt_d;
+    this->get_parameter("search_tilt_levels", tilt_d);
+    tilt_levels_.assign(tilt_d.begin(), tilt_d.end());
     this->get_parameter("search_min_tilt", search_min_tilt_);
     this->get_parameter("search_max_tilt", search_max_tilt_);
-    this->get_parameter("search_tilt_vel", search_tilt_vel_);
+
+    double scan_int, pause_dur;
+    this->get_parameter("scan_interval", scan_int);
+    this->get_parameter("search_pause_duration", pause_dur);
+    scan_interval_ = rclcpp::Duration::from_seconds(scan_int);
+    pause_duration_ = rclcpp::Duration::from_seconds(pause_dur);
+
     this->get_parameter("desired_distance", desired_distance_);
-    this->get_parameter("send_stop", send_stop_);
 }
 
 
@@ -46,7 +88,7 @@ void FaceFollower::onInit()
     declare_and_get_parameters();
 
     camera_info_sub_ = create_subscription<sensor_msgs::msg::CameraInfo>(
-        "/stereo/left/camera_info", 10,
+        "/camera_info", 10,
         std::bind(&FaceFollower::cameraInfoCallback, this, std::placeholders::_1));
 
     joint_pub_ = create_publisher<sensor_msgs::msg::JointState>("/cmd_joints", 1);
@@ -77,6 +119,7 @@ void FaceFollower::onInit()
 
     image_width_ = 640;
     image_height_ = 480;
+    last_scan_move_ = this->get_clock()->now();
 }
 
 
@@ -201,22 +244,99 @@ void FaceFollower::facePositionCallback(const qbo_msgs::msg::FacePosAndDist::Sha
 
         sendVelocityBase(linear_vel, angular_vel);
     }
+    // else
+    // {
+    //     auto now = this->get_clock()->now();
+
+    //     if ((now - last_scan_move_) > scan_interval_)
+    //     {
+    //         last_scan_move_ = now;
+
+    //         // Générer des angles aléatoires dans les bornes définies
+    //         std::random_device rd;
+    //         std::mt19937 gen(rd());
+
+    //         std::uniform_real_distribution<float> rand_pan(search_min_pan_, search_max_pan_);
+    //         std::uniform_real_distribution<float> rand_tilt(search_min_tilt_, search_max_tilt_);
+
+    //         float pan, tilt;
+    //         int max_attempts = 5;
+    //         do {
+    //             pan = rand_pan(gen);
+    //             tilt = rand_tilt(gen);
+    //             max_attempts--;
+    //         } while ((std::abs(pan - last_pan_) < min_angle_step_ ||
+    //                 std::abs(tilt - last_tilt_) < min_angle_step_) && max_attempts > 0);
+
+    //         last_pan_ = pan;
+    //         last_tilt_ = tilt;
+
+    //         RCLCPP_INFO(this->get_logger(), "No face. Scanning with head pos(%.2f, %.2f)", tilt, pan);
+
+    //         if (move_head_bool_)
+    //             setHeadPositionGlobal(tilt, pan, search_tilt_vel_, search_pan_vel_);
+
+    //         if (move_base_bool_ && send_stop_)
+    //             sendVelocityBase(0.0f, 0.0f);
+    //     }
+    // }
     else
     {
-        // Générer des angles aléatoires dans les bornes définies
-        std::random_device rd;
-        std::mt19937 gen(rd());
+        auto now = this->get_clock()->now();
 
-        std::uniform_real_distribution<float> rand_pan(search_min_pan_, search_max_pan_);
-        std::uniform_real_distribution<float> rand_tilt(search_min_tilt_, search_max_tilt_);
+        if ((now - last_scan_move_) < scan_interval_)
+            return;
 
-        float pan = rand_pan(gen);
-        float tilt = rand_tilt(gen);
+        last_scan_move_ = now;
 
-        RCLCPP_INFO(this->get_logger(), "No face. Scanning with head pos(%.2f, %.2f)", tilt, pan);
+        switch (scan_phase_)
+        {
+            case ScanPhase::INIT:
+                current_pan_ = search_min_pan_;
+                current_tilt_ = tilt_levels_[tilt_index_];  // Ex: -0.4
+                scan_phase_ = ScanPhase::PAN;
+                break;
 
-        if (move_head_bool_)
-            setHeadPositionGlobal(tilt, pan, search_tilt_vel_, search_pan_vel_);
+            case ScanPhase::PAN:
+                RCLCPP_INFO(this->get_logger(), "Scan: pan %.2f ➝ %.2f, tilt %.2f", search_min_pan_, search_max_pan_, current_tilt_);
+
+                if (sens_aller_) {
+                    setHeadPositionGlobal(current_tilt_, search_max_pan_, search_tilt_vel_, search_pan_vel_);
+
+                    sens_aller_ = false;
+                } else {
+                    setHeadPositionGlobal(current_tilt_, search_min_pan_, search_tilt_vel_, search_pan_vel_);
+
+                    sens_aller_ = true;
+                }
+
+                // on passe en phase PAUSE directement après
+                scan_phase_ = ScanPhase::PAUSE;
+                pause_start_time_ = now;
+                break;
+
+            case ScanPhase::PAUSE:
+                if ((now - pause_start_time_) >= pause_duration_)
+                {
+                    if (!sens_aller_)  // Fin d'aller-retour
+                    {
+                        tilt_index_++;
+                        if (tilt_index_ >= static_cast<int>(tilt_levels_.size()))
+                            tilt_index_ = 0;
+
+                        float new_tilt = tilt_levels_[tilt_index_];
+
+                        // 🔒 éviter de réassigner si même tilt
+                        if (std::abs(new_tilt - current_tilt_) >= 0.01f)
+                            current_tilt_ = new_tilt;
+                    }
+                    scan_phase_ = ScanPhase::INIT;  // ✅ redémarre le cycle
+                }
+                break;
+
+            default:
+                break;
+        }
 
         if (move_base_bool_ && send_stop_)
             sendVelocityBase(0.0f, 0.0f);
@@ -257,9 +377,19 @@ void FaceFollower::setHeadPositionToFace(float pos_updown, float pos_leftright, 
 
 void FaceFollower::setHeadPositionGlobal(float pos_updown, float pos_leftright, float vel_updown, float vel_leftright)
 {
-    // Contrainte : valeur entre -1.5 et +1.5 (pan)
-    pos_leftright = std::clamp(pos_leftright, -1.5f, 1.5f);
-    pos_updown    = std::clamp(pos_updown,   -1.5f, 1.5f);
+    // Contrainte : valeur entre -1.4 et +1.4 (pan)
+    pos_leftright = std::clamp(pos_leftright, -1.4f, 1.4f);
+    pos_updown    = std::clamp(pos_updown,   -0.5f, 0.3f);
+
+    // 🧠 Ignorer les commandes déjà envoyées (évite les à-coups)
+    if (std::abs(pos_leftright - last_sent_pan_) < 0.01f &&
+        std::abs(pos_updown - last_sent_tilt_) < 0.01f)
+    {
+        return;
+    }
+
+    last_sent_pan_ = pos_leftright;
+    last_sent_tilt_ = pos_updown;
 
     auto joint_state = sensor_msgs::msg::JointState();
     joint_state.name = {"head_pan_joint", "head_tilt_joint"};
@@ -297,32 +427,28 @@ void FaceFollower::headToZeroPosition()
 {
     RCLCPP_INFO(this->get_logger(), "Resetting head to default position...");
 
-    auto joint_pub_tmp = create_publisher<sensor_msgs::msg::JointState>("/cmd_joints", 1);
-    auto joint_sub_tmp = create_subscription<sensor_msgs::msg::JointState>(
-        "/joint_states", 10,
-        std::bind(&FaceFollower::jointStateCallback, this, std::placeholders::_1));
-
+    // On utilise le publisher ROS 2 existant, pas besoin d’en créer un autre
     auto joint_state = sensor_msgs::msg::JointState();
     joint_state.name = {"head_pan_joint", "head_tilt_joint"};
     joint_state.position = {0.0, 0.0};
-    joint_state.velocity = {0.2, 0.2};
+    joint_state.velocity = {0.4, 0.4};
 
     yaw_from_joint_ = 1.0f;
     pitch_from_joint_ = 1.0f;
 
-    rclcpp::Time start = this->now();
-
+    rclcpp::Time start = this->get_clock()->now();
     rclcpp::Rate rate(10);
+
     while (rclcpp::ok())
     {
         joint_state.header.stamp = this->get_clock()->now();
-        joint_pub_tmp->publish(joint_state);
+        joint_pub_->publish(joint_state);
         rclcpp::spin_some(shared_from_this());
 
         if (yaw_from_joint_ == 0.0f && pitch_from_joint_ == 0.0f)
             break;
 
-        if ((this->now() - start).seconds() >= 4.0)
+        if ((this->get_clock()->now() - start).seconds() >= 4.0)
             break;
 
         rate.sleep();
@@ -331,14 +457,28 @@ void FaceFollower::headToZeroPosition()
     RCLCPP_INFO(this->get_logger(), "Reset complete.");
 }
 
+std::shared_ptr<FaceFollower> node;
+
+void handleSigInt(int)
+{
+    if (node) {
+        node->headToZeroPosition();
+    }
+    rclcpp::shutdown();  // Ensuite shutdown ROS proprement
+}
 
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<FaceFollower>();
+
+    rclcpp::NodeOptions options;
+    options.allow_undeclared_parameters(true);
+    // options.automatically_declare_parameters_from_overrides(true);
+
+    node = std::make_shared<FaceFollower>(options);
+    signal(SIGINT, handleSigInt);  // Remplace le handler ROS interne
     rclcpp::spin(node);
-    node->headToZeroPosition();
-    rclcpp::shutdown();
+
     return 0;
 }
 

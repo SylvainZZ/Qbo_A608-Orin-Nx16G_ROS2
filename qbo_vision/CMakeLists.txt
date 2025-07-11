@@ -40,15 +40,45 @@ install(TARGETS face_follower_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
-add_executable(imx219_camera_node src/imx219_camera_node.cpp)
-ament_target_dependencies(imx219_camera_node rclcpp sensor_msgs cv_bridge)
-target_link_libraries(imx219_camera_node ${OpenCV_LIBS})
-install(TARGETS imx219_camera_node DESTINATION lib/${PROJECT_NAME})
 
-add_executable(gstreamer_camera_node src/gstreamer_camera_node.cpp)
-ament_target_dependencies(gstreamer_camera_node rclcpp sensor_msgs cv_bridge)
-target_link_libraries(gstreamer_camera_node ${OpenCV_LIBS})
-install(TARGETS gstreamer_camera_node DESTINATION lib/${PROJECT_NAME})
+add_executable(face_detector_node src/face_detector.cpp)
+
+ament_target_dependencies(face_detector_node
+  rclcpp
+  std_msgs
+  sensor_msgs
+  cv_bridge
+  image_transport
+  OpenCV
+  qbo_msgs
+)
+
+target_include_directories(face_detector_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS face_detector_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# add_executable(imx219_camera_node src/imx219_camera_node.cpp)
+# ament_target_dependencies(imx219_camera_node rclcpp sensor_msgs cv_bridge)
+# target_link_libraries(imx219_camera_node ${OpenCV_LIBS})
+# install(TARGETS imx219_camera_node DESTINATION lib/${PROJECT_NAME})
+
+# add_executable(gstreamer_camera_node src/gstreamer_camera_node.cpp)
+# ament_target_dependencies(gstreamer_camera_node rclcpp sensor_msgs cv_bridge)
+# target_link_libraries(gstreamer_camera_node ${OpenCV_LIBS})
+# install(TARGETS gstreamer_camera_node DESTINATION lib/${PROJECT_NAME})
 
 
 if(BUILD_TESTING)
