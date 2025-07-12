@@ -14,12 +14,12 @@ FaceDetector::FaceDetector(const rclcpp::NodeOptions & options)
 
     // Abonnements
     image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-        "/image_raw", 10,
+        "camera_left/image_raw", 10,
         std::bind(&FaceDetector::imageCallback, this, std::placeholders::_1)
     );
 
     info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        "/camera_info", 10,
+        "camera_left/camera_info", 10,
         std::bind(&FaceDetector::infoCallback, this, std::placeholders::_1)
     );
 
@@ -86,7 +86,7 @@ void FaceDetector::delayedInitImageTransport()
     it_ = std::make_shared<image_transport::ImageTransport>(shared_from_this());
 
     face_pub_ = it_->advertise("/face_name", 1);
-    viewer_image_pub_ = it_->advertise("/face_detector/debug_image", 1);
+    viewer_image_pub_ = it_->advertise("/qbo_face_tracking/debug_image", 1);
 
     RCLCPP_INFO(this->get_logger(), "📷 image_transport initialisé");
 }
@@ -204,16 +204,6 @@ void FaceDetector::infoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedP
 }
 
 
-// Définition avec flag
-// void classifierDetect(cv::Mat image,
-//                       std::vector<cv::Rect> &detections,
-//                       cv::CascadeClassifier &classifier,
-//                       int flag,
-//                       cv::Size size)
-// {
-//     // classifier.detectMultiScale(image, detections, 1.1, 3, flag, size);
-//     classifier.detectMultiScale(image, detections, 1.1, 5, flag, size);
-// }
 void classifierDetect(cv::Mat image,
                       std::vector<cv::Rect> &detections,
                       cv::CascadeClassifier &classifier,
@@ -302,8 +292,8 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
 
     if (!face_detected_bool_)  // Sinon → détection Haar classique
     {
-        if (loop_counter_ % haar_detection_skip_ == 0)
-        {
+        // if (loop_counter_ % haar_detection_skip_ == 0)
+        // {
             std::vector<cv::Rect> faces_roi;
             detectFacesHaar(image_received, faces_roi);
 
@@ -317,7 +307,7 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
 
                 detection_type = "HAAR";
             }
-        }
+        // }
     }
 
     if (!face_detected_bool_ && exist_alternative_)  // Fallback : cascade alternative
@@ -370,14 +360,12 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
         }
         else
         {
-            float u_vel = float(detected_face_roi_.x + detected_face_roi_.width / 2.0f) - kalman_filter_.statePost.at<float>(0, 0);
-            float v_vel = float(detected_face_roi_.y + detected_face_roi_.height / 2.0f) - kalman_filter_.statePost.at<float>(1, 0);
+            // float u_vel = float(detected_face_roi_.x + detected_face_roi_.width / 2.0f) - kalman_filter_.statePost.at<float>(0, 0);
+            // float v_vel = float(detected_face_roi_.y + detected_face_roi_.height / 2.0f) - kalman_filter_.statePost.at<float>(1, 0);
 
             cv::Mat measures(2, 1, CV_32FC1);
             measures.at<float>(0, 0) = float(detected_face_roi_.x + detected_face_roi_.width / 2.0f);
             measures.at<float>(1, 0) = float(detected_face_roi_.y + detected_face_roi_.height / 2.0f);
-            // measures.at<float>(2, 0) = u_vel;
-            // measures.at<float>(3, 0) = v_vel;
 
             // RCLCPP_INFO(this->get_logger(),
             //     "🔎 Kalman matrices:\n"
@@ -414,7 +402,7 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
 
         if (undetected_count_ > undetected_threshold_ * 3)
         {
-            RCLCPP_WARN(this->get_logger(), "🔁 Face lost too long. Resetting Kalman filter.");
+            // RCLCPP_WARN(this->get_logger(), "🔁 Face lost too long. Resetting Kalman filter.");
             kalman_filter_.statePre = cv::Mat::zeros(4, 1, CV_32FC1);
             kalman_filter_.statePost = cv::Mat::zeros(4, 1, CV_32FC1);
         }
@@ -484,10 +472,10 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
             sendToRecognizer();  // ⚠️ Cette fonction devra être migrée aussi
         }
 
-        nose.color = 4; // Visage détecté = Bleu
+        nose.color = 4; // Visage détecté = Vert
         if (head_distance < distance_threshold_)
         {
-            nose.color = 2; // Tête proche = Vert
+            nose.color = 2; // Tête proche = Bleu
         }
     }
 

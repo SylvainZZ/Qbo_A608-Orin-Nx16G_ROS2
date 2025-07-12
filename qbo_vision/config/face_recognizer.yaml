@@ -1,0 +1,6 @@
+qbo_face_recognizer:
+  ros__parameters:
+    faces_dir: "faces"  # Dossier racine des visages, relatif au package qbo_vision
+    model_file: "face_model.xml"  # Nom du fichier modèle LBPH
+    confidence_threshold: 55.0    # Score max pour accepter une reconnaissance (plus bas = plus strict)
+    min_images_per_person: 10     # Nombre minimal d'images requises pour une personne

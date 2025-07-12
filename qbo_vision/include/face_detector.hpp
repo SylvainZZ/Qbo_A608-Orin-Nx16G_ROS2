@@ -91,7 +91,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     void delayedInitImageTransport();
     rclcpp::Time last_image_time_{0, 0, RCL_ROS_TIME};
-    const double throttle_interval_sec_ = 0.1;  // 10 Hz (tu peux changer)
+    const double throttle_interval_sec_ = 0.10;  // 10 Hz (tu peux changer)
     unsigned int debug_print_every_n_ = 10;     // debug toutes les 10 frames
     int haar_detection_skip_ = 5;  // essaie Haar 1 fois toutes les 5 frames
 

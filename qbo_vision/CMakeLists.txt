@@ -13,6 +13,7 @@ endif()
 # --------------------
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -61,6 +62,48 @@ target_include_directories(face_detector_node PUBLIC
 install(TARGETS face_detector_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
+
+add_executable(face_recognizer_node
+  src/face_recognizer.cpp
+)
+
+ament_target_dependencies(face_recognizer_node
+  rclcpp
+  sensor_msgs
+  cv_bridge
+  qbo_msgs
+  OpenCV
+  ament_index_cpp
+)
+
+target_link_libraries(face_recognizer_node
+  ${OpenCV_LIBRARIES}
+)
+
+install(TARGETS
+  face_recognizer_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
+add_executable(face_learning_node src/face_learning_node.cpp)
+ament_target_dependencies(face_learning_node
+  rclcpp
+  rclcpp_components
+  cv_bridge
+  sensor_msgs
+  std_msgs
+  image_transport
+  OpenCV
+  qbo_msgs
+)
+install(TARGETS
+  face_learning_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}

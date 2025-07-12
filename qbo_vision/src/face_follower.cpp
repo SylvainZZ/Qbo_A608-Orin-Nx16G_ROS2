@@ -88,7 +88,7 @@ void FaceFollower::onInit()
     declare_and_get_parameters();
 
     camera_info_sub_ = create_subscription<sensor_msgs::msg::CameraInfo>(
-        "/camera_info", 10,
+        "camera_left/camera_info", 10,
         std::bind(&FaceFollower::cameraInfoCallback, this, std::placeholders::_1));
 
     joint_pub_ = create_publisher<sensor_msgs::msg::JointState>("/cmd_joints", 1);

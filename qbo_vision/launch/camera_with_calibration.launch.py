@@ -18,16 +18,16 @@ def generate_launch_description():
             name='usb_cam',
             parameters=[{
                 'video_device': '/dev/video0',
-                'image_width': 640,
-                'image_height': 480,
+                'image_width': 800,
+                'image_height': 600,
                 'pixel_format': 'yuyv',
-                'framerate': 15.0,
-                'camera_name': 'default_cam',
+                'framerate': 20.0,
+                'camera_name': 'left_camera',
                 'camera_info_url': f'file://{config_path}'
             }],
             remappings=[
-                ('/image_raw', '/image_raw'),
-                ('/camera_info', '/camera_info')
+                ('/image_raw', 'camera_left/image_raw'),
+                ('/camera_info', 'camera_left/camera_info')
             ]
         )
     ])

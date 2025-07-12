@@ -28,6 +28,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/SetMouthAnimation.srv"
   "srv/RecognizeFace.srv"
   "srv/GetName.srv"
+  "srv/Train.srv"
+  "srv/LearnFaces.srv"
   DEPENDENCIES std_msgs builtin_interfaces sensor_msgs
 )
 

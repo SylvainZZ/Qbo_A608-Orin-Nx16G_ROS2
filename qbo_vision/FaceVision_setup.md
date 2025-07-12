@@ -5,6 +5,13 @@ source install/setup.bash
 
 ros2 run usb_cam usb_cam_node_exe --ros-args   -p video_device:=/dev/video0   -p pixel_format:=yuyv   -p image_width:=640   -p image_height:=480   -p framerate:=30.0
 
+ros2 run camera_calibration cameracalibrator   --size 8x6   --square 0.0285   --no-service-check   --ros-args   -r image:=/image_raw
+
+mkdir -p /tmp/calib_temp && \
+tar -xzf /tmp/calibrationdata.tar.gz -C /tmp/calib_temp && \
+mv /tmp/calib_temp/ost.yaml ~/qbo_ws/src/qbo_vision/config/calibration/new_calibration.yaml && \
+rm -r /tmp/calib_temp
+
 ros2 launch qbo_vision camera_with_calibration.launch.py
 ros2 run qbo_vision face_follower_node --ros-args --params-file src/qbo_vision/config/face_follower.yaml
 ros2 run qbo_vision face_detector_node --ros-args --params-file src/qbo_vision/config/face_detector.yaml
