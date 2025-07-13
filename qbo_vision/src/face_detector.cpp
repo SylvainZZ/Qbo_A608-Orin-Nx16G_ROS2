@@ -32,8 +32,8 @@ FaceDetector::FaceDetector(const rclcpp::NodeOptions & options)
     // viewer_image_pub_ = it_->advertise("/face_detector/debug_image", 1);
 
     // Services
-    client_recognize_ = this->create_client<qbo_msgs::srv::RecognizeFace>("recognize_face");
-    client_get_name_ = this->create_client<qbo_msgs::srv::GetName>("get_name");
+    client_recognize_ = this->create_client<qbo_msgs::srv::RecognizeFace>("qbo_face_recognizer/recognize_face");
+    // client_get_name_ = this->create_client<qbo_msgs::srv::GetName>("get_name");
 
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -237,9 +237,34 @@ void classifierDetect(cv::Mat image,
 
 void FaceDetector::sendToRecognizer()
 {
-    // Fonction à implémenter plus tard
-}
+    if (!client_recognize_->wait_for_service(std::chrono::milliseconds(100))) {
+        RCLCPP_WARN(this->get_logger(), "⏳ Service recognize_face non disponible");
+        return;
+    }
 
+    // Préparer la requête
+    auto request = std::make_shared<qbo_msgs::srv::RecognizeFace::Request>();
+    cv::Mat face_gray;
+    cv::cvtColor(detected_face_, face_gray, cv::COLOR_BGR2GRAY);
+
+    cv_bridge::CvImage cv_image;
+    cv_image.image = face_gray;
+    cv_image.encoding = "mono8";
+    cv_image.header.stamp = this->get_clock()->now();
+
+    request->face = *cv_image.toImageMsg();
+
+    // Appel async non bloquant
+    auto future = client_recognize_->async_send_request(request,
+        [this](rclcpp::Client<qbo_msgs::srv::RecognizeFace>::SharedFuture result) {
+            if (result.get()->recognized) {
+                name_detected_ = result.get()->name;
+            } else {
+                name_detected_ = "unknown";
+            }
+            RCLCPP_INFO(this->get_logger(), "🧠 Nom détecté (reconnaissance): %s", name_detected_.c_str());
+        });
+}
 
 
 void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr image_ptr)
@@ -471,6 +496,8 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
         {
             sendToRecognizer();  // ⚠️ Cette fonction devra être migrée aussi
         }
+
+        message.name_signature = name_detected_;
 
         nose.color = 4; // Visage détecté = Vert
         if (head_distance < distance_threshold_)

@@ -64,11 +64,11 @@ install(TARGETS face_detector_node
 )
 
 
-add_executable(face_recognizer_node
+add_executable(qbo_face_recognizer
   src/face_recognizer.cpp
 )
 
-ament_target_dependencies(face_recognizer_node
+ament_target_dependencies(qbo_face_recognizer
   rclcpp
   sensor_msgs
   cv_bridge
@@ -77,31 +77,31 @@ ament_target_dependencies(face_recognizer_node
   ament_index_cpp
 )
 
-target_link_libraries(face_recognizer_node
+target_link_libraries(qbo_face_recognizer
   ${OpenCV_LIBRARIES}
 )
 
 install(TARGETS
-  face_recognizer_node
+  qbo_face_recognizer
   DESTINATION lib/${PROJECT_NAME}
 )
 
 
-add_executable(face_learning_node src/face_learning_node.cpp)
-ament_target_dependencies(face_learning_node
-  rclcpp
-  rclcpp_components
-  cv_bridge
-  sensor_msgs
-  std_msgs
-  image_transport
-  OpenCV
-  qbo_msgs
-)
-install(TARGETS
-  face_learning_node
-  DESTINATION lib/${PROJECT_NAME}
-)
+# add_executable(face_learning_node src/face_learning_node.cpp)
+# ament_target_dependencies(face_learning_node
+#   rclcpp
+#   rclcpp_components
+#   cv_bridge
+#   sensor_msgs
+#   std_msgs
+#   image_transport
+#   OpenCV
+#   qbo_msgs
+# )
+# install(TARGETS
+#   face_learning_node
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 
 

@@ -8,5 +8,5 @@ qbo_face_detector:
     check_track_obj: 1
     undetected_threshold: 5
     distance_threshold: 1.2
-    send_to_face_recognizer: false
+    send_to_face_recognizer: true
     print_recognized_face: true

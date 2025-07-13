@@ -97,11 +97,11 @@ private:
 
 
     rclcpp::Client<qbo_msgs::srv::RecognizeFace>::SharedPtr client_recognize_;
-    rclcpp::Client<qbo_msgs::srv::GetName>::SharedPtr client_get_name_;
+    // rclcpp::Client<qbo_msgs::srv::GetName>::SharedPtr client_get_name_;
 
     // ROS messages/services
     qbo_msgs::srv::RecognizeFace::Request::SharedPtr srv;
-    qbo_msgs::srv::GetName::Request::SharedPtr srv_get_name;
+    // qbo_msgs::srv::GetName::Request::SharedPtr srv_get_name;
 
     // Internals
     cv::Size image_size_;
