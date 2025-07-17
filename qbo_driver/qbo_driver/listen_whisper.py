@@ -43,7 +43,7 @@ class ListenNode(Node):
         mic_volume = self.get_parameter("mic_volume_percent").get_parameter_value().integer_value
 
         self.declare_parameter("system_lang", "fr")
-        self.declare_parameter("whisper_model", "medium")
+        self.declare_parameter("whisper_model", "small")
 
         self.lang = self.get_parameter("system_lang").get_parameter_value().string_value
         device_hint = self.get_parameter("audio_in_device_name").get_parameter_value().string_value

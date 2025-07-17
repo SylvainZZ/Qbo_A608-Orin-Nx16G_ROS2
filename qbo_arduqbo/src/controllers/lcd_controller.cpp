@@ -7,7 +7,7 @@
 using namespace std::chrono_literals;
 
 LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("lcd_ctrl", options),
+: Node("lcd_ctrl", "qbo_arduqbo", options),
   driver_(driver),
   updater_(
     this->get_node_base_interface(),
@@ -18,8 +18,8 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     this->get_node_topics_interface(),
     1.0)
 {
-    this->declare_parameter("topic", "cmd_lcd");
-    this->declare_parameter("rate", 1.0);
+    // this->declare_parameter("topic", "cmd_lcd");
+    // this->declare_parameter("rate", 1.0);
 
     std::string topic;
     this->get_parameter("topic", topic);

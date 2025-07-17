@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 CBatteryController::CBatteryController(
     std::shared_ptr<I2CBusDriver> driver,
     const rclcpp::NodeOptions & options)
-    : rclcpp::Node("battery_ctrl", options),
+    : rclcpp::Node("battery_ctrl", "qbo_arduqbo", options),
       updater_(
           this->get_node_base_interface(),
           this->get_node_clock_interface(),
@@ -25,13 +25,13 @@ CBatteryController::CBatteryController(
     name_ = this->get_name();
 
     // Déclaration des paramètres
-    this->declare_parameter("topic", "battery_state");
-    this->declare_parameter("rate", 15.0);
-    this->declare_parameter("error_battery_level", 12.0);
-    this->declare_parameter("warn_battery_level", 12.5);
-    this->declare_parameter("capacity_ah", 10.0);
-    this->declare_parameter("nominal_voltage", 13.0);
-    this->declare_parameter("battery_type", "LiFePo4");
+    // this->declare_parameter("topic", "battery_state");
+    // this->declare_parameter("rate", 15.0);
+    // this->declare_parameter("error_battery_level", 12.0);
+    // this->declare_parameter("warn_battery_level", 12.5);
+    // this->declare_parameter("capacity_ah", 10.0);
+    // this->declare_parameter("nominal_voltage", 13.0);
+    // this->declare_parameter("battery_type", "LiFePo4");
 
     // Lecture des paramètres
     std::string topic;

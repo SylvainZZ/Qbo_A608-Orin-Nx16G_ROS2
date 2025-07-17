@@ -2,11 +2,11 @@
 #include <rclcpp/rclcpp.hpp>
 
 AudioController::AudioController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("audio_ctrl", options), driver_(driver)
+: Node("audio_ctrl", "qbo_arduqbo", options), driver_(driver)
 {
-    this->declare_parameter("mic_report_topic", "mic_report");
-    this->declare_parameter("rate", 5.0);
-    this->get_parameter("mic_report_topic", mic_topic_);
+    // this->declare_parameter("mic_report_topic", "mic_report");
+    // this->declare_parameter("rate", 5.0);
+    this->get_parameter("topic", mic_topic_);
     this->get_parameter("rate", rate_);
 
     mic_pub_ = this->create_publisher<qbo_msgs::msg::MicReport>(mic_topic_, 10);

@@ -3,8 +3,12 @@
 #include "rclcpp/node_interfaces/node_parameters_interface.hpp"
 
 
-QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node)
-    : node_(node) {}
+QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node,
+                                     const rclcpp::NodeOptions& options)
+: node_(node), node_options_(options)
+{
+    // ...
+}
 
 // qbo_arduqbo.cpp - refactorisation de la fonction setup()
 
@@ -14,10 +18,17 @@ void QboArduqboManager::setup() {
     updater_ = std::make_unique<diagnostic_updater::Updater>(node_);
     updater_->setHardwareID("qbo_arduqbo System");
 
-    // Définition helpers de déclaration / récupération
-    auto declare_and_get_param = [&](const std::string &name, auto &value, const auto &default_val) {
-        node_->declare_parameter(name, default_val);
-        node_->get_parameter(name, value);
+    auto get_param_or_default = [&](const std::string &name, auto &value, const auto &default_val) {
+        if (!node_->get_parameter(name, value)) {
+            value = default_val;
+            // RCLCPP_WARN(node_->get_logger(), "Parameter '%s' not set, using default: %s",
+            //             name.c_str(), std::to_string(value).c_str());
+
+        }
+        // } else {
+        //     RCLCPP_INFO(node_->get_logger(), "Parameter '%s': %s",
+        //                 name.c_str(), std::to_string(value).c_str());
+        // }
     };
 
     // =====================
@@ -25,16 +36,16 @@ void QboArduqboManager::setup() {
     // =====================
     std::string device_path;
     int address;
-    declare_and_get_param("i2c_device", device_path, std::string("/dev/i2c-7"));
-    declare_and_get_param("i2c_address", address, 20);
-    declare_and_get_param("enable_battery", enable_battery_, false);
-    declare_and_get_param("enable_base", enable_base_, false);
-    declare_and_get_param("enable_imu_base", enable_imu_base_, false);
-    declare_and_get_param("enable_imu_head", enable_imu_head_, false);
-    declare_and_get_param("enable_lcd", enable_lcd_, false);
-    declare_and_get_param("enable_nose", enable_nose_, false);
-    declare_and_get_param("enable_mouth", enable_mouth_, false);
-    declare_and_get_param("enable_audio", enable_audio_, false);
+    get_param_or_default("i2c_device", device_path, std::string("/dev/i2c-7"));
+    get_param_or_default("i2c_address", address, 20);
+    get_param_or_default("enable_battery", enable_battery_, false);
+    get_param_or_default("enable_base", enable_base_, false);
+    get_param_or_default("enable_imu_base", enable_imu_base_, false);
+    get_param_or_default("enable_imu_head", enable_imu_head_, false);
+    get_param_or_default("enable_lcd", enable_lcd_, false);
+    get_param_or_default("enable_nose", enable_nose_, false);
+    get_param_or_default("enable_mouth", enable_mouth_, false);
+    get_param_or_default("enable_audio", enable_audio_, false);
 
     std::string port1, port2;
     int baud1, baud2;
@@ -42,14 +53,14 @@ void QboArduqboManager::setup() {
     uint8_t id = 0;
     int board_id = -1, version = -1;
 
-    declare_and_get_param("port1", port1, std::string("/dev/ttyUSB0"));
-    declare_and_get_param("port2", port2, std::string("/dev/ttyUSB1"));
-    declare_and_get_param("baud1", baud1, 115200);
-    declare_and_get_param("baud2", baud2, 115200);
-    declare_and_get_param("timeout1", timeout1, 0.05);
-    declare_and_get_param("timeout2", timeout2, 0.05);
-    declare_and_get_param("enable_qboard1", enable_qboard1_, true);
-    declare_and_get_param("enable_qboard2", enable_qboard2_, true);
+    get_param_or_default("port1", port1, std::string("/dev/ttyUSB0"));
+    get_param_or_default("port2", port2, std::string("/dev/ttyUSB1"));
+    get_param_or_default("baud1", baud1, 115200);
+    get_param_or_default("baud2", baud2, 115200);
+    get_param_or_default("timeout1", timeout1, 0.05);
+    get_param_or_default("timeout2", timeout2, 0.05);
+    get_param_or_default("enable_qboard1", enable_qboard1_, true);
+    get_param_or_default("enable_qboard2", enable_qboard2_, true);
 
     RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1.c_str(), enable_qboard1_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2.c_str(), enable_qboard2_ ? "enabled" : "disabled");
@@ -100,10 +111,7 @@ void QboArduqboManager::setup() {
 
         bool loaded = false;
         if (enable_base_) {
-            auto base_ctrl = std::make_shared<BaseController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "base_ctrl")
-            );
+            auto base_ctrl = std::make_shared<BaseController>(arduino_driver_, node_options_);
             controllers_.push_back(base_ctrl);
             loaded = true;
         }
@@ -111,10 +119,7 @@ void QboArduqboManager::setup() {
 
         loaded = false;
         if (enable_imu_base_) {
-            auto imu_ctrl = std::make_shared<ImuController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "imu_ctrl")
-            );
+            auto imu_ctrl = std::make_shared<ImuController>(arduino_driver_,  node_options_);
             controllers_.push_back(imu_ctrl);
             loaded = true;
         }
@@ -122,10 +127,7 @@ void QboArduqboManager::setup() {
 
         loaded = false;
         if (enable_lcd_) {
-            auto lcd_ctrl = std::make_shared<LcdController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "lcd_ctrl")
-            );
+            auto lcd_ctrl = std::make_shared<LcdController>(arduino_driver_,  node_options_);
             controllers_.push_back(lcd_ctrl);
             loaded = true;
         }
@@ -151,10 +153,7 @@ void QboArduqboManager::setup() {
 
         bool loaded = false;
         if (enable_nose_) {
-            auto nose_ctrl = std::make_shared<NoseController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "nose_ctrl")
-            );
+            auto nose_ctrl = std::make_shared<NoseController>(arduino_driver_,  node_options_);
             controllers_.push_back(nose_ctrl);
             loaded = true;
         }
@@ -162,10 +161,7 @@ void QboArduqboManager::setup() {
 
         loaded = false;
         if (enable_mouth_) {
-            auto mouth_ctrl = std::make_shared<MouthController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "mouth_ctrl")
-            );
+            auto mouth_ctrl = std::make_shared<MouthController>(arduino_driver_,  node_options_);
             controllers_.push_back(mouth_ctrl);
             loaded = true;
         }
@@ -173,10 +169,7 @@ void QboArduqboManager::setup() {
 
         loaded = false;
         if (enable_audio_) {
-            auto audio_ctrl = std::make_shared<AudioController>(
-                arduino_driver_,
-                rclcpp::NodeOptions().append_parameter_override("name", "audio_ctrl")
-            );
+            auto audio_ctrl = std::make_shared<AudioController>(arduino_driver_,  node_options_);
             controllers_.push_back(audio_ctrl);
             loaded = true;
         }
@@ -189,10 +182,7 @@ void QboArduqboManager::setup() {
     // ➕ Qboard 3 (I2C - battery)
     bool loaded = false;
     if (enable_battery_) {
-        auto battery = std::make_shared<CBatteryController>(
-            i2c_driver_,
-            rclcpp::NodeOptions().append_parameter_override("name", "battery_ctrl")
-        );
+        auto battery = std::make_shared<CBatteryController>(i2c_driver_, node_options_);
         controllers_.push_back(std::static_pointer_cast<rclcpp::Node>(battery));
         loaded = true;
     }
@@ -255,8 +245,12 @@ int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
-    auto node = std::make_shared<rclcpp::Node>("qbo_arduqbo");
-    QboArduqboManager manager(node);
+    rclcpp::NodeOptions options;
+    options.allow_undeclared_parameters(true);
+    options.automatically_declare_parameters_from_overrides(true);
+
+    auto node = std::make_shared<rclcpp::Node>("qbo_arduqbo", options);
+    QboArduqboManager manager(node, options);
 
     manager.setup();  // configure les contrôleurs
     manager.run();    // lance l'exécuteur avec tous les nœuds enregistrés

@@ -8,7 +8,7 @@ static constexpr double GYRO_MEASUREMENT_SCALE = 250.0 * M_PI / (180.0 * 32768.0
 static constexpr double ACC_MEASUREMENT_SCALE = 9.81 / 16384.0;  // ±2g mode
 
 ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("imu_ctrl", options),
+: Node("imu_ctrl", "qbo_arduqbo", options),
   updater_(
     this->get_node_base_interface(),
     this->get_node_clock_interface(),
@@ -24,8 +24,8 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     uint8_t i2c_state = 0;
 
     // Paramètres
-    this->declare_parameter("topic", "imu_state");
-    this->declare_parameter("rate", 1.0);
+    // this->declare_parameter("topic", "imu_state");
+    // this->declare_parameter("rate", 1.0);
     std::string topic;
     this->get_parameter("topic", topic);
     this->get_parameter("rate", rate_);

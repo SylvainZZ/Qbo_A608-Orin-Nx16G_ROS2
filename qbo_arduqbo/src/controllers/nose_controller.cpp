@@ -2,10 +2,10 @@
 #include <rclcpp/rclcpp.hpp>
 
 NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("nose_ctrl", options), driver_(driver)
+: Node("nose_ctrl", "qbo_arduqbo", options), driver_(driver)
 {
-    this->declare_parameter("topic", "cmd_nose");
-    this->declare_parameter("rate", 1.0);
+    // this->declare_parameter("topic", "cmd_nose");
+    // this->declare_parameter("rate", 1.0);
     this->get_parameter("topic", topic_);
     this->get_parameter("rate", rate_);
 

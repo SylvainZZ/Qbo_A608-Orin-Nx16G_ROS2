@@ -17,7 +17,7 @@
 
 class QboArduqboManager {
 public:
-    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node);
+    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node, const rclcpp::NodeOptions& options);
     void setup();
     void run();
 
@@ -27,6 +27,7 @@ private:
     std::shared_ptr<QboDuinoDriver> arduino_driver_;
     std::vector<std::shared_ptr<rclcpp::Node>> controllers_;  // Pour garder les instances
     rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+    rclcpp::NodeOptions node_options_;
 
     // Flags
     bool enable_qboard1_;

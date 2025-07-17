@@ -2,7 +2,7 @@
 #include "qbo_arduqbo/controllers/base_controller.hpp"
 
 BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-  : Node("base_ctrl", options),
+  : Node("base_ctrl", "qbo_arduqbo", options),
     driver_(driver),
     broadcast_tf_(true),
     base_stop_(false),
@@ -24,10 +24,12 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
 
-    declare_parameter("rate", 15.0);
-    declare_parameter("topic", "/cmd_vel");
-    declare_parameter("odom_topic", "/odom");
-    declare_parameter("tf_odom_broadcast", true);
+    // declare_parameter("rate", 15.0);
+    // declare_parameter("topic", "/cmd_vel");
+    // declare_parameter("odom_topic", "/odom");
+    // declare_parameter("tf_odom_broadcast", true);
+    // RCLCPP_INFO(this->get_logger(), "BaseController node: '%s'", this->get_fully_qualified_name().c_str());
+
 
     get_parameter("rate", rate_);
     get_parameter("topic", cmd_topic_);

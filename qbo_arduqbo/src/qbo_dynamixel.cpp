@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         std::string usb_port = "";
         int baud_rate = -1;
         double protocol_version = -1.0;
-        
+
         // Récupération des valeurs
         node->get_parameter("dynamixel.usb_port", usb_port);
         node->get_parameter("dynamixel.baud_rate", baud_rate);

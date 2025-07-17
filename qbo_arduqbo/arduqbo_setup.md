@@ -1,5 +1,9 @@
 # qbo_arduqbo
 
+**Version :** 0.1.3
+
+## 📦 Description du package
+
 Contrôleurs ROS 2 pour la gestion matérielle des cartes Q.bo (QBoard1, QBoard2, QBoard3) sur le robot Q.bo V2. Ce package permet de piloter et diagnostiquer les différentes fonctionnalités matérielles embarquées via des interfaces série et I2C.
 
 ## 📦 Fonctionnalités
@@ -163,8 +167,19 @@ qbo_arduqbo/
 
 ---
 
-## 🧑‍💻 Auteur
+ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml
+ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml --log-level DEBUG
+colcon build --packages-select qbo_msgs   --cmake-clean-cache   --allow-overriding qbo_msgs
+ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
+ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
+ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
+ros2 launch qbo_arduqbo qbo_full.launch.py
+ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/qbo-v2/qbo_ws/src/qbo_arduqbo/config/diagnostics_aggregator.yaml
+ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
+ros2 service call /mouth_ctrl/test_leds qbo_msgs/srv/TestMouthLeds
+rosservice call /base_ctrl/stop_base std_srvs/srv/Empty
+ros2 topic pub  /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.5}, angular: {z: 0.5}}'
 
-Développé par **Zwolinski** pour le projet Q.bo V2 ROS2
 
-Mainteneur : sylvain-zwolinski@orange.fr
+**Auteur :** Sylvain Zwolinski
+**Licence :** BSD-3-Clause
