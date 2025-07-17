@@ -28,7 +28,7 @@ setup(
     maintainer_email='sylvain-zwolinski@orange.fr',
     description='Supervisory SMACH node and web interface for Qbo robot.',
     license='BSD-3-Clause',
-    tests_require=['pytest'],
+    # tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'smach_qbo = qbo_interface.smach_qbo:main',

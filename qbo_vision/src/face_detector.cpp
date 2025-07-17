@@ -25,8 +25,6 @@ FaceDetector::FaceDetector(const rclcpp::NodeOptions & options)
 
     // Publishers
     face_position_and_size_pub_ = this->create_publisher<qbo_msgs::msg::FacePosAndDist>("/qbo_face_tracking/face_pos_and_dist", 10);
-    // face_pub_ = this->create_publisher<std_msgs::msg::String>("/face_name", 10);
-    // face_pub_ = it_->advertise("/face_name", 1);
     nose_color_pub_ = this->create_publisher<qbo_msgs::msg::Nose>("/cmd_nose", 10);
 
     // viewer_image_pub_ = it_->advertise("/face_detector/debug_image", 1);
@@ -85,7 +83,7 @@ void FaceDetector::delayedInitImageTransport()
 
     it_ = std::make_shared<image_transport::ImageTransport>(shared_from_this());
 
-    face_pub_ = it_->advertise("/face_name", 1);
+    face_pub_ = it_->advertise("/qbo_face_tracking/face_name", 1);
     viewer_image_pub_ = it_->advertise("/qbo_face_tracking/debug_image", 1);
 
     RCLCPP_INFO(this->get_logger(), "📷 image_transport initialisé");
@@ -203,36 +201,79 @@ void FaceDetector::infoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedP
     }
 }
 
-
 void classifierDetect(cv::Mat image,
                       std::vector<cv::Rect> &detections,
                       cv::CascadeClassifier &classifier,
                       int flag,
-                      cv::Size size)
+                      cv::Size min_size,
+                      double scaleFactor,
+                      int minNeighbors,
+                      double margin_ratio_x,
+                      double margin_ratio_y)
 {
     std::vector<cv::Rect> raw_detections;
 
     classifier.detectMultiScale(
         image,
         raw_detections,
-        1.1,         // facteur d’échelle
-        5,           // minNeighbors (plus haut = plus strict)
+        scaleFactor,
+        minNeighbors,
         flag,
-        size,
-        cv::Size(300, 300)  // maxSize : ignore les trop grandes détections
+        min_size,
+        cv::Size()  // No maxSize
     );
 
-    // filtre post-détection (facultatif)
     detections.clear();
     for (const auto &rect : raw_detections)
     {
-        if (rect.width >= 40 && rect.width <= 250 &&
-            rect.height >= 40 && rect.height <= 250)
-        {
-            detections.push_back(rect);
-        }
+        int margin_x = static_cast<int>(rect.width * margin_ratio_x);
+        int margin_y = static_cast<int>(rect.height * margin_ratio_y);
+
+        cv::Rect expanded(
+            std::max(rect.x - margin_x, 0),
+            std::max(rect.y - margin_y, 0),
+            std::min(rect.width + 2 * margin_x, image.cols - rect.x + margin_x),
+            std::min(rect.height + 2 * margin_y, image.rows - rect.y + margin_y)
+        );
+
+        detections.push_back(expanded);
     }
+
+    // std::cout << "✅ " << detections.size() << " visage(s) détecté(s)" << std::endl;
 }
+
+
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier,
+//                       int flag,
+//                       cv::Size size)
+// {
+//     std::vector<cv::Rect> raw_detections;
+
+//     classifier.detectMultiScale(
+//         image,
+//         raw_detections,
+//         1.1,         // facteur d’échelle
+//         5,           // minNeighbors (plus haut = plus strict)
+//         flag,
+//         size,
+//         cv::Size(300, 300)  // maxSize : ignore les trop grandes détections
+//     );
+
+//     // filtre post-détection (facultatif)
+//     detections.clear();
+//     for (const auto &rect : raw_detections)
+//     {
+//         if (rect.width >= 40 && rect.width <= 250 &&
+//             rect.height >= 40 && rect.height <= 250)
+//         {
+//             detections.push_back(rect);
+//         }
+//     }
+// }
+
+
 
 
 void FaceDetector::sendToRecognizer()
@@ -247,12 +288,27 @@ void FaceDetector::sendToRecognizer()
     cv::Mat face_gray;
     cv::cvtColor(detected_face_, face_gray, cv::COLOR_BGR2GRAY);
 
+    // 1. Resize pour standardiser la taille des visages
+    cv::Mat face_resized;
+    cv::resize(face_gray, face_resized, cv::Size(100, 100));
+
+    // 2. Équalisation d'histogramme pour homogénéiser les contrastes
+    cv::Mat face_equalized;
+    cv::equalizeHist(face_resized, face_equalized);
+
+    // 3. Appliquer un flou léger pour réduire le bruit
+    cv::Mat face_blurred;
+    cv::GaussianBlur(face_equalized, face_blurred, cv::Size(3, 3), 0);
+
+    // 3. Préparation du message ROS
     cv_bridge::CvImage cv_image;
-    cv_image.image = face_gray;
+    cv_image.image = face_equalized;
     cv_image.encoding = "mono8";
     cv_image.header.stamp = this->get_clock()->now();
 
+    // 4. Transmission
     request->face = *cv_image.toImageMsg();
+
 
     // Appel async non bloquant
     auto future = client_recognize_->async_send_request(request,
@@ -265,6 +321,59 @@ void FaceDetector::sendToRecognizer()
             RCLCPP_INFO(this->get_logger(), "🧠 Nom détecté (reconnaissance): %s", name_detected_.c_str());
         });
 }
+
+// void FaceDetector::sendToRecognizer()
+// {
+//     if (!client_recognize_->wait_for_service(std::chrono::milliseconds(100))) {
+//         RCLCPP_WARN(this->get_logger(), "⏳ Service recognize_face non disponible");
+//         return;
+//     }
+
+//     if (detected_face_.empty()) {
+//         RCLCPP_WARN(this->get_logger(), "❌ Aucune image de visage à envoyer");
+//         return;
+//     }
+
+//     // 1. Convertir en RGB si ce n'est pas déjà le cas
+//     cv::Mat face_rgb;
+//     if (detected_face_.channels() == 1) {
+//         cv::cvtColor(detected_face_, face_rgb, cv::COLOR_GRAY2RGB);
+//     } else if (detected_face_.channels() == 3) {
+//         cv::cvtColor(detected_face_, face_rgb, cv::COLOR_BGR2RGB);
+//     } else {
+//         RCLCPP_ERROR(this->get_logger(), "❌ Format image inattendu (%d canaux)", detected_face_.channels());
+//         return;
+//     }
+
+//     // 2. Resize à 112x112 pour ArcFace
+//     cv::Mat face_resized;
+//     cv::resize(face_rgb, face_resized, cv::Size(112, 112));
+
+//     // 3. Convertir en mono8 pour l’envoyer (car tu convertis de toute façon dans le service)
+//     cv::Mat face_gray;
+//     cv::cvtColor(face_resized, face_gray, cv::COLOR_RGB2GRAY);
+
+//     // 4. Préparer le message
+//     auto request = std::make_shared<qbo_msgs::srv::RecognizeFace::Request>();
+
+//     cv_bridge::CvImage cv_image;
+//     cv_image.image = face_gray;
+//     cv_image.encoding = "mono8";
+//     cv_image.header.stamp = this->get_clock()->now();
+//     request->face = *cv_image.toImageMsg();
+
+//     // 5. Appel async
+//     auto future = client_recognize_->async_send_request(request,
+//         [this](rclcpp::Client<qbo_msgs::srv::RecognizeFace>::SharedFuture result) {
+//             if (result.get()->recognized) {
+//                 name_detected_ = result.get()->name;
+//             } else {
+//                 name_detected_ = "unknown";
+//             }
+//             RCLCPP_INFO(this->get_logger(), "🧠 Nom détecté (reconnaissance): %s", name_detected_.c_str());
+//         });
+// }
+
 
 
 void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr image_ptr)
@@ -299,21 +408,21 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
 
     // ============ 🧠 Détection avec CamShift ou Haar ============
 
-    // if (face_detected_bool_)  // Si un visage a été détecté précédemment → suivi CamShift
-    // {
-    //     if (detectFaceCamShift(image_received) != 0)
-    //     {
-    //         face_detected_bool_ = false;
-    //         cam_shift_detected_count_ = 0;
-    //         cam_shift_undetected_count_++;
-    //     }
-    //     else
-    //     {
-    //         detection_type = "CAMSHIFT";
-    //         cam_shift_detected_count_++;
-    //         cam_shift_undetected_count_ = 0;
-    //     }
-    // }
+    if (face_detected_bool_)  // Si un visage a été détecté précédemment → suivi CamShift
+    {
+        if (detectFaceCamShift(image_received) != 0)
+        {
+            face_detected_bool_ = false;
+            cam_shift_detected_count_ = 0;
+            cam_shift_undetected_count_++;
+        }
+        else
+        {
+            detection_type = "CAMSHIFT";
+            cam_shift_detected_count_++;
+            cam_shift_undetected_count_ = 0;
+        }
+    }
 
     if (!face_detected_bool_)  // Sinon → détection Haar classique
     {
@@ -335,22 +444,22 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
         // }
     }
 
-    if (!face_detected_bool_ && exist_alternative_)  // Fallback : cascade alternative
-    {
-        std::vector<cv::Rect> faces_roi;
-        detectFacesAltHaar(image_received, faces_roi);
+    // if (!face_detected_bool_ && exist_alternative_)  // Fallback : cascade alternative
+    // {
+    //     std::vector<cv::Rect> faces_roi;
+    //     detectFacesAltHaar(image_received, faces_roi);
 
-        if (!faces_roi.empty())
-        {
-            face_detected_bool_ = true;
-            track_object_ = false;
-            detected_face_roi_ = faces_roi[0];
-            detected_face_ = cv_ptr->image(detected_face_roi_);
-            face_ratio_ = 1.3 * detected_face_roi_.height / detected_face_roi_.width;
+    //     if (!faces_roi.empty())
+    //     {
+    //         face_detected_bool_ = true;
+    //         track_object_ = false;
+    //         detected_face_roi_ = faces_roi[0];
+    //         detected_face_ = cv_ptr->image(detected_face_roi_);
+    //         face_ratio_ = 1.3 * detected_face_roi_.height / detected_face_roi_.width;
 
-            detection_type = "HAAR_ALT";
-        }
-    }
+    //         detection_type = "HAAR_ALT";
+    //     }
+    // }
 
     // ============ 📈 Kalman filter ============
 
@@ -489,12 +598,16 @@ void FaceDetector::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr i
     {
         auto face_msg = cv_bridge::CvImage(std_msgs::msg::Header(), sensor_msgs::image_encodings::RGB8, detected_face_);
         face_msg.header.stamp = this->get_clock()->now();
-        // face_pub_->publish(*face_msg.toImageMsg());
         face_pub_.publish(face_msg.toImageMsg());
 
         if (send_to_face_recognizer_)
         {
-            sendToRecognizer();  // ⚠️ Cette fonction devra être migrée aussi
+            if (detected_face_.cols < 100 || detected_face_.rows < 100) {
+                RCLCPP_WARN(this->get_logger(), "❌ Visage trop petit (%dx%d), on ignore",
+                            detected_face_.cols, detected_face_.rows);
+                return;
+            }
+            sendToRecognizer();
         }
 
         message.name_signature = name_detected_;
@@ -760,21 +873,21 @@ void FaceDetector::setFaceClassifierPath(std::string face_classifier_path)
 }
 
 // Définition sans flag (valeur par défaut déjà définie dans le .hpp)
-void classifierDetect(cv::Mat image,
-                      std::vector<cv::Rect> &detections,
-                      cv::CascadeClassifier &classifier,
-                      cv::Size size)
-{
-    classifier.detectMultiScale(image, detections, 1.1, 3, cv::CASCADE_FIND_BIGGEST_OBJECT, size);
-}
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier,
+//                       cv::Size size)
+// {
+//     classifier.detectMultiScale(image, detections, 1.1, 3, cv::CASCADE_FIND_BIGGEST_OBJECT, size);
+// }
 
-void classifierDetect(cv::Mat image,
-                      std::vector<cv::Rect> &detections,
-                      cv::CascadeClassifier &classifier)
-{
-    // Appel la version à 4 arguments avec une taille par défaut
-    classifierDetect(image, detections, classifier, cv::Size(30, 30));
-}
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier)
+// {
+//     // Appel la version à 4 arguments avec une taille par défaut
+//     classifierDetect(image, detections, classifier, cv::Size(30, 30));
+// }
 
 unsigned int FaceDetector::detectFacesHaar(cv::Mat image, std::vector<cv::Rect> &faces)
 {
@@ -782,11 +895,11 @@ unsigned int FaceDetector::detectFacesHaar(cv::Mat image, std::vector<cv::Rect> 
     return faces.size();
 }
 
-unsigned int FaceDetector::detectFacesAltHaar(cv::Mat image, std::vector<cv::Rect> &faces)
-{
-    classifierDetect(image, faces, alternative_face_classifier_);
-    return faces.size();
-}
+// unsigned int FaceDetector::detectFacesAltHaar(cv::Mat image, std::vector<cv::Rect> &faces)
+// {
+//     classifierDetect(image, faces, alternative_face_classifier_);
+//     return faces.size();
+// }
 
 float FaceDetector::calcDistanceToHead(cv::Mat &head, cv::KalmanFilter &kalman_filter)
 {
@@ -796,7 +909,7 @@ float FaceDetector::calcDistanceToHead(cv::Mat &head, cv::KalmanFilter &kalman_f
         return -1.0f;
     }
     float distance = (fx_ * REAL_FACE_HEIGHT) / head.rows;
-    RCLCPP_INFO(this->get_logger(), "Computed distance: %.2f m (face height = %d px, fx = %.2f)", distance, head.rows, fx_);
+    // RCLCPP_INFO(this->get_logger(), "Computed distance: %.2f m (face height = %d px, fx = %.2f)", distance, head.rows, fx_);
 
     // if (head.rows <= 0)
     // {

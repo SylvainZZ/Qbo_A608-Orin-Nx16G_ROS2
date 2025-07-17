@@ -1,7 +1,8 @@
 qbo_face_detector:
   ros__parameters:
-    face_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_default.xml"
-    alternative_face_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_alt2.xml"
+    # face_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_default.xml"
+    face_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_alt2.xml"
+    # alternative_face_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_alt2.xml"
     lbp_classifier_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/lbpcascade_frontalface.xml"
 
     check_Haar: 1

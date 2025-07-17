@@ -42,6 +42,13 @@ public:
 
     void setParams(const std::string & motor_key);
 
+    // 🆕 Suivi de l’état du couple
+    bool isTorqueEnabled() const { return torque_enabled_; }
+    void setTorqueEnabled(bool enabled) { torque_enabled_ = enabled; }
+
+    // 🆕 Nom utile pour les logs
+    std::string getName() const { return name_; }
+
     int id_;
     bool invert_;
     float angle_;
@@ -52,8 +59,8 @@ public:
     float rad_per_tick_;
     float max_speed_;
     float range_;
-    uint16_t model_number_;  // Numéro de modèle détecté
-    int torque_limit_ = 1023;  // valeur par défaut
+    uint16_t model_number_;
+    int torque_limit_;
 
     std::string name_;
     std::string joint_name_;
@@ -66,6 +73,9 @@ protected:
     DynamixelWorkbench* dxl_wb_;
     rclcpp::Service<qbo_msgs::srv::TorqueEnable>::SharedPtr servo_torque_enable_srv_;
     rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
+
+    // 🆕 état du couple (géré en interne)
+    bool torque_enabled_ = true;
 };
 
 class DynamixelController
@@ -77,6 +87,7 @@ public:
 private:
     void publishJointStates();
     void jointCmdCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
+    void checkInactivity();  // 🆕 gestion de l'inactivité
 
     std::shared_ptr<rclcpp::Node> node_;
     std::string usb_port_;
@@ -88,6 +99,12 @@ private:
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_cmd_sub_;
 
     rclcpp::TimerBase::SharedPtr joint_state_timer_;
+    rclcpp::TimerBase::SharedPtr inactivity_timer_;
+    rclcpp::Clock steady_clock_{RCL_SYSTEM_TIME};  // horloge système stable
+
+    rclcpp::Time last_cmd_time_;
+    bool auto_torque_off_ = true;
+    double timeout_sec_ = 2.0;
 
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
     DynamixelWorkbench dxl_wb_;

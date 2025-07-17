@@ -29,6 +29,7 @@ DynamixelServo::DynamixelServo(const std::shared_ptr<rclcpp::Node> & node,
         name_ + "/torque_enable",
         std::bind(&DynamixelServo::servoTorqueEnable, this, _1, _2)
     );
+
     param_callback_handle_ = node_->add_on_set_parameters_callback(
     std::bind(&DynamixelServo::onParameterChange, this, std::placeholders::_1));
 
@@ -53,48 +54,39 @@ void DynamixelServo::setParams(const std::string & joint_name)
     std::string base = "dynamixel.motors." + joint_name + ".";
 
     // ID du moteur
-    node_->declare_parameter(base + "id", id_);
     node_->get_parameter(base + "id", id_);
 
     // Inversion logique
-    node_->declare_parameter(base + "invert", invert_);
     node_->get_parameter(base + "invert", invert_);
 
     // Position neutre (tick central)
-    node_->declare_parameter(base + "neutral", neutral_);
     node_->get_parameter(base + "neutral", neutral_);
 
     // Résolution
-    node_->declare_parameter(base + "ticks", ticks_);
     node_->get_parameter(base + "ticks", ticks_);
 
     // Angle max (en degrés -> rad)
     double max_deg = 30.0;
-    node_->declare_parameter(base + "max_angle_degrees", max_deg);
     node_->get_parameter(base + "max_angle_degrees", max_deg);
     max_angle_ = radians(max_deg);
 
     // Angle min (en degrés -> rad)
     double min_deg = -30.0;
-    node_->declare_parameter(base + "min_angle_degrees", min_deg);
     node_->get_parameter(base + "min_angle_degrees", min_deg);
     min_angle_ = radians(min_deg);
 
     // Amplitude totale (en degrés -> rad)
     double range_deg = 60.0;
-    node_->declare_parameter(base + "range", range_deg);
     node_->get_parameter(base + "range", range_deg);
     range_ = radians(range_deg);
 
     // Vitesse maximale autorisée (en rad/s)
     double speed_val = radians(180.0);  // par défaut : 2 tours/s
-    node_->declare_parameter(base + "max_speed", speed_val);
     node_->get_parameter(base + "max_speed", speed_val);
     max_speed_ = speed_val;
 
     // Limite de couple
     int torque_limit = 1023;
-    node_->declare_parameter(base + "torque_limit", torque_limit);
     node_->get_parameter(base + "torque_limit", torque_limit);
     torque_limit_ = torque_limit;
 
@@ -117,7 +109,7 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
 
     for (const auto &param : parameters)
     {
-        const auto &key = param.get_name();  // nom complet du paramètre
+        const auto &key = param.get_name();
         const std::string base = "dynamixel.motors." + name_ + ".";
 
         if (key == base + "max_angle_degrees") {
@@ -125,12 +117,6 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
         }
         else if (key == base + "min_angle_degrees") {
             min_angle_ = radians(param.as_double());
-        }
-        else if (key == base + "range") {
-            range_ = radians(param.as_double());
-        }
-        else if (key == base + "ticks") {
-            ticks_ = param.as_int();
         }
         else if (key == base + "neutral") {
             neutral_ = param.as_int();
@@ -140,11 +126,24 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
             dxl_wb_->writeRegister(id_, "Torque_Limit", torque_limit_);
         }
         else {
-            continue;  // ignore les autres
+            continue;
         }
-
         rad_per_tick_ = range_ / ticks_;
-        RCLCPP_INFO(node_->get_logger(), "[%s] 🔄 Paramètre mis à jour : %s", name_.c_str(), key.c_str());
+
+        // Affichage dynamique de la valeur (selon le type)
+        std::ostringstream value_stream;
+        switch (param.get_type()) {
+            case rclcpp::ParameterType::PARAMETER_INTEGER:
+                value_stream << param.as_int();
+                break;
+            case rclcpp::ParameterType::PARAMETER_DOUBLE:
+                value_stream << param.as_double();
+                break;
+            default:
+                value_stream << "<type non supporté>";
+                break;
+        }
+        RCLCPP_INFO(node_->get_logger(), "[%s] 🔄 Paramètre mis à jour : %s = %s", name_.c_str(), key.c_str(), value_stream.str().c_str());
     }
 
     return result;
@@ -155,6 +154,7 @@ void DynamixelServo::setAngle(float ang, float velocity)
 {
     RCLCPP_INFO(node_->get_logger(), "[%s] 🧪 setAngle() appelée avec ang=%.2f, vel=%.2f, max_speed=%.2f",
             joint_name_.c_str(), ang, velocity, max_speed_);
+
     // 🔺 Limitation des angles
     if (ang > max_angle_) {
         RCLCPP_WARN(node_->get_logger(),
@@ -162,7 +162,6 @@ void DynamixelServo::setAngle(float ang, float velocity)
             joint_name_.c_str(), ang, max_angle_);
         ang = max_angle_;
     }
-
     if (ang < min_angle_) {
         RCLCPP_WARN(node_->get_logger(),
             "[%s] 🔻 Angle %.2f rad en dessous min (%.2f rad). Limité.",
@@ -197,9 +196,9 @@ void DynamixelServo::setAngle(float ang, float velocity)
     dxl_wb_->itemWrite(id_, "Moving_Speed", speed_val);
 
     // 📊 Log d’exécution visible (niveau INFO volontairement)
-    RCLCPP_INFO(node_->get_logger(),
-        "[%s] 🎯 Pos=%.2f rad (%d ticks), Vit=%.2f rad/s (cmd=%d)",
-        joint_name_.c_str(), ang, goal_ticks, velocity, speed_val);
+    // RCLCPP_INFO(node_->get_logger(),
+    //     "[%s] 🎯 Pos=%.2f rad (%d ticks), Vit=%.2f rad/s (cmd=%d)",
+    //     joint_name_.c_str(), ang, goal_ticks, velocity, speed_val);
 }
 
 //
@@ -209,10 +208,6 @@ void DynamixelServo::setAngle(float ang, float velocity)
 DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & node)
     : node_(node)
 {
-    node_->declare_parameter("dynamixel.usb_port", "/dev/ttyUSB0");
-    node_->declare_parameter("dynamixel.baud_rate", 57600);
-    node_->declare_parameter("dynamixel.protocol_version", 1.0);
-
     usb_port_ = node_->get_parameter("dynamixel.usb_port").as_string();
     baud_rate_ = node_->get_parameter("dynamixel.baud_rate").as_int();
     protocol_version_ = node_->get_parameter("dynamixel.protocol_version").as_double();
@@ -229,21 +224,20 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
         "/cmd_joints", 10, std::bind(&DynamixelController::jointCmdCallback, this, _1));
 
     int joint_timer_rate = 30;
-    node_->declare_parameter("dynamixel_joint_rate_hz", joint_timer_rate);
     node_->get_parameter("dynamixel_joint_rate_hz", joint_timer_rate);
 
     auto period = std::chrono::milliseconds(static_cast<int>(1000.0 / joint_timer_rate));
     joint_state_timer_ = node_->create_wall_timer(period, std::bind(&DynamixelController::publishJointStates, this));
 
+    node_->get_parameter("auto_torque_off", auto_torque_off_);
+    node_->get_parameter("auto_torque_off_timeout", timeout_sec_);
+    last_cmd_time_ = steady_clock_.now();
+    inactivity_timer_ = node_->create_wall_timer(std::chrono::milliseconds(500), std::bind(&DynamixelController::checkInactivity, this));
+
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(node_);
 
-    RCLCPP_INFO(node_->get_logger(), "DynamixelController ready.");
-
     std::vector<std::string> keys;
-    if (!node_->get_parameter("dynamixel.motor_keys", keys)) {
-        RCLCPP_FATAL(node_->get_logger(), "❌ Paramètre 'dynamixel.motor_keys' introuvable");
-        throw std::runtime_error("motor_keys manquant");
-    }
+    node_->get_parameter("dynamixel.motor_keys", keys);
 
     std::map<std::string, std::string> motor_to_joint;
 
@@ -259,11 +253,6 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
     // Paramètres communs de diagnostic
     double temp_warn = 65.0, volt_min = 8.0, volt_max = 12.5;
     int error_thresh = 20;
-
-    node_->declare_parameter("diagnostic_temp_warn", temp_warn);
-    node_->declare_parameter("diagnostic_voltage_min", volt_min);
-    node_->declare_parameter("diagnostic_voltage_max", volt_max);
-    node_->declare_parameter("diagnostic_position_error", error_thresh);
 
     node_->get_parameter("diagnostic_temp_warn", temp_warn);
     node_->get_parameter("diagnostic_voltage_min", volt_min);
@@ -282,7 +271,7 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
             RCLCPP_ERROR(node_->get_logger(), "❌ Ping échoué pour ID %d", servo->id_);
         }
 
-        servo->setAngle(0.0f, 1.0f);
+        servo->setAngle(0.0f, 0.8f);
 
         diagnostics_->add(servo->joint_name_, [this, servo = servo.get(), temp_warn, volt_min, volt_max, error_thresh]
                         (diagnostic_updater::DiagnosticStatusWrapper & stat) {
@@ -309,6 +298,12 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
             stat.add("Erreur position", error);
             stat.add("Moving", moving);
             stat.add("Limite de couple (Torque_Limit)", servo->torque_limit_);
+            stat.add("Torque activé", servo->isTorqueEnabled() ? "True" : "False");
+            // if (!isTorqueEnabled()) {
+            //     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Couple désactivé (repos)");
+            // } else {
+            //     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Servo opérationnel");
+            // }
 
             // Estimation :
             // - Charge normalisée = [0.0–1.0]
@@ -348,10 +343,10 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
                     break;
             }
 
-            stat.add("Modèle", model_name);
-            stat.add("Couple (Stall)", torque);
-            stat.add("Vitesse à vide", rpm);
-            stat.add("Rapport de réduction", gear);
+            stat.add("_Modèle", model_name);
+            stat.add("_Couple (Stall)", torque);
+            stat.add("_Vitesse à vide", rpm);
+            stat.add("_Rapport de réduction", gear);
 
             // Niveau de gravité
             if (temp > temp_warn)
@@ -370,7 +365,9 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
 
 void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
-    RCLCPP_INFO(node_->get_logger(), "JointState reçu à t=%.3f", node_->now().seconds());
+    // RCLCPP_INFO(node_->get_logger(), "JointState reçu à t=%.3f", node_->now().seconds());
+
+    last_cmd_time_ = steady_clock_.now();  // mise à jour du timer de veille
 
     if (msg->name.size() != msg->position.size()) {
         RCLCPP_WARN(node_->get_logger(), "Nom et position ne sont pas de même taille !");
@@ -382,7 +379,7 @@ void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::S
         RCLCPP_WARN(node_->get_logger(), "Vélocité non fournie ou incomplète, valeur par défaut 1.0 utilisée.");
     }
 
-    RCLCPP_INFO(node_->get_logger(), "Commande exécutée à t=%.3f", node_->now().seconds());
+    // RCLCPP_INFO(node_->get_logger(), "Commande exécutée à t=%.3f", node_->now().seconds());
 
     for (size_t i = 0; i < msg->name.size(); i++) {
         const std::string & name = msg->name[i];
@@ -391,6 +388,21 @@ void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::S
 
         for (auto &servo : servos_) {
             if (servo->joint_name_ == name) {
+
+                // ✅ Réactivation du torque si désactivé
+                if (!servo->isTorqueEnabled() && auto_torque_off_) {
+                    auto req = std::make_shared<qbo_msgs::srv::TorqueEnable::Request>();
+                    auto res = std::make_shared<qbo_msgs::srv::TorqueEnable::Response>();
+                    req->torque_enable = true;
+
+                    if (servo->servoTorqueEnable(req, res) && res->success) {
+                        servo->setTorqueEnabled(true);
+                        RCLCPP_INFO(node_->get_logger(),
+                            "[%s] ⚡️ Torque réactivé suite à une commande.",
+                            servo->getName().c_str());
+                    }
+                }
+
                 servo->setAngle(pos, vel);
                 break;
             }
@@ -454,6 +466,38 @@ void DynamixelController::publishJointStates()
 
     joint_state_pub_->publish(msg);
 }
+
+void DynamixelController::checkInactivity()
+{
+
+    if (!auto_torque_off_) {
+        return;  // désactivé par paramètre
+    }
+
+    auto now = steady_clock_.now();
+
+    if ((now - last_cmd_time_).seconds() > timeout_sec_) {
+        for (auto &servo : servos_) {
+            if (!servo->isTorqueEnabled()) {
+                continue;  // déjà désactivé
+            }
+
+            auto req = std::make_shared<qbo_msgs::srv::TorqueEnable::Request>();
+            auto res = std::make_shared<qbo_msgs::srv::TorqueEnable::Response>();
+            req->torque_enable = false;
+
+            bool result = servo->servoTorqueEnable(req, res);
+
+            if (result && res->success) {
+                RCLCPP_WARN(node_->get_logger(),
+                    "[%s] ⏸️ Torque désactivé après inactivité.",
+                    servo->getName().c_str());
+                servo->setTorqueEnabled(false);  // ajoute une fonction pour suivre l'état
+            }
+        }
+    }
+}
+
 
 
 DynamixelController::~DynamixelController() = default;

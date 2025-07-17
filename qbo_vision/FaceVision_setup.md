@@ -16,7 +16,7 @@ ros2 launch qbo_vision camera_with_calibration.launch.py
 ros2 run qbo_vision face_follower_node --ros-args --params-file src/qbo_vision/config/face_follower.yaml
 ros2 run qbo_vision face_detector_node --ros-args --params-file src/qbo_vision/config/face_detector.yaml
 
-ros2 topic pub /qbo_face_tracking/face_pos_and_dist qbo_msgs/msg/FacePosAndDist '{face_detected: false, u: 0.0, v: 0.0, distance_to_head: 1.0, image_width: 640, image_height: 480}'
+ros2 topic pub /qbo_face_tracking/face_pos_and_dist qbo_msgs/msg/FacePosAndDist '{face_detected: false, u: 0.0, v: 0.0, distance_to_head: 1.0, image_width: 800, image_height: 600}'
 
 sudo apt install ros-humble-rqt-graph
 sudo apt install ros-humble-image-pipeline
@@ -24,5 +24,4 @@ sudo apt install ros-humble-image-pipeline
 rosparam list /face_follower
 ros2 topic echo /qbo_face_tracking/face_pos_and_dist
 
-ros2 run camera_calibration cameracalibrator   --size 8x6   --square 0.0284   --no-service-check   --ros-args   -r image:=/image_raw
 

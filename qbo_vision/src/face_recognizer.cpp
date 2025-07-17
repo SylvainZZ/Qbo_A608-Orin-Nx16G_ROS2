@@ -23,13 +23,14 @@ FaceRecognizerLBPH::FaceRecognizerLBPH(const rclcpp::NodeOptions & options)
         100.0  // threshold (désactivé si 0 ou > confidence_threshold)
     );
 
-    loadTrainedModelIfAvailable();
     prepareTrainingIfNeeded();
+    loadTrainedModelIfAvailable();
 
     recognize_service_ = this->create_service<qbo_msgs::srv::RecognizeFace>(
         "qbo_face_recognizer/recognize_face",
         std::bind(&FaceRecognizerLBPH::handleRecognize, this, std::placeholders::_1, std::placeholders::_2)
     );
+    last_save_time_ = this->now();  // Compatible avec get_clock()
 
     RCLCPP_INFO(this->get_logger(), "✅ Service recognize_face actif");
 }
@@ -81,6 +82,13 @@ void FaceRecognizerLBPH::prepareTrainingIfNeeded()
         for (const auto & file : fs::directory_iterator(entry.path())) {
             cv::Mat img = cv::imread(file.path().string(), cv::IMREAD_GRAYSCALE);
             if (!img.empty()) {
+                if (img.rows < 80 || img.cols < 80) continue;
+                // Étape 1 : resize pour normaliser la taille
+                cv::resize(img, img, cv::Size(100, 100));
+
+                // Étape 2 : amélioration de l’histogramme (contraste)
+                cv::equalizeHist(img, img);
+
                 images.push_back(img);
                 labels.push_back(name_to_label[label_name]);
             }
@@ -138,6 +146,12 @@ void FaceRecognizerLBPH::handleRecognize(
     response->recognized = false;
     response->name = "unknown";
 
+    // Throttle : ignorer si trop récent
+    if ((this->now() - last_save_time_).seconds() < 2.0) {
+        RCLCPP_WARN(this->get_logger(), "⏱️ Trop tôt depuis la dernière sauvegarde, on ignore ce visage.");
+        return;
+    }
+
     // Créer un timestamp unique
     std::string timestamp = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
 
@@ -148,21 +162,38 @@ void FaceRecognizerLBPH::handleRecognize(
     // Base filename (dans le dossier) avec même timestamp
     std::string base_filename = (fs::path(save_dir) / ("face_" + timestamp)).string();
 
-    // Image originale (déjà en niveau de gris)
+    // Recadrage léger
+    // int crop = 8; // pixels à retirer de chaque bord
+    // cv::Rect roi(crop, crop, cv_ptr->image.cols - 2 * crop, cv_ptr->image.rows - 2 * crop);
+    // cv::Mat cropped_face = cv_ptr->image(roi).clone();
+
+    // Sauvegarde de la version originale recadrée
+    // cv::imwrite(base_filename + ".jpg", cropped_face);
     cv::imwrite(base_filename + ".jpg", cv_ptr->image);
 
-    // Génération de variations
-    cv::Mat flip_img, bright_img, dark_img;
-    cv::flip(cv_ptr->image, flip_img, 1);
-    cv_ptr->image.convertTo(bright_img, -1, 1.2, 30);
-    cv_ptr->image.convertTo(dark_img, -1, 0.8, -30);
 
-    // Sauvegardes supplémentaires
-    cv::imwrite(base_filename + "_flip.jpg", flip_img);
-    cv::imwrite(base_filename + "_bright.jpg", bright_img);
-    cv::imwrite(base_filename + "_dark.jpg", dark_img);
+    // // Génération de variations
+    // cv::Mat flip_img, bright_img, dark_img;
+    // cv::flip(cropped_face, flip_img, 1);
+    // cropped_face.convertTo(bright_img, -1, 1.2, 30);
+    // cropped_face.convertTo(dark_img, -1, 0.8, -30);
+
+    // // Sauvegardes supplémentaires
+    // cv::imwrite(base_filename + "_flip.jpg", flip_img);
+    // cv::imwrite(base_filename + "_bright.jpg", bright_img);
+
+    // Variante : Miroir horizontal
+    cv::Mat flipped;
+    cv::flip(cv_ptr->image, flipped, 1);
+    cv::imwrite(base_filename + "_flip.jpg", flipped);
+
+    // Variante : légèrement plus clair
+    cv::Mat brighter;
+    cv_ptr->image.convertTo(brighter, -1, 1.1, 15);
+    cv::imwrite(base_filename + "_bright.jpg", brighter);
 
     RCLCPP_WARN(this->get_logger(), "🤔 Visage inconnu. Images sauvegardées dans : %s", save_dir.c_str());
+    last_save_time_ = this->get_clock()->now();
 
 }
 

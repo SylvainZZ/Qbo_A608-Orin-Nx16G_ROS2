@@ -91,7 +91,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     void delayedInitImageTransport();
     rclcpp::Time last_image_time_{0, 0, RCL_ROS_TIME};
-    const double throttle_interval_sec_ = 0.10;  // 10 Hz (tu peux changer)
+    const double throttle_interval_sec_ = 0.20;  // 10 Hz (tu peux changer)
     unsigned int debug_print_every_n_ = 10;     // debug toutes les 10 frames
     int haar_detection_skip_ = 5;  // essaie Haar 1 fois toutes les 5 frames
 
@@ -166,22 +166,33 @@ private:
 
 // À placer en bas du fichier .hpp (en dehors de la classe FaceDetector)
 
-// Déclaration de la version avec flag
 void classifierDetect(cv::Mat image,
                       std::vector<cv::Rect> &detections,
                       cv::CascadeClassifier &classifier,
-                      int flag,
-                      cv::Size size = cv::Size(30, 30));
+                      int flag = cv::CASCADE_FIND_BIGGEST_OBJECT,
+                      cv::Size min_size = cv::Size(30, 30),
+                      double scaleFactor = 1.1,
+                      int minNeighbors = 5,
+                      double margin_ratio_x = 0.15,
+                      double margin_ratio_y = 0.25);
 
-// Déclaration de la version sans flag (aucun argument par défaut ici)
-void classifierDetect(cv::Mat image,
-                      std::vector<cv::Rect> &detections,
-                      cv::CascadeClassifier &classifier,
-                      cv::Size size);
+// // Déclaration de la version avec flag
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier,
+//                       int flag,
+//                       cv::Size size = cv::Size(30, 30));
 
-void classifierDetect(cv::Mat image,
-                      std::vector<cv::Rect> &detections,
-                      cv::CascadeClassifier &classifier);
+// // Déclaration de la version sans flag (aucun argument par défaut ici)
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier,
+//                       cv::Size size);
+
+// void classifierDetect(cv::Mat image,
+//                       std::vector<cv::Rect> &detections,
+//                       cv::CascadeClassifier &classifier);
+
 
 
 #endif  // FACEDETECTOR_HPP_

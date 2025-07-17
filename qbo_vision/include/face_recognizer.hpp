@@ -25,6 +25,7 @@ private:
     rclcpp::Service<qbo_msgs::srv::RecognizeFace>::SharedPtr recognize_service_;
     cv::Ptr<cv::face::LBPHFaceRecognizer> model_;
     std::map<int, std::string> label_to_name_;
+    rclcpp::Time last_save_time_{0, 0, RCL_ROS_TIME};
 
     bool model_trained_ = false;
 

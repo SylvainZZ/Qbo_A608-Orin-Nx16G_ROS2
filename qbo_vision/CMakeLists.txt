@@ -103,6 +103,15 @@ install(TARGETS
 #   DESTINATION lib/${PROJECT_NAME}
 # )
 
+# install(PROGRAMS
+#   qbo_vision/face_recognizer_node.py
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
+# install(PROGRAMS
+#   qbo_vision/face_capture_node.py
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 
 install(DIRECTORY launch
@@ -112,6 +121,20 @@ install(DIRECTORY launch
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
+
+
+# ========= ⬇️ Ajout pour nœuds Python ==============
+find_package(ament_cmake_python REQUIRED)
+
+ament_python_install_package(qbo_vision_py)
+
+install(
+  PROGRAMS
+    qbo_vision_py/face_capture_node.py
+    # qbo_vision_py/face_recognizer_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 # add_executable(imx219_camera_node src/imx219_camera_node.cpp)
 # ament_target_dependencies(imx219_camera_node rclcpp sensor_msgs cv_bridge)
