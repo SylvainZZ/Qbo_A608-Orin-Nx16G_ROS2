@@ -112,7 +112,7 @@ public:
   int testNose();
   int setMouthAnimation(bool enable);
   int setLCD(std::string msg);
-  // int getBattery(float &level, uint8_t &stat);
+  int getBattery(float &level, uint8_t &stat);
   int getMicReport(int16_t &ambient_noise, uint8_t &sound_direction, uint16_t &m0, uint16_t &m1, uint16_t &m2);
   // int setMic(uint8_t mic);
   int setAutoupdateSensors(std::map<uint8_t,uint8_t> sensors);

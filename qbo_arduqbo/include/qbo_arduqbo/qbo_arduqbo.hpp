@@ -17,7 +17,10 @@
 
 class QboArduqboManager {
 public:
-    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node, const rclcpp::NodeOptions& options);
+    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node, 
+                                const rclcpp::NodeOptions& options,
+                                const std::string &port1,
+                                const std::string &port2);
     void setup();
     void run();
 
@@ -28,6 +31,8 @@ private:
     std::vector<std::shared_ptr<rclcpp::Node>> controllers_;  // Pour garder les instances
     rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
     rclcpp::NodeOptions node_options_;
+    std::string port1_;
+    std::string port2_;
 
     // Flags
     bool enable_qboard1_;

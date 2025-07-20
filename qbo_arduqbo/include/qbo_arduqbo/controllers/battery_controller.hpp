@@ -1,10 +1,12 @@
 #pragma once
 
 #include "rclcpp/rclcpp.hpp"
-#include "qbo_arduqbo/drivers/i2c_bus_driver.hpp"
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_updater/publisher.hpp>
+
+#include "qbo_arduqbo/drivers/qboduino_driver.h"
+
 
 #include <deque>
 #include <numeric>
@@ -12,7 +14,7 @@
 class CBatteryController : public rclcpp::Node {
 public:
     CBatteryController(
-        std::shared_ptr<I2CBusDriver> driver,
+        std::shared_ptr<QboDuinoDriver> driver,
         const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
@@ -24,12 +26,12 @@ private:
     rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
     diagnostic_updater::Updater updater_;
 
-    // Accès bas-niveau I2C
-    std::shared_ptr<I2CBusDriver> driver_;
+    // Driver série vers la base Q.bo
+    std::shared_ptr<QboDuinoDriver> driver_;
 
     // État batterie brut
     std::string name_;
-    uint8_t level_;
+    float level_;
     uint8_t stat_;
     double A608_power_w_ = -1.0;
     double fixed_extra_power_w = -1.0;

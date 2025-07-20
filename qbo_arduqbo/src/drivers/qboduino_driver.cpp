@@ -439,18 +439,18 @@ int QboDuinoDriver::setLCD(std::string msg)
     return (lockAndSendComand("base", comand, resp, data));
 }
 
-// int QboDuinoDriver::getBattery(float &level, uint8_t &stat)
-// {
-//     std::vector<dataUnion> data, sent;
+int QboDuinoDriver::getBattery(float &level, uint8_t &stat)
+{
+    std::vector<dataUnion> data, sent;
 
-//     CComando comand = comandosSet_.getBattery;
-//     int code = lockAndSendComand("base", comand, data, sent);
-//     if (code < 0)
-//         return code;
-//     level = ((float)data[0].b);
-//     stat = ((uint8_t)data[1].b);
-//     return code;
-// }
+    CComando comand = comandosSet_.getBattery;
+    int code = lockAndSendComand("base", comand, data, sent);
+    if (code < 0)
+        return code;
+    level = ((float)data[0].b);
+    stat = ((uint8_t)data[1].b);
+    return code;
+}
 
 int QboDuinoDriver::getMicReport(int16_t &ambient_noise, uint8_t &sound_direction, uint16_t &m0, uint16_t &m1, uint16_t &m2)
 {

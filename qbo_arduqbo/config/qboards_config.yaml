@@ -1,7 +1,7 @@
 qbo_arduqbo:
   ros__parameters:
-      i2c_device: "/dev/i2c-7"
-      i2c_address: 20
+      # i2c_device: "/dev/i2c-7"
+      # i2c_address: 20
 
       port1: "/dev/ttyQboard1"
       baud1: 115200

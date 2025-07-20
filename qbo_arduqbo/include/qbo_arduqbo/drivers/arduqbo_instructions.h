@@ -53,7 +53,7 @@ public:
     CComando setSpeed;
     CComando setOdometry;
     CComando getOdometry;
-    // CComando getBattery;
+    CComando getBattery;
     CComando getInfraRed;
     CComando getAllSensors;
     CComando setAutoupdateSrfs;
@@ -81,7 +81,7 @@ public:
                     setSpeed(0x4d, 2, 0, "f", ""),
                     setOdometry(0x42, 3, 0, "f", ""),
                     getOdometry(0x59, 0, 3, "", "fff"),
-                    // getBattery(0x57, 0, 2),
+                    getBattery(0x57, 0, 2, "", "bb"),
                     getInfraRed(0x46, 0, 3),
                     getAllSensors(0x4e, 0, -1, "", "xbh"),
                     setAutoupdateSrfs(0x72, -1, 0),

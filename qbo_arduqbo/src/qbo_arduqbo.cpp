@@ -4,8 +4,10 @@
 
 
 QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node,
-                                     const rclcpp::NodeOptions& options)
-: node_(node), node_options_(options)
+                                    const rclcpp::NodeOptions& options,
+                                    const std::string &port1,
+                                    const std::string &port2)
+: node_(node), node_options_(options), port1_(port1), port2_(port2)
 {
     // ...
 }
@@ -21,8 +23,8 @@ void QboArduqboManager::setup() {
     auto get_param_or_default = [&](const std::string &name, auto &value, const auto &default_val) {
         if (!node_->get_parameter(name, value)) {
             value = default_val;
-            // RCLCPP_WARN(node_->get_logger(), "Parameter '%s' not set, using default: %s",
-            //             name.c_str(), std::to_string(value).c_str());
+            RCLCPP_WARN(node_->get_logger(), "Parameter '%s' not set, using default: %s",
+                        name.c_str(), std::to_string(value).c_str());
 
         }
         // } else {
@@ -34,10 +36,10 @@ void QboArduqboManager::setup() {
     // =====================
     // ⚙️  Paramètres globaux
     // =====================
-    std::string device_path;
-    int address;
-    get_param_or_default("i2c_device", device_path, std::string("/dev/i2c-7"));
-    get_param_or_default("i2c_address", address, 20);
+    // std::string device_path;
+    // int address;
+    // get_param_or_default("i2c_device", device_path, std::string("/dev/i2c-7"));
+    // get_param_or_default("i2c_address", address, 20);
     get_param_or_default("enable_battery", enable_battery_, false);
     get_param_or_default("enable_base", enable_base_, false);
     get_param_or_default("enable_imu_base", enable_imu_base_, false);
@@ -47,14 +49,14 @@ void QboArduqboManager::setup() {
     get_param_or_default("enable_mouth", enable_mouth_, false);
     get_param_or_default("enable_audio", enable_audio_, false);
 
-    std::string port1, port2;
+    // std::string port1, port2;
     int baud1, baud2;
     double timeout1, timeout2;
     uint8_t id = 0;
     int board_id = -1, version = -1;
 
-    get_param_or_default("port1", port1, std::string("/dev/ttyUSB0"));
-    get_param_or_default("port2", port2, std::string("/dev/ttyUSB1"));
+    // get_param_or_default("port1", port1, std::string("/dev/ttyUSB0"));
+    // get_param_or_default("port2", port2, std::string("/dev/ttyUSB1"));
     get_param_or_default("baud1", baud1, 115200);
     get_param_or_default("baud2", baud2, 115200);
     get_param_or_default("timeout1", timeout1, 0.05);
@@ -62,16 +64,17 @@ void QboArduqboManager::setup() {
     get_param_or_default("enable_qboard1", enable_qboard1_, true);
     get_param_or_default("enable_qboard2", enable_qboard2_, true);
 
-    RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1.c_str(), enable_qboard1_ ? "enabled" : "disabled");
-    RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2.c_str(), enable_qboard2_ ? "enabled" : "disabled");
+    RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1_.c_str(), enable_qboard1_ ? "enabled" : "disabled");
+    RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2_.c_str(), enable_qboard2_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "BAUD: %d / %d | TIMEOUT: %.2f / %.2f", baud1, baud2, timeout1, timeout2);
 
     updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
         status.add("QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
         status.add("QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
-        status.add("QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
+        // status.add("QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
 
+        status.add("Qboard3", enable_battery_ ? "Battery Enabled" : "Disabled");
         status.add("Base", enable_base_ ? "Enabled" : "Disabled");
         status.add("IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
         status.add("LCD", enable_lcd_ ? "Enabled" : "Disabled");
@@ -89,8 +92,8 @@ void QboArduqboManager::setup() {
     // =====================
     // 🔌 Initialisation drivers
     // =====================
-    i2c_driver_ = std::make_shared<I2CBusDriver>(device_path, static_cast<uint8_t>(address));
-    arduino_driver_ = std::make_shared<QboDuinoDriver>(port1, baud1, port2, baud2, timeout1, timeout2);
+    // i2c_driver_ = std::make_shared<I2CBusDriver>(device_path, static_cast<uint8_t>(address));
+    arduino_driver_ = std::make_shared<QboDuinoDriver>(port1_, baud1, port2_, baud2, timeout1, timeout2);
 
     // =====================
     // 🧩 Chargement des contrôleurs
@@ -110,6 +113,14 @@ void QboArduqboManager::setup() {
         }
 
         bool loaded = false;
+        if (enable_battery_) {
+            auto battery_ctrl = std::make_shared<CBatteryController>(arduino_driver_, node_options_);
+            controllers_.push_back(battery_ctrl);
+            loaded = true;
+        }
+        logControllerStatus("Battery", enable_battery_, loaded);
+
+        loaded = false;
         if (enable_base_) {
             auto base_ctrl = std::make_shared<BaseController>(arduino_driver_, node_options_);
             controllers_.push_back(base_ctrl);
@@ -180,20 +191,20 @@ void QboArduqboManager::setup() {
     }
 
     // ➕ Qboard 3 (I2C - battery)
-    bool loaded = false;
-    if (enable_battery_) {
-        auto battery = std::make_shared<CBatteryController>(i2c_driver_, node_options_);
-        controllers_.push_back(std::static_pointer_cast<rclcpp::Node>(battery));
-        loaded = true;
-    }
-    logControllerStatus("Battery", enable_battery_, loaded);
+    // bool loaded = false;
+    // if (enable_battery_) {
+    //     auto battery = std::make_shared<CBatteryController>(i2c_driver_, node_options_);
+    //     controllers_.push_back(std::static_pointer_cast<rclcpp::Node>(battery));
+    //     loaded = true;
+    // }
+    // logControllerStatus("Battery", enable_battery_, loaded);
 
     // ➕ Qboard 3 (IMU - TODO)
-    loaded = false;
-    if (enable_imu_head_) {
-        loaded = true;
-    }
-    logControllerStatus("IMU head", enable_imu_head_, loaded);
+    // loaded = false;
+    // if (enable_imu_head_) {
+    //     loaded = true;
+    // }
+    // logControllerStatus("IMU head", enable_imu_head_, loaded);
 
     updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
@@ -201,8 +212,8 @@ void QboArduqboManager::setup() {
         status.add("_QBoard1 Version", qboard1_version_);
         status.add("_QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
         status.add("_QBoard2 Version", qboard2_version_);
+        
         status.add("_QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
-
         status.add("_Base", enable_base_ ? "Enabled" : "Disabled");
         status.add("_IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
         status.add("_LCD", enable_lcd_ ? "Enabled" : "Disabled");
@@ -250,10 +261,38 @@ int main(int argc, char **argv)
     options.automatically_declare_parameters_from_overrides(true);
 
     auto node = std::make_shared<rclcpp::Node>("qbo_arduqbo", options);
-    QboArduqboManager manager(node, options);
+    RCLCPP_INFO(node->get_logger(), "🎬 Démarrage du noeud qbo_arduqbo");
+    try
+    {
+        std::string port1 = "";
+        std::string port2 = "";
 
-    manager.setup();  // configure les contrôleurs
-    manager.run();    // lance l'exécuteur avec tous les nœuds enregistrés
+        // Récupération des valeurs
+        node->get_parameter("port1", port1);
+        node->get_parameter("port2", port2);
+
+        if (port1.empty()) {
+            RCLCPP_FATAL(node->get_logger(), "❌ Port USB Qboard 1 non défini (clé : qbo_arduqbo.port1)");
+            return 1;
+        }
+
+        if (port2.empty()) {
+            RCLCPP_FATAL(node->get_logger(), "❌ Port USB Qboard 2 non défini (clé : qbo_arduqbo.port2)");
+            return 1;
+        }
+        RCLCPP_INFO(node->get_logger(), "✅ Configuration initiale validée, lancement de qbo_arduqbo...");
+
+        QboArduqboManager manager(node, options, port1, port2);
+
+        manager.setup();  // configure les contrôleurs
+        manager.run();    // lance l'exécuteur avec tous les nœuds enregistrés
+
+    }
+    catch (const std::exception &e)
+    {
+        RCLCPP_FATAL(node->get_logger(), "🛑 Exception fatale : %s", e.what());
+        return 1;
+    }
 
     rclcpp::shutdown();
     return 0;

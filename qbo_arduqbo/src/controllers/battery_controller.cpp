@@ -6,7 +6,7 @@
 using namespace std::chrono_literals;
 
 CBatteryController::CBatteryController(
-    std::shared_ptr<I2CBusDriver> driver,
+    std::shared_ptr<QboDuinoDriver> driver,
     const rclcpp::NodeOptions & options)
     : rclcpp::Node("battery_ctrl", "qbo_arduqbo", options),
       updater_(
@@ -82,14 +82,13 @@ std::string formatDouble(double value, int precision = 2)
 
 void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status)
 {
-    uint8_t buffer[2];
-    if (!driver_->readBytes(buffer, 2)) {
+    // uint8_t buffer[2];
+    int code=driver_->getBattery(level_,stat_);
+    if (code<0) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::STALE, "No communication");
         return;
     }
 
-    stat_ = buffer[0];
-    level_ = buffer[1];
     double voltage = level_ / 10.0;
 
     voltage_history_.push_back(voltage);
