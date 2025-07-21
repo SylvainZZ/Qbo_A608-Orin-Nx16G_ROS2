@@ -18,11 +18,11 @@ def generate_launch_description():
                 os.path.join(qbo_driver_dir, 'launch', 'qbo_diag.launch.py')
             )
         ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         os.path.join(qbo_arduqbo_dir, 'launch', 'qbo_full.launch.py')
-        #     )
-        # )
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(qbo_arduqbo_dir, 'launch', 'qbo_full.launch.py')
+            )
+        )
         # Node(
         #     package='qbo_bringup',
         #     executable='smach.py',

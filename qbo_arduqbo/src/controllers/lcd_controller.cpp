@@ -18,12 +18,9 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     this->get_node_topics_interface(),
     1.0)
 {
-    // this->declare_parameter("topic", "cmd_lcd");
-    // this->declare_parameter("rate", 1.0);
-
-    std::string topic;
-    this->get_parameter("topic", topic);
-    this->get_parameter("rate", rate_);
+    // Lecture des paramètres
+    get_parameter("topic", topic_);
+    get_parameter("rate", rate_);
 
     uint8_t i2c_state = 0;
     if (driver_->getI2cDevicesState(i2c_state) >= 0) {
@@ -36,7 +33,7 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     }
 
     lcd_sub_ = this->create_subscription<qbo_msgs::msg::LCD>(
-        topic, 1, std::bind(&LcdController::setLCD, this, std::placeholders::_1));
+        topic_, 1, std::bind(&LcdController::setLCD, this, std::placeholders::_1));
 
     diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
         "/diagnostics", 10, std::bind(&LcdController::diagCallback, this, std::placeholders::_1));
@@ -44,18 +41,14 @@ LcdController::LcdController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     updater_.setHardwareID("LCD");
     updater_.add("LCD Status", this, &LcdController::diagnosticCallback);
 
-    // Timer de mise à jour
-    this->create_wall_timer(
-      std::chrono::duration<double>(1.0 / rate_),
-      [this]() { updater_.force_update(); });
-
     display_timer_ = this->create_wall_timer(
         std::chrono::duration<double>(5.0 / rate_),
         std::bind(&LcdController::updateLCD, this));
 
-    RCLCPP_INFO(this->get_logger(), "✅ LCDController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
+    RCLCPP_INFO(this->get_logger(), "✅ LCDController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Command topic: %s",
+            rate_, topic_.c_str());
 
     display_lines_[0] = "Hostname: ???";
     // display_lines_[1] = "IP: ???";

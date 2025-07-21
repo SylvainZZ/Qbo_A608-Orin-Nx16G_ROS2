@@ -20,17 +20,10 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
     )
   {
 
-    // (void)name;
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
 
-    // declare_parameter("rate", 15.0);
-    // declare_parameter("topic", "/cmd_vel");
-    // declare_parameter("odom_topic", "/odom");
-    // declare_parameter("tf_odom_broadcast", true);
-    // RCLCPP_INFO(this->get_logger(), "BaseController node: '%s'", this->get_fully_qualified_name().c_str());
-
-
+    // Lecture des paramètres
     get_parameter("rate", rate_);
     get_parameter("topic", cmd_topic_);
     get_parameter("odom_topic", odom_topic_);
@@ -55,11 +48,6 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
 
     updater_.setHardwareID("Q.board1");
     updater_.add("Motors Status", this, &BaseController::diagnosticCallback);
-
-    // Timer pour les diagnostics
-    this->create_wall_timer(
-        std::chrono::duration<double>(1.0 / rate_),
-        [this]() { updater_.force_update(); });
 
     timer_ = create_wall_timer(std::chrono::milliseconds((int)(1000.0 / rate_)), std::bind(&BaseController::timerCallback, this));
 
@@ -116,12 +104,12 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
 
     static_tf_broadcaster_->sendTransform(static_tf);
 
-    RCLCPP_INFO(this->get_logger(), "✅ CBaseController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", cmd_topic_.c_str());
-    RCLCPP_INFO(this->get_logger(), "       Odometry topic: %s", odom_topic_.c_str());
-    RCLCPP_INFO(this->get_logger(), "       TF broadcast: %s", broadcast_tf_ ? "enabled" : "disabled");
-
+    RCLCPP_INFO(this->get_logger(), "✅ CBaseController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Command topic: %s\n"
+                                "       - Odometry topic: %s\n"
+                                "       - TF broadcast: %s",
+            rate_, cmd_topic_.c_str(), odom_topic_.c_str(), broadcast_tf_ ? "enabled" : "disabled");
 }
 
 void BaseController::twistCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {

@@ -12,88 +12,52 @@ QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node,
     // ...
 }
 
-// qbo_arduqbo.cpp - refactorisation de la fonction setup()
-
 void QboArduqboManager::setup() {
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-
     updater_ = std::make_unique<diagnostic_updater::Updater>(node_);
+
     updater_->setHardwareID("qbo_arduqbo System");
-
-    auto get_param_or_default = [&](const std::string &name, auto &value, const auto &default_val) {
-        if (!node_->get_parameter(name, value)) {
-            value = default_val;
-            RCLCPP_WARN(node_->get_logger(), "Parameter '%s' not set, using default: %s",
-                        name.c_str(), std::to_string(value).c_str());
-
-        }
-        // } else {
-        //     RCLCPP_INFO(node_->get_logger(), "Parameter '%s': %s",
-        //                 name.c_str(), std::to_string(value).c_str());
-        // }
-    };
 
     // =====================
     // ⚙️  Paramètres globaux
     // =====================
-    // std::string device_path;
-    // int address;
-    // get_param_or_default("i2c_device", device_path, std::string("/dev/i2c-7"));
-    // get_param_or_default("i2c_address", address, 20);
-    get_param_or_default("enable_battery", enable_battery_, false);
-    get_param_or_default("enable_base", enable_base_, false);
-    get_param_or_default("enable_imu_base", enable_imu_base_, false);
-    get_param_or_default("enable_imu_head", enable_imu_head_, false);
-    get_param_or_default("enable_lcd", enable_lcd_, false);
-    get_param_or_default("enable_nose", enable_nose_, false);
-    get_param_or_default("enable_mouth", enable_mouth_, false);
-    get_param_or_default("enable_audio", enable_audio_, false);
+    node_->get_parameter("baud1", baud1_);
+    node_->get_parameter("baud2", baud2_);
+    node_->get_parameter("timeout1", timeout1_);
+    node_->get_parameter("timeout2", timeout2_);
 
-    // std::string port1, port2;
-    int baud1, baud2;
-    double timeout1, timeout2;
-    uint8_t id = 0;
-    int board_id = -1, version = -1;
+    node_->get_parameter("enable_qboard1", enable_qboard1_);
+    node_->get_parameter("enable_qboard2", enable_qboard2_);
 
-    // get_param_or_default("port1", port1, std::string("/dev/ttyUSB0"));
-    // get_param_or_default("port2", port2, std::string("/dev/ttyUSB1"));
-    get_param_or_default("baud1", baud1, 115200);
-    get_param_or_default("baud2", baud2, 115200);
-    get_param_or_default("timeout1", timeout1, 0.05);
-    get_param_or_default("timeout2", timeout2, 0.05);
-    get_param_or_default("enable_qboard1", enable_qboard1_, true);
-    get_param_or_default("enable_qboard2", enable_qboard2_, true);
+    node_->get_parameter("enable_battery", enable_battery_);
+    node_->get_parameter("enable_base", enable_base_);
+    node_->get_parameter("enable_imu_base", enable_imu_base_);
+    node_->get_parameter("enable_lcd", enable_lcd_);
+    node_->get_parameter("enable_nose", enable_nose_);
+    node_->get_parameter("enable_mouth", enable_mouth_);
+    node_->get_parameter("enable_audio", enable_audio_);
 
     RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1_.c_str(), enable_qboard1_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2_.c_str(), enable_qboard2_ ? "enabled" : "disabled");
-    RCLCPP_INFO(node_->get_logger(), "BAUD: %d / %d | TIMEOUT: %.2f / %.2f", baud1, baud2, timeout1, timeout2);
+    RCLCPP_INFO(node_->get_logger(), "BAUD: %d / %d | TIMEOUT: %.2f / %.2f", baud1_, baud2_, timeout1_, timeout2_);
 
     updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
-        status.add("QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
-        status.add("QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
-        // status.add("QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
-
-        status.add("Qboard3", enable_battery_ ? "Battery Enabled" : "Disabled");
-        status.add("Base", enable_base_ ? "Enabled" : "Disabled");
-        status.add("IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
-        status.add("LCD", enable_lcd_ ? "Enabled" : "Disabled");
-        status.add("IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
-        status.add("Nose", enable_nose_ ? "Enabled" : "Disabled");
-        status.add("Mouth", enable_mouth_ ? "Enabled" : "Disabled");
-        status.add("Audio", enable_audio_ ? "Enabled" : "Disabled");
+        status.add("_QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
+        status.add("_Controller Battery", enable_battery_ ? "Enabled" : "Disabled");
+        status.add("_Controller Base", enable_base_ ? "Enabled" : "Disabled");
+        status.add("_Controller IMU", enable_imu_base_ ? "Enabled" : "Disabled");
+        status.add("_Controller LCD", enable_lcd_ ? "Enabled" : "Disabled");
+        status.add("_QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
+        status.add("_Controller Nose", enable_nose_ ? "Enabled" : "Disabled");
+        status.add("_Controller Mouth", enable_mouth_ ? "Enabled" : "Disabled");
+        status.add("_Controller Audio", enable_audio_ ? "Enabled" : "Disabled");
     });
 
-    diagnostic_timer_ = node_->create_wall_timer(
-        std::chrono::seconds(2),
-        [this]() { updater_->force_update(); }
-    );
-
     // =====================
-    // 🔌 Initialisation drivers
+    // 🔌 Initialisation driver
     // =====================
-    // i2c_driver_ = std::make_shared<I2CBusDriver>(device_path, static_cast<uint8_t>(address));
-    arduino_driver_ = std::make_shared<QboDuinoDriver>(port1_, baud1, port2_, baud2, timeout1, timeout2);
+    arduino_driver_ = std::make_shared<QboDuinoDriver>(port1_, baud1_, port2_, baud2_, timeout1_, timeout2_);
 
     // =====================
     // 🧩 Chargement des contrôleurs
@@ -190,44 +154,6 @@ void QboArduqboManager::setup() {
         RCLCPP_WARN(node_->get_logger(), "❌ Head board communication disabled by config");
     }
 
-    // ➕ Qboard 3 (I2C - battery)
-    // bool loaded = false;
-    // if (enable_battery_) {
-    //     auto battery = std::make_shared<CBatteryController>(i2c_driver_, node_options_);
-    //     controllers_.push_back(std::static_pointer_cast<rclcpp::Node>(battery));
-    //     loaded = true;
-    // }
-    // logControllerStatus("Battery", enable_battery_, loaded);
-
-    // ➕ Qboard 3 (IMU - TODO)
-    // loaded = false;
-    // if (enable_imu_head_) {
-    //     loaded = true;
-    // }
-    // logControllerStatus("IMU head", enable_imu_head_, loaded);
-
-    updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
-        status.add("_QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
-        status.add("_QBoard1 Version", qboard1_version_);
-        status.add("_QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
-        status.add("_QBoard2 Version", qboard2_version_);
-        
-        status.add("_QBoard3", enable_battery_ ? "Battery Enabled" : "Disabled");
-        status.add("_Base", enable_base_ ? "Enabled" : "Disabled");
-        status.add("_IMU Base", enable_imu_base_ ? "Enabled" : "Disabled");
-        status.add("_LCD", enable_lcd_ ? "Enabled" : "Disabled");
-        status.add("_IMU Head", enable_imu_head_ ? "Enabled" : "Disabled");
-        status.add("_Nose", enable_nose_ ? "Enabled" : "Disabled");
-        status.add("_Mouth", enable_mouth_ ? "Enabled" : "Disabled");
-        status.add("_Audio", enable_audio_ ? "Enabled" : "Disabled");
-    });
-
-    diagnostic_timer_ = node_->create_wall_timer(
-        std::chrono::seconds(2),
-        [this]() { updater_->force_update(); }
-    );
-
     // =====================
     // 🚀 Ajout au scheduler
     // =====================
@@ -241,6 +167,7 @@ void QboArduqboManager::setup() {
 void QboArduqboManager::run() {
     executor_->spin();
 }
+
 
 void QboArduqboManager::logControllerStatus(const std::string &name, bool enabled, bool loaded) {
     if (!enabled) {
@@ -286,7 +213,6 @@ int main(int argc, char **argv)
 
         manager.setup();  // configure les contrôleurs
         manager.run();    // lance l'exécuteur avec tous les nœuds enregistrés
-
     }
     catch (const std::exception &e)
     {

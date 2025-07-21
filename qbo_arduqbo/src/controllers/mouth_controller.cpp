@@ -4,8 +4,7 @@
 MouthController::MouthController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
 : Node("mouth_ctrl", "qbo_arduqbo", options), driver_(driver)
 {
-    // this->declare_parameter("topic", "cmd_mouth");
-    // this->declare_parameter("rate", 1.0);
+    // Lecture des paramètres
     this->get_parameter("topic", topic_);
     this->get_parameter("rate", rate_);
 
@@ -18,10 +17,10 @@ MouthController::MouthController(std::shared_ptr<QboDuinoDriver> driver, const r
         std::bind(&MouthController::testMouthLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
     );
 
-    RCLCPP_INFO(this->get_logger(), "✅ MouthController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic_.c_str());
-
+    RCLCPP_INFO(this->get_logger(), "✅ MouthController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Command topic: %s",
+            rate_, topic_.c_str());
 }
 
 void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
@@ -35,7 +34,7 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
     uint32_t data = 0;
     for (int i = 0; i < 20; ++i) {
         if (msg->mouth_image[i]) {
-            data |= (1 << (23 - i));  // 👈 CE CODE EST CORRECT si mouth_image est bien ordonné ligne/colonne
+            data |= (1 << (23 - i));
         }
     }
 

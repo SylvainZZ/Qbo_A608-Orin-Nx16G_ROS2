@@ -46,12 +46,12 @@ QboDuinoDriver::QboDuinoDriver(std::string port1, int baud1, std::string port2, 
             if (code >= 0 && board_id == 0) {
                 boards_["base"] = &firstDevice;
                 timeouts_["base"] = &timeout1_;
-                std::cout << "Base control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
+                // std::cout << "Base control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
                 any_detected = true;
             } else if (code >= 0 && board_id == 1) {
                 boards_["head"] = &firstDevice;
                 timeouts_["head"] = &timeout1_;
-                std::cout << "Head control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
+                // std::cout << "Head control board fount at " << port1 << " and inicialiced at " << baud1 << " baudrate" << std::endl;
                 any_detected = true;
             } else {
                 std::cout << "Not QBO Board detected at " << port1 << std::endl;

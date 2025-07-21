@@ -4,8 +4,7 @@
 NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
 : Node("nose_ctrl", "qbo_arduqbo", options), driver_(driver)
 {
-    // this->declare_parameter("topic", "cmd_nose");
-    // this->declare_parameter("rate", 1.0);
+    // Lecture des paramètres
     this->get_parameter("topic", topic_);
     this->get_parameter("rate", rate_);
 
@@ -18,11 +17,10 @@ NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
         std::bind(&NoseController::testNoseLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
     );
 
-
-    RCLCPP_INFO(this->get_logger(), "✅ NoseController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic_.c_str());
-
+    RCLCPP_INFO(this->get_logger(), "✅ NoseController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Command topic: %s",
+            rate_, topic_.c_str());
 }
 
 void NoseController::setNose(const qbo_msgs::msg::Nose::SharedPtr msg)

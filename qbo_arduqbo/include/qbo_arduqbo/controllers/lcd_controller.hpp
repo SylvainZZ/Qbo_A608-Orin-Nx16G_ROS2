@@ -62,6 +62,7 @@ private:
 
   // Etat interne
   double rate_;
+  std::string topic_ = "cmd_lcd";
   bool show_hostname_ = true;  // alterne toutes les 5 sec
   bool i2c_status_checked_ = false;
   bool has_lcd_ = false;

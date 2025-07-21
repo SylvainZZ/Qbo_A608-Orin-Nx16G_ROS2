@@ -1,21 +1,17 @@
 qbo_arduqbo:
   ros__parameters:
-      # i2c_device: "/dev/i2c-7"
-      # i2c_address: 20
-
+      enable_qboard1: true
       port1: "/dev/ttyQboard1"
       baud1: 115200
+      timeout1: 3.0
+      enable_qboard2: true
       port2: "/dev/ttyQboard2"
       baud2: 115200
-      timeout1: 3.0
       timeout2: 3.0
-      enable_qboard1: true
-      enable_qboard2: true
 
       enable_base: true
       enable_battery: true
       enable_imu_base: true
-      enable_imu_head: false
       enable_lcd: true
       enable_nose: true
       enable_mouth: true
@@ -23,8 +19,7 @@ qbo_arduqbo:
 
 /qbo_arduqbo/battery_ctrl:
   ros__parameters:
-    topic: "battery_ctrl/battery_state"
-    rate: 1.0
+    rate: .0
     error_battery_level: 11.5
     warn_battery_level: 12.2
     capacity_ah: 10.0

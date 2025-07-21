@@ -17,7 +17,7 @@
 
 class QboArduqboManager {
 public:
-    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node, 
+    explicit QboArduqboManager(std::shared_ptr<rclcpp::Node> node,
                                 const rclcpp::NodeOptions& options,
                                 const std::string &port1,
                                 const std::string &port2);
@@ -35,23 +35,27 @@ private:
     std::string port2_;
 
     // Flags
-    bool enable_qboard1_;
-    bool enable_qboard2_;
-    bool enable_battery_;
-    bool enable_imu_base_;
-    bool enable_imu_head_;
-    bool enable_base_;
-    bool enable_lcd_;
-    bool enable_nose_;
-    bool enable_mouth_;
-    bool enable_audio_;
+    bool enable_qboard1_ = false;
+    bool enable_qboard2_ = false;
+    bool enable_battery_ = false;
+    bool enable_imu_base_ = false;
+    bool enable_base_ = false;
+    bool enable_lcd_ = false;
+    bool enable_nose_ = false;
+    bool enable_mouth_ = false;
+    bool enable_audio_ = false;
 
     int qboard1_version_ = -1;
     int qboard2_version_ = -1;
+    int baud1_ = 115200;
+    int baud2_ = 115200;
+    double timeout1_ = 0.5;
+    double timeout2_ = 0.5;
+    uint8_t id = 0;
+    int board_id = -1, version = -1;
 
     // Diagnostics
     std::unique_ptr<diagnostic_updater::Updater> updater_;
-    rclcpp::TimerBase::SharedPtr diagnostic_timer_;
 
     // ➕ Fonctions utilitaires internes
     void logControllerStatus(const std::string &name, bool enabled, bool loaded);

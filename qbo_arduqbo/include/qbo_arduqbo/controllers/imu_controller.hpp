@@ -31,15 +31,17 @@ private:
     rclcpp::Service<qbo_msgs::srv::CalibrateIMU>::SharedPtr calibrate_service_;
     rclcpp::TimerBase::SharedPtr timer_;
     diagnostic_updater::Updater updater_;
+    rclcpp::Time last_calibration_time_;
 
     // Etat interne
     std::shared_ptr<QboDuinoDriver> driver_;
     sensor_msgs::msg::Imu imu_msg_;
     std_msgs::msg::Bool imu_calibrated_;
+    double rate_ = 10;
+    std::string topic_ = "imu_state";
     bool is_calibrated_;
     bool is_calibrating_;
     double last_calibrated_;
-    double rate_;
     bool has_gyro_ = false;
     bool has_accel_ = false;
     bool i2c_status_checked_ = false;

@@ -46,22 +46,64 @@ Extrait de `qboards_config.yaml` :
 ```yaml
 qbo_arduqbo:
   ros__parameters:
-    port1: /dev/ttyUSB0
-    port2: /dev/ttyUSB1
-    baud1: 115200
-    baud2: 115200
-    timeout1: 0.05
-    timeout2: 0.05
+      enable_qboard1: true
+      port1: "/dev/ttyQboard1"
+      baud1: 115200
+      timeout1: 3.0
+      enable_qboard2: true
+      port2: "/dev/ttyQboard2"
+      baud2: 115200
+      timeout2: 3.0
 
-    enable_qboard1: true
-    enable_qboard2: true
-    enable_battery: true
+      enable_base: true
+      enable_battery: true
+      enable_imu_base: true
+      enable_lcd: true
+      enable_nose: true
+      enable_mouth: true
+      enable_audio: true
 
-    enable_base: true
-    enable_imu_base: true
-    enable_lcd: true
-    enable_nose: true
-    enable_mouth: true
+/qbo_arduqbo/battery_ctrl:
+  ros__parameters:
+    rate: .0
+    error_battery_level: 11.5
+    warn_battery_level: 12.2
+    capacity_ah: 10.0
+    battery_type: LiFePo4
+    nominal_voltage: 13.2
+
+/qbo_arduqbo/base_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "base_ctrl/cmd_vel"
+    odom_topic: "base_ctrl/odom"
+    tf_odom_broadcast: true
+
+/qbo_arduqbo/imu_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "imu_ctrl/imu_state"
+
+/qbo_arduqbo/lcd_ctrl:
+  ros__parameters:
+    rate: 1.0
+    topic: "lcd_ctrl/cmd_lcd"
+
+/qbo_arduqbo/nose_ctrl:
+  ros__parameters:
+    rate: 10.0
+    topic: "nose_ctrl/cmd_nose"
+
+/qbo_arduqbo/mouth_ctrl:
+  ros__parameters:
+    rate: 10.0
+    topic: "mouth_ctrl/cmd_mouth"
+
+/qbo_arduqbo/audio_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "audio_ctrl/mic_report"
+
 ```
 
 ## 📡 Contrôleurs disponibles
@@ -79,23 +121,23 @@ qbo_arduqbo:
 
 ### Imposer une odométrie ou mettre à zéro
 ```bash
-ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
+ros2 service call /qbo_arduqbo/base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
 ```
 
 ### Stoper le déplacement ou débloquer les moteurs
 ```bash
-ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
-ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
+ros2 service call /qbo_arduqbo/base_ctrl/stop_base std_srvs/srv/Empty "{}"
+ros2 service call /qbo_arduqbo/base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
 ```
 
 ### Calibrer l'IMU
 ```bash
-ros2 service call /imu_state/calibrate qbo_msgs/srv/CalibrateIMU "{}"
+ros2 service call /qbo_arduqbo/imu_ctrl/imu_state/calibrate qbo_msgs/srv/CalibrateIMU "{}"
 ```
 
 ### Tester l'éclairage du nez
 ```bash
-ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
+ros2 topic pub -1 /qbo_arduqbo/cmd_nose qbo_msgs/msg/Nose "{color: 4}"
 # 0 = Off
 # 1 = Red
 # 2 = Blue
@@ -105,14 +147,14 @@ ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
 # 6 = Magenta (Blue+Red)
 # 7 = White (RGB on)
 
-ros2 service call /nose_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
+ros2 service call /qbo_arduqbo/nose_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 ```
 
 
 ### Tester les LED de la bouche
 ```bash
-ros2 service call /mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
-ros2 service call /audio_ctrl/set_mouth_animation qbo_msgs/srv/SetMouthAnimation "{enable: true}"
+ros2 service call /qbo_arduqbo/mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
+ros2 service call /qbo_arduqbo/audio_ctrl/set_mouth_animation qbo_msgs/srv/SetMouthAnimation "{enable: true}"
 
 ```
 

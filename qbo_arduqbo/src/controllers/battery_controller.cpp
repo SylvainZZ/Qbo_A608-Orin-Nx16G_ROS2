@@ -22,54 +22,29 @@ CBatteryController::CBatteryController(
       stat_(0),
       last_estimated_runtime_minutes_(0.0)
 {
-    name_ = this->get_name();
-
-    // Déclaration des paramètres
-    // this->declare_parameter("topic", "battery_state");
-    // this->declare_parameter("rate", 15.0);
-    // this->declare_parameter("error_battery_level", 12.0);
-    // this->declare_parameter("warn_battery_level", 12.5);
-    // this->declare_parameter("capacity_ah", 10.0);
-    // this->declare_parameter("nominal_voltage", 13.0);
-    // this->declare_parameter("battery_type", "LiFePo4");
-
-    // Lecture des paramètres
-    std::string topic;
-    this->get_parameter("topic", topic);
-    this->get_parameter("rate", rate_);
 
     diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
         "/diagnostics", 10, std::bind(&CBatteryController::diagCallback, this, std::placeholders::_1));
 
-    loadParameters();
+    // Lecture des paramètres
+    get_parameter("error_battery_level", error_battery_level_);
+    get_parameter("warn_battery_level", warn_battery_level_);
+    get_parameter("capacity_ah", capacity_ah_);
+    get_parameter("nominal_voltage", nominal_voltage_);
+    get_parameter("battery_type", battery_type_);
 
     // Diagnostics
     updater_.setHardwareID("Q.board3");
     updater_.add("Battery Status", this, &CBatteryController::diagnosticCallback);
 
-    // Timer pour les diagnostics
-    this->create_wall_timer(
-        std::chrono::duration<double>(1.0 / rate_),
-        [this]() { updater_.force_update(); });
-
-    // std::cout << "Nom du contrôleur: " << this->get_name() << std::endl;
-    RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
-    RCLCPP_INFO(this->get_logger(), "       Battery type: %s", battery_type_.c_str());
-    RCLCPP_INFO(this->get_logger(), "       Nominal voltage: %.2f V", nominal_voltage_);
-    RCLCPP_INFO(this->get_logger(), "       Capacity: %.2f Ah", capacity_ah_);
-    RCLCPP_INFO(this->get_logger(), "       Warning level: %.2f V", warn_battery_level_);
-    RCLCPP_INFO(this->get_logger(), "       Error level: %.2f V", error_battery_level_);
-}
-
-void CBatteryController::loadParameters()
-{
-    this->get_parameter("error_battery_level", error_battery_level_);
-    this->get_parameter("warn_battery_level", warn_battery_level_);
-    this->get_parameter("capacity_ah", capacity_ah_);
-    this->get_parameter("nominal_voltage", nominal_voltage_);
-    this->get_parameter("battery_type", battery_type_);
+    RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized with:\n"
+                                "       - Battery type: %s\n"
+                                "       - Nominal voltage: %.2f V\n"
+                                "       - Capacity: %.2f Ah\n"
+                                "       - Warning level: %.2f V\n"
+                                "       - Error level: %.2f V",
+            battery_type_.c_str(), nominal_voltage_, capacity_ah_,
+            warn_battery_level_, error_battery_level_);
 }
 
 std::string formatDouble(double value, int precision = 2)
@@ -82,7 +57,6 @@ std::string formatDouble(double value, int precision = 2)
 
 void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status)
 {
-    // uint8_t buffer[2];
     int code=driver_->getBattery(level_,stat_);
     if (code<0) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::STALE, "No communication");
@@ -103,7 +77,7 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 
         // Hypothèse : on a bien reçu une valeur valide
         if (A608_power_w_ > 0.0) {
-            fixed_extra_power_w = 2.5; // ← à ajuster selon tes mesures
+            fixed_extra_power_w = 4; // ← à ajuster selon tes mesures
 
             total_power_w = A608_power_w_ + fixed_extra_power_w;
 
@@ -118,7 +92,7 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
                 if (last_estimated_runtime_minutes_ < 0.0 ||
                     std::abs(estimated_runtime_minutes - last_estimated_runtime_minutes_) > 10.0) {
                     last_estimated_runtime_minutes_ = estimated_runtime_minutes;
-                    RCLCPP_INFO(this->get_logger(), "Updated runtime to %.1f minutes", estimated_runtime_minutes);
+                    // RCLCPP_INFO(this->get_logger(), "Updated runtime to %.1f minutes", estimated_runtime_minutes);
                 }
             }
         }
@@ -129,7 +103,6 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     status.add("_Nominal Voltage (V)", formatDouble(nominal_voltage_));
     status.add("_Capacity (Ah)", formatDouble(capacity_ah_));
     status.add("Status", std::to_string(stat_));
-    status.add("_I2C_Adress", "0x14");
 
     uint8_t charge_mode = (stat_ >> 3) & 0x07;  // bits 5-3
     bool ext_power = (stat_ >> 2) & 0x01;       // bit 2
@@ -183,7 +156,7 @@ void CBatteryController::diagCallback(const diagnostic_msgs::msg::DiagnosticArra
             for (const auto& value : status.values) {
                 if (value.key == "VDD_IN W") {
                     A608_power_w_ = std::stod(value.value);
-                    return;  // dès qu’on l’a trouvé, inutile de continuer
+                    return;
                 }
             }
         }

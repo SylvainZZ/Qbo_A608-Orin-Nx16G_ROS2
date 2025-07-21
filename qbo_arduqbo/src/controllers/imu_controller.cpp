@@ -23,14 +23,9 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
 {
     uint8_t i2c_state = 0;
 
-    // Paramètres
-    // this->declare_parameter("topic", "imu_state");
-    // this->declare_parameter("rate", 1.0);
-    std::string topic;
-    this->get_parameter("topic", topic);
-    this->get_parameter("rate", rate_);
-    this->declare_parameter(this->get_name() + std::string(".is_calibrated"), false);
-    this->declare_parameter(this->get_name() + std::string( ".last_calibrated"), 0.0);
+    // Lecture des paramètres
+    get_parameter("topic", topic_);
+    get_parameter("rate", rate_);
 
     if (driver_->getI2cDevicesState(i2c_state) >= 0) {
         has_gyro_ = i2c_state & 0x02;
@@ -44,12 +39,12 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     }
 
     // Publishers
-    imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(topic + "/data", 10);
-    imu_calibrated_pub_ = this->create_publisher<std_msgs::msg::Bool>(topic + "/is_calibrated", 10);
+    imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(topic_ + "/data", 10);
+    imu_calibrated_pub_ = this->create_publisher<std_msgs::msg::Bool>(topic_ + "/is_calibrated", 10);
 
     // Service
     calibrate_service_ = this->create_service<qbo_msgs::srv::CalibrateIMU>(
-        topic + "/calibrate",
+        topic_ + "/calibrate",
         std::bind(&ImuController::calibrateService, this, std::placeholders::_1, std::placeholders::_2)
     );
 
@@ -62,11 +57,6 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     updater_.setHardwareID("Q.Board4");
     updater_.add("IMU Status", this, &ImuController::diagnosticCallback);
 
-    // Timer de mise à jour
-    this->create_wall_timer(
-      std::chrono::duration<double>(1.0 / rate_),
-      [this]() { updater_.force_update(); });
-
     // Init IMU message
     imu_msg_.header.frame_id = "base_link";
     imu_msg_.orientation_covariance = { -1.0, 0, 0, 0, -1.0, 0, 0, 0, -1.0 };
@@ -75,37 +65,65 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
 
     imu_calibrated_.data = false;
 
-    RCLCPP_INFO(this->get_logger(), "✅ ImuController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Command topic: %s", topic.c_str());
-    RCLCPP_INFO(this->get_logger(), "       IMU calibrated: %s", is_calibrated_ ? "yes" : "no");
-    RCLCPP_INFO(this->get_logger(), "       Last calibration timestamp: %.0f", last_calibrated_);
+    RCLCPP_INFO(this->get_logger(), "✅ ImuController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Command topic: %s\n"
+                                "       - IMU calibrated: %s\n"
+                                "       - Last calibration timestamp: %.0f",
+            rate_, topic_.c_str(), is_calibrated_ ? "yes" : "no", last_calibrated_);
 }
 
-void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status) {
-    status.summary(
-        (has_gyro_ && has_accel_) ? diagnostic_msgs::msg::DiagnosticStatus::OK :
-        diagnostic_msgs::msg::DiagnosticStatus::ERROR,
-        (i2c_status_checked_ ? "IMU status read" : "IMU I2C check failed at startup"));
+void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status)
+{
+    // 🔵 État matériel de l’IMU
+    bool hardware_ok = has_gyro_ && has_accel_;
+    bool calibration_ok = is_calibrated_;
 
-    // 🟢 État dynamique
+    // 🟢 État global
+    if (!hardware_ok) {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "IMU hardware incomplete");
+    } else if (!calibration_ok) {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "IMU not calibrated");
+    } else {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "IMU operational");
+    }
+
+    // 🟣 État matériel détecté
     status.add("Gyroscope Present", has_gyro_ ? "yes" : "no");
     status.add("Accelerometer Present", has_accel_ ? "yes" : "no");
 
-    // 🟣 Infos techniques statiques
+    // 🔧 Infos techniques statiques
     status.add("_Accelerometer Model", "LIS35DE");
-    status.add("_I2C AdressLIS35DE", "0x1C");
+    status.add("_I2C Address LIS35DE", "0x1C");
     status.add("_Gyroscope Model", "L3G400D");
-    status.add("_I2C AdressL3G400D", "0x69");
+    status.add("_I2C Address L3G400D", "0x69");
 
-    // 🔴 Message explicite si erreur
-    if (!has_gyro_ || !has_accel_) {
+    // 🟠 Calibration
+    std::string formatted_time = "N/A";
+    if (calibration_ok) {
+        rclcpp::Duration since = this->now() - last_calibration_time_;
+        int seconds_ago = static_cast<int>(since.seconds());
+        int hours = seconds_ago / 3600;
+        int minutes = (seconds_ago % 3600) / 60;
+        int seconds = seconds_ago % 60;
+
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%02dh:%02dm:%02ds ago", hours, minutes, seconds);
+        formatted_time = std::string(buffer);
+    }
+
+    status.add("IMU calibrated", calibration_ok ? "yes" : "no");
+    status.add("Last calibration", formatted_time);
+
+    // 🔴 Message explicite (affiché si status.message vide)
+    if (!hardware_ok) {
         std::string msg = std::string(!has_gyro_ ? "Gyroscope missing" : "") +
                           std::string((!has_gyro_ && !has_accel_) ? " & " : "") +
                           std::string(!has_accel_ ? "Accelerometer missing" : "");
         status.message = msg;
     }
 }
+
 
 void ImuController::timerCallback()
 {
@@ -180,9 +198,7 @@ bool ImuController::calibrateService(
     res->message = "IMU calibration successful.";
     is_calibrated_ = true;
     is_calibrating_ = false;
-    // timer_->reset();   // restart it
-    this->set_parameter(rclcpp::Parameter(this->get_name() + std::string(".is_calibrated"), true));
-    this->set_parameter(rclcpp::Parameter(this->get_name() + std::string(".last_calibrated"), this->now().seconds()));
+    last_calibration_time_ = this->now();
 
     return true;
 }

@@ -20,7 +20,6 @@ public:
 private:
     void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
     void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg);
-    void loadParameters();
 
     // ROS2
     rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
@@ -30,7 +29,7 @@ private:
     std::shared_ptr<QboDuinoDriver> driver_;
 
     // État batterie brut
-    std::string name_;
+    // std::string name_;
     float level_;
     uint8_t stat_;
     double A608_power_w_ = -1.0;
@@ -45,5 +44,5 @@ private:
     double capacity_ah_= 12.0;
     double nominal_voltage_= 12.0;
     std::string battery_type_ = "Unknown";
-    double rate_;
+
 };

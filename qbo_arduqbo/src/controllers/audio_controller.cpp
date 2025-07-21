@@ -4,8 +4,7 @@
 AudioController::AudioController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
 : Node("audio_ctrl", "qbo_arduqbo", options), driver_(driver)
 {
-    // this->declare_parameter("mic_report_topic", "mic_report");
-    // this->declare_parameter("rate", 5.0);
+    // Lecture des paramètres
     this->get_parameter("topic", mic_topic_);
     this->get_parameter("rate", rate_);
 
@@ -21,9 +20,10 @@ AudioController::AudioController(std::shared_ptr<QboDuinoDriver> driver, const r
         std::bind(&AudioController::publishMicReport, this)
     );
 
-    RCLCPP_INFO(this->get_logger(), "✅ AudioController initialized");
-    RCLCPP_INFO(this->get_logger(), "       Rate: %.2f Hz", rate_);
-    RCLCPP_INFO(this->get_logger(), "       Mic topic: %s", mic_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "✅ AudioController initialized with:\n"
+                                "       - Rate: %.2f Hz\n"
+                                "       - Mic topic: %s",
+            rate_, mic_topic_.c_str());
 }
 
 void AudioController::publishMicReport()
