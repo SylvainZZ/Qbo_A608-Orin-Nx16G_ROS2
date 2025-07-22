@@ -25,6 +25,7 @@ setup(
     'console_scripts': [],
     'rqt_gui_py.plugin': [
         'pan_tilt_plugin = qbo_rqt.pan_tilt_plugin:PanTiltPlugin',
+        'system_view_plugin = qbo_rqt.system_view_plugin.SystemViewPlugin'
         ],
     },
 )

@@ -108,14 +108,14 @@ qbo_arduqbo:
 
 ## 📡 Contrôleurs disponibles
 
-| Contrôleur         | Type     | Description                            | ROS Topic / Service                  |
-|--------------------|----------|----------------------------------------|--------------------------------------|
-| `base_controller`  | Node     | Odométrie + commande de base           | `/cmd_vel`, `/odom`                  |
-| `imu_controller`   | Node     | Lecture IMU + calibration              | `/imu_state/data`, `/imu_state/calibrate` |
-| `lcd_controller`   | Node     | Affichage info système/batterie        | `/cmd_lcd`, `/diagnostics`           |
-| `nose_controller`  | Node     | LED RGB Nez                            | `/cmd_nose`                          |
-| `mouth_controller` | Node     | Afficheur LED 4x5                      | `/cmd_mouth`, `/test_mouth` (srv)   |
-| `battery_controller` | Node   | Surveillance batterie (via I2C)        | `/diagnostics`                       |
+| Contrôleur           | Type     | Description                            | ROS Topic / Service                  |
+|----------------------|----------|----------------------------------------|--------------------------------------|
+| `base_controller`    | Node     | Odométrie + commande de base           | `/cmd_vel`, `/odom`                  |
+| `imu_controller`     | Node     | Lecture IMU + calibration              | `/imu_state/data`, `/imu_state/calibrate` |
+| `lcd_controller`     | Node     | Affichage info système/batterie        | `/cmd_lcd`, `/diagnostics`           |
+| `nose_controller`    | Node     | LED RGB Nez                            | `/cmd_nose`                          |
+| `mouth_controller`   | Node     | Afficheur LED 4x5                      | `/cmd_mouth`, `/test_mouth` (srv)    |
+| `battery_controller` | Node     | Surveillance batterie (via I2C)        | `/diagnostics`                       |
 
 ## 🧪 Services utiles
 
