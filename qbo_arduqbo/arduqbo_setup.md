@@ -65,7 +65,7 @@ qbo_arduqbo:
 
 /qbo_arduqbo/battery_ctrl:
   ros__parameters:
-    rate: .0
+    rate: 1.0
     error_battery_level: 11.5
     warn_battery_level: 12.2
     capacity_ah: 10.0
@@ -124,7 +124,7 @@ qbo_arduqbo:
 ros2 service call /qbo_arduqbo/base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
 ```
 
-### Stoper le déplacement ou débloquer les moteurs
+### Stopper le déplacement ou débloquer les moteurs
 ```bash
 ros2 service call /qbo_arduqbo/base_ctrl/stop_base std_srvs/srv/Empty "{}"
 ros2 service call /qbo_arduqbo/base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
@@ -212,14 +212,14 @@ qbo_arduqbo/
 ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml
 ros2 run qbo_arduqbo qbo_arduqbo   --ros-args --params-file src/qbo_arduqbo/config/qboards_config.yaml --log-level DEBUG
 colcon build --packages-select qbo_msgs   --cmake-clean-cache   --allow-overriding qbo_msgs
-ros2 service call /base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
-ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
-ros2 service call /base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
+ros2 service call /qbo_arduqbo/base_ctrl/set_odometry qbo_msgs/srv/SetOdometry "{x: 1.0, y: 2.0, theta: 1.57}"
+ros2 service call /qbo_arduqbo/base_ctrl/stop_base std_srvs/srv/Empty "{}"
+ros2 service call /qbo_arduqbo/base_ctrl/unlock_motors_stall std_srvs/srv/Empty "{}"
 ros2 launch qbo_arduqbo qbo_full.launch.py
 ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/qbo-v2/qbo_ws/src/qbo_arduqbo/config/diagnostics_aggregator.yaml
-ros2 topic pub -1 /cmd_nose qbo_msgs/msg/Nose "{color: 4}"
+ros2 topic pub -1 /qbo_arduqbo/cmd_nose qbo_msgs/msg/Nose "{color: 4}"
 ros2 service call /mouth_ctrl/test_leds qbo_msgs/srv/TestMouthLeds
-rosservice call /base_ctrl/stop_base std_srvs/srv/Empty
+ros2 service call /base_ctrl/stop_base std_srvs/srv/Empty "{}"
 ros2 topic pub  /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.5}, angular: {z: 0.5}}'
 
 

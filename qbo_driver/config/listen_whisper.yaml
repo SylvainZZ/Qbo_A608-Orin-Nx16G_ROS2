@@ -1,0 +1,25 @@
+/qbo_listen:
+  ros__parameters:
+    audio_device_name: "Jabra SPEAK 410 USB"
+    sample_rate: 16000
+    input_channels: 1
+
+    frame_ms: 20
+    vad_enabled: true
+    vad_mode: 2
+    silence_frames_end: 12
+    min_utt_ms: 500
+
+    # anti tampon musique/bruit
+    max_utt_ms: 4000
+    min_speech_ratio: 0.60
+
+    # lien TTS
+    tts_ignore_ms: 250
+
+    # Whisper
+    system_lang: "fr"
+    whisper_model: "small"
+
+    # confidence gating
+    min_confidence: 0.55

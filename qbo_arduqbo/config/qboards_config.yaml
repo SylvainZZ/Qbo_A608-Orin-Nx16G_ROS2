@@ -16,6 +16,7 @@ qbo_arduqbo:
       enable_nose: true
       enable_mouth: true
       enable_audio: true
+      enable_sensors: true
 
 /qbo_arduqbo/battery_ctrl:
   ros__parameters:
@@ -57,4 +58,34 @@ qbo_arduqbo:
   ros__parameters:
     rate: 15.0
     topic: "audio_ctrl/mic_report"
+
+/qbo_arduqbo/sens_ctrl:
+  ros__parameters:
+    rate: 15.0
+    topic: "sens_ctrl/distance_sensors_state"
+
+    sensors.front.front_left_srf10.type: "srf10"
+    sensors.front.front_left_srf10.address: 112
+    sensors.front.front_left_srf10.frame_id: "front_left_addon"
+    sensors.front.front_left_srf10.publish_if_obstacle: true
+
+    sensors.front.front_right_srf10.type: "srf10"
+    sensors.front.front_right_srf10.address: 113
+    sensors.front.front_right_srf10.frame_id: "front_right_addon"
+    sensors.front.front_right_srf10.publish_if_obstacle: true
+
+    sensors.back.back_left_srf10.type: "srf10"
+    sensors.back.back_left_srf10.address: 114
+    sensors.back.back_left_srf10.frame_id: "back_left_addon"
+    sensors.back.back_left_srf10.publish_if_obstacle: true
+
+    sensors.back.back_right_srf10.type: "srf10"
+    sensors.back.back_right_srf10.address: 115
+    sensors.back.back_right_srf10.frame_id: "back_right_addon"
+    sensors.back.back_right_srf10.publish_if_obstacle: true
+
+    sensors.front.floor_sensor.type: "GP2Y0A21YK"
+    sensors.front.floor_sensor.address: 8
+    sensors.front.floor_sensor.frame_id: "front_addon"
+    sensors.front.floor_sensor.publish_if_obstacle: false
 

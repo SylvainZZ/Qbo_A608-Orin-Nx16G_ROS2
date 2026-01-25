@@ -14,7 +14,8 @@ setup(
             'launch/qbo_diag.launch.py',
             'launch/qbo_audio.launch.py',
             'launch/gscam_imx219_launch.py',
-            'launch/dual_camera_v412_launch.py'
+            'launch/dual_camera_v412_launch.py',
+            'launch/audio_stack.launch.py'
         ]),
         # Paramètres YAML du diagnostic Orin A608
         ('share/' + package_name+ '/config', ['config/OrinA608Diag_param.yaml']),
@@ -24,6 +25,11 @@ setup(
         # Dossier vide pour les futurs .faiss/.json générés
         ('share/' + package_name + '/config/LLM',
             glob.glob('config/LLM/*.faiss') + glob.glob('config/LLM/*.json')),
+        # Fichiers de configuration pour TTS et ASR
+        ('share/' + package_name + '/config', [
+            'config/talk_tts.yaml',
+            'config/listen_whisper.yaml',
+        ]),
     ],
     install_requires=[
         "rclpy",
@@ -42,7 +48,7 @@ setup(
     entry_points={
         'console_scripts': [
             'qbo_listen = qbo_driver.listen_whisper:main',
-            'qbo_talk = qbo_driver.talk_piper:main',
+            'qbo_talk = qbo_driver.talk_TTS:main',
             'OrinA608Diag = qbo_driver.hardwareOrinA608:main',
             'qbo_aiml = qbo_driver.aiml:main',
             'qbo_diagnosticLogger = qbo_driver.diagnosticLog:main',

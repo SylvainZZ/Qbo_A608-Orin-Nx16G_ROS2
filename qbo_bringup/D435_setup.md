@@ -79,6 +79,7 @@ git checkout -b realsense-v4.56.3 4.56.3
 
 cd ~/qbo_ws
 colcon build --symlink-install --packages-select realsense2_camera
+colcon build
 source install/setup.bash
 ```
 

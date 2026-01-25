@@ -14,6 +14,7 @@
 #include "qbo_arduqbo/controllers/nose_controller.hpp"
 #include "qbo_arduqbo/controllers/mouth_controller.hpp"
 #include "qbo_arduqbo/controllers/audio_controller.hpp"
+#include "qbo_arduqbo/controllers/sensor_controller.hpp"
 
 class QboArduqboManager {
 public:
@@ -44,6 +45,7 @@ private:
     bool enable_nose_ = false;
     bool enable_mouth_ = false;
     bool enable_audio_ = false;
+    bool enable_sensors_ = false;
 
     int qboard1_version_ = -1;
     int qboard2_version_ = -1;

@@ -36,6 +36,7 @@ void QboArduqboManager::setup() {
     node_->get_parameter("enable_nose", enable_nose_);
     node_->get_parameter("enable_mouth", enable_mouth_);
     node_->get_parameter("enable_audio", enable_audio_);
+    node_->get_parameter("enable_sensors", enable_sensors_);
 
     RCLCPP_INFO(node_->get_logger(), "PORT1: %s (%s)", port1_.c_str(), enable_qboard1_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2_.c_str(), enable_qboard2_ ? "enabled" : "disabled");
@@ -52,6 +53,7 @@ void QboArduqboManager::setup() {
         status.add("_Controller Nose", enable_nose_ ? "Enabled" : "Disabled");
         status.add("_Controller Mouth", enable_mouth_ ? "Enabled" : "Disabled");
         status.add("_Controller Audio", enable_audio_ ? "Enabled" : "Disabled");
+        status.add("_Controller Sensors", enable_sensors_ ? "Enabled" : "Disabled");
     });
 
     // =====================
@@ -107,6 +109,14 @@ void QboArduqboManager::setup() {
             loaded = true;
         }
         logControllerStatus("LCD", enable_lcd_, loaded);
+
+        loaded = false;
+        if (enable_sensors_) {
+            auto sens_ctrl = std::make_shared<SensorController>(arduino_driver_, node_options_);
+            controllers_.push_back(sens_ctrl);
+            loaded = true;
+        }
+        logControllerStatus("Sensors", enable_sensors_, loaded);
 
 
     } else {

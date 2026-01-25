@@ -85,6 +85,13 @@ add_library(audio_controller src/controllers/audio_controller.cpp)
 target_link_libraries(audio_controller qbo_serial)
 ament_target_dependencies(audio_controller rclcpp qbo_msgs)
 
+add_library(sensor_controller src/controllers/sensor_controller.cpp)
+target_link_libraries(sensor_controller qbo_serial)
+ament_target_dependencies(sensor_controller
+  rclcpp sensor_msgs
+  diagnostic_updater
+)
+
 
 # ====================================
 # EXECUTABLES
@@ -104,7 +111,7 @@ add_executable(qbo_arduqbo
   src/qbo_arduqbo.cpp
   src/drivers/i2c_bus_driver.cpp
   src/controllers/battery_controller.cpp
-  src/controllers/imu_controller.cpp
+  # src/controllers/imu_controller.cpp
 )
 target_include_directories(qbo_arduqbo PUBLIC include)
 target_link_libraries(qbo_arduqbo
@@ -115,6 +122,7 @@ target_link_libraries(qbo_arduqbo
   nose_controller
   mouth_controller
   audio_controller
+  sensor_controller
 )
 ament_target_dependencies(qbo_arduqbo
   rclcpp std_msgs diagnostic_msgs diagnostic_updater qbo_msgs
@@ -135,6 +143,7 @@ install(TARGETS
   nose_controller
   mouth_controller
   audio_controller
+  sensor_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 

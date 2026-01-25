@@ -1,0 +1,21 @@
+/qbo_talk_coqui:
+  ros__parameters:
+    sample_rate: 16000
+    output_channels: 2
+    audio_playback_volume: 80
+
+    # TTS
+    default_lang: "fr"
+    tts_model_name: "tts_models/multilingual/multi-dataset/your_tts"
+    tts_speaker: "male-en-2"
+    tts_language_fr: "fr-fr"
+    tts_language_en: "en"
+    use_gpu: true
+    warmup_text: "Bonjour."
+    queue_maxsize: 10
+    tts_speaker_wav: "/home/qbo-v2/venvs/tts/qbo_fr_ref_22050.wav"
+    speech_rate: 0.80
+
+    # anti-pop
+    target_rms: 0.08
+    soft_limit: 2.0

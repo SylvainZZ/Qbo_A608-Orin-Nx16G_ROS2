@@ -15,7 +15,15 @@ Pour éviter ce comportement, on utilise des **règles UDEV** permettant de cré
 
 ## ✍️ Étapes de configuration
 
-### 1. Créer le fichier de règles
+### 1. Créer le fichier de règles en fonction des retours sur les commandes suivantes pour identifier les ports, KERNEL et ATTRS
+
+```bash
+lsusb
+
+"Et sur le retour remplacer /dev/ttyUSB0 pour obtenir les informations"
+
+udevadm info -a -n /dev/ttyUSB0 | grep -E 'ATTRS{idVendor}|ATTRS{idProduct}|ATTRS{serial}'
+```
 
 ```bash
 sudo adduser $USER dialout
