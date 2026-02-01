@@ -48,7 +48,7 @@ SensorController::SensorController(std::shared_ptr<QboDuinoDriver> driver,
       std::chrono::milliseconds(static_cast<int>(1000.0 / rate_)),
       std::bind(&SensorController::timerCallback, this));
 
-  // Diagnostics
+  // 🔍 Diagnostic setup
   updater_.setHardwareID("Q.Board1 distance sensors");
   updater_.add("Sensors Status", this, &SensorController::diagnosticCallback);
 
@@ -186,6 +186,8 @@ void SensorController::publishDistance(DistanceSensor & s,
   if (!s.publish_if_obstacle || raw > 0) {
     s.pub->publish(s.cloud);
   }
+  s.last_seen = stamp;
+  s.alive = true;
 }
 
 void SensorController::timerCallback()
@@ -232,7 +234,7 @@ void SensorController::timerCallback()
     }
   }
 
-  updater_.force_update();
+  // updater_.force_update();
 }
 
 void SensorController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper & status)
@@ -240,6 +242,35 @@ void SensorController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWr
   if (srf10_sensors_.empty() && adc_sensors_.empty()) {
     status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "No sensors configured");
     return;
+  }
+
+  const auto now = this->now();
+  const double timeout = 2.0;  // secondes sans données → WARN
+
+  int missing = 0;
+
+  for (const auto & kv : srf10_sensors_) {
+    const auto & s = kv.second;
+    if (!s.alive || (now - s.last_seen).seconds() > timeout) {
+      missing++;
+      status.add("Missing SRF10", s.name);
+    }
+  }
+
+  for (const auto & kv : adc_sensors_) {
+    const auto & s = kv.second;
+    if (!s.alive || (now - s.last_seen).seconds() > timeout) {
+      missing++;
+      status.add("Missing ADC", s.name);
+    }
+  }
+
+  if (missing > 0) {
+    status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                   "One or more sensors not responding");
+  } else {
+    status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                   "Sensors operational");
   }
 
   status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Sensors operational");

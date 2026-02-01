@@ -1,8 +1,19 @@
 #include "qbo_arduqbo/controllers/nose_controller.hpp"
 #include <rclcpp/rclcpp.hpp>
 
-NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("nose_ctrl", "qbo_arduqbo", options), driver_(driver)
+NoseController::NoseController(
+    std::shared_ptr<QboDuinoDriver> driver,
+    const rclcpp::NodeOptions & options)
+    : Node("nose_ctrl", "qbo_arduqbo", options),
+    driver_(driver),
+    updater_(
+        this->get_node_base_interface(),
+        this->get_node_clock_interface(),
+        this->get_node_logging_interface(),
+        this->get_node_parameters_interface(),
+        this->get_node_timers_interface(),
+        this->get_node_topics_interface(),
+        1.0)
 {
     // Lecture des paramètres
     this->get_parameter("topic", topic_);
@@ -10,12 +21,17 @@ NoseController::NoseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
 
     nose_sub_ = this->create_subscription<qbo_msgs::msg::Nose>(
         topic_, 10,
-        std::bind(&NoseController::setNose, this, std::placeholders::_1));
+        std::bind(&NoseController::setNose, this, std::placeholders::_1)
+    );
 
     test_leds_srv_ = this->create_service<qbo_msgs::srv::TestLeds>(
         this->get_name() + std::string("/test_leds"),
         std::bind(&NoseController::testNoseLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
     );
+
+    // 🔍 Diagnostic setup
+    updater_.setHardwareID("Q.Board_5");
+    updater_.add("Nose LED", this, &NoseController::produceDiagnostics);
 
     RCLCPP_INFO(this->get_logger(), "✅ NoseController initialized with:\n"
                                 "       - Rate: %.2f Hz\n"
@@ -31,6 +47,9 @@ void NoseController::setNose(const qbo_msgs::msg::Nose::SharedPtr msg)
     }
 
     RCLCPP_DEBUG(this->get_logger(), "Nose command received: %d", msg->color);
+
+    last_color_ = msg->color;
+
     int code = driver_->setNose(msg->color);
     if (code < 0)
         RCLCPP_ERROR(this->get_logger(), "Unable to send nose color to the Arduino.");
@@ -53,4 +72,24 @@ void NoseController::testNoseLedsCallback(
         res->success = true;
         res->message = "Nose test executed successfully";
     }
+}
+
+void NoseController::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+    static const std::array<std::string, 8> color_names = {
+        "Off",
+        "Red",
+        "Blue",
+        "Violet",
+        "Green",
+        "Yellow",
+        "Magenta",
+        "White"
+    };
+
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                 "Nose LED operational");
+
+    stat.add("color_code", static_cast<int>(last_color_));
+    stat.add("color_name", color_names[last_color_]);
 }

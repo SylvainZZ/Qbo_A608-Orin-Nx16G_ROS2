@@ -1,0 +1,91 @@
+[
+  {
+    "question": "quelle est la couleur de ton nez ?",
+    "answer": ["actuellement, il est {color}.", "il est en {color} en ce moment."],
+    "intent": {
+      "action": "get_led"
+    },
+    "tag": ["nose", "led", "status"]
+  },
+  {
+    "question": "ton nez est-il allumé ?",
+    "answer": ["oui, il est en {color}.", "non, il est éteint."],
+    "intent": {
+      "action": "get_led"
+    },
+    "tag": ["nose", "led", "status"]
+  },
+  {
+    "question": "peux-tu allumer ton nez en {color} ?",
+    "answer": ["oui, regarde comme il brille en {color}.", "voilà, nez en {color}."],
+    "intent": {
+      "type": "topic",
+      "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
+      "msg_type": "qbo_msgs/msg/Nose",
+      "action": "set_led",
+      "params": { "color": "{color}" }
+    },
+    "tag": ["nose", "led", "set"]
+  },
+  {
+    "question": "allume ton nez en {color} ?",
+    "answer": ["oui, regarde comme il brille en {color}.", "voilà, nez en {color}."],
+    "intent": {
+      "type": "topic",
+      "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
+      "msg_type": "qbo_msgs/msg/Nose",
+      "action": "set_led",
+      "params": { "color": "{color}" }
+    },
+    "tag": ["nose", "led", "set"]
+  },
+  {
+    "question": "mets ton nez en {color}",
+    "answer": ["ok, je l'allume en {color}.", "nez réglé sur {color}."],
+    "intent": {
+      "type": "topic",
+      "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
+      "msg_type": "qbo_msgs/msg/Nose",
+      "action": "set_led",
+      "params": { "color": "{color}" }
+    },
+    "tag": ["nose", "led", "set"]
+  },
+  {
+    "question": "éteins ton nez",
+    "answer": ["nez éteint.", "c'est fait."],
+    "intent": {
+      "type": "topic",
+      "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
+      "msg_type": "qbo_msgs/msg/Nose",
+      "action": "set_led",
+      "params": { "color": 0 }
+    },
+    "tag": ["nose", "led", "set"]
+  },
+  {
+    "question": "peux-tu tester ta led ?",
+    "answer": ["je fais défiler toutes les couleurs.", "test en cours."],
+    "intent": {
+      "type": "service",
+      "target": "/qbo_arduqbo/nose_ctrl/test_leds",
+      "msg_type": "qbo_msgs/srv/TestLeds",
+      "action": "test_leds"
+    },
+    "tag": ["nose", "led", "diagnostic"]
+  },
+  {
+    "question": "comment est contrôlé ton nez ?",
+    "answer": ["ma LED est pilotée par la carte Q.board2 dans ma tête."],
+    "tag": ["nose", "tech"]
+  },
+  {
+    "question": "quelle est la LED que tu utilises pour ton nez ?",
+    "answer": ["c'est une LED RGB connectée à ma carte Q.board2."],
+    "tag": ["nose", "tech"]
+  },
+  {
+    "question": "tu as un nez lumineux",
+    "answer": "oui, j'ai une LED tricolore qui fait office de nez"
+  }
+]

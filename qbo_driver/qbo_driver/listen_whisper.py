@@ -134,11 +134,11 @@ class ListenNode(Node):
         self.declare_parameter("frame_ms", 20)  # 10 ou 20ms conseillé
         self.declare_parameter("vad_enabled", True)
         self.declare_parameter("vad_mode", 2)  # 0..3 (3 = plus agressif)
-        self.declare_parameter("silence_frames_end", 12)  # 12*20ms=240ms
-        self.declare_parameter("min_utt_ms", 500)
+        self.declare_parameter("silence_frames_end", 20)  # 12*20ms=240ms
+        self.declare_parameter("min_utt_ms", 400)
         self.declare_parameter("tts_ignore_ms", 250)  # ignore window après fin TTS
-        self.declare_parameter("max_utt_ms", 3000)
-        self.declare_parameter("min_speech_ratio", 0.60)
+        self.declare_parameter("max_utt_ms", 4000)
+        self.declare_parameter("min_speech_ratio", 0.25)
 
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "small")
@@ -171,7 +171,7 @@ class ListenNode(Node):
 
         # ---- ROS I/O ----
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
-        self.create_subscription(Bool, "/tts_active", self._on_tts_active, 10)
+        # self.create_subscription(Bool, "/tts_active", self._on_tts_active, 10)
 
         self.tts_active = False
         self.ignore_until = 0.0
@@ -202,13 +202,13 @@ class ListenNode(Node):
         self.audio_thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.audio_thread.start()
 
-    def _on_tts_active(self, msg: Bool):
-        now = time.monotonic()
-        if msg.data:
-            self.tts_active = True
-        else:
-            self.tts_active = False
-            self.ignore_until = now + (self.tts_ignore_ms / 1000.0)
+    # def _on_tts_active(self, msg: Bool):
+    #     now = time.monotonic()
+    #     if msg.data:
+    #         self.tts_active = True
+    #     else:
+    #         self.tts_active = False
+    #         self.ignore_until = now + (self.tts_ignore_ms / 1000.0)
 
     def _audio_cb(self, indata, frames, t, status):
         if status:
@@ -221,7 +221,12 @@ class ListenNode(Node):
             pass
 
     def _listen_loop(self):
-        self.get_logger().info(f"🎹 Listening @ {FIXED_SR} Hz mono (Jabra) | frame={self.frame_ms}ms ...")
+        self.get_logger().info(
+            f"🎹 Listening @ {FIXED_SR} Hz mono (Jabra) | frame={self.frame_ms}ms ..."
+        )
+
+        pre_roll = deque(maxlen=5)        # 5 × 20 ms = 100 ms de contexte
+        grace_after_noise = 0             # nombre de segments tolérés après bruit
 
         with sd.RawInputStream(
             samplerate=FIXED_SR,
@@ -234,7 +239,7 @@ class ListenNode(Node):
         ):
             while not self.stop_evt.is_set():
 
-                # Pendant TTS ou ignore-window: on consomme sans traiter
+                # Pendant ignore-window : on consomme sans traiter
                 now = time.monotonic()
                 if self.tts_active or now < self.ignore_until:
                     try:
@@ -244,27 +249,21 @@ class ListenNode(Node):
                     continue
 
                 audio_frames = deque()
+                pre_roll.clear()
+
                 silent = 0
                 speaking = False
                 start_t = None
 
-                # --- Nouveaux compteurs anti "tampon" ---
                 speech_frames = 0
                 total_frames = 0
                 seg_start = time.monotonic()
 
-                # ---- Accumule un segment voix ----
+                # ----------------- CAPTURE SEGMENT -----------------
                 while not self.stop_evt.is_set():
-                    # si TTS démarre pendant l'écoute, on purge le segment
-                    if self.tts_active:
-                        audio_frames.clear()
-                        speaking = False
-                        silent = 0
-                        start_t = None
-                        break
 
                     try:
-                        frame = self.buffer_queue.get(timeout=1.0)  # bytes int16 mono
+                        frame = self.buffer_queue.get(timeout=1.0)
                     except queue.Empty:
                         continue
 
@@ -272,49 +271,36 @@ class ListenNode(Node):
                         continue
 
                     total_frames += 1
+                    pre_roll.append(frame)
 
                     if self.vad_enabled:
                         try:
                             is_speech = self.vad.is_speech(frame, FIXED_SR)
-                        except Exception as e:
-                            self.get_logger().warning(f"VAD error: {e}")
+                        except Exception:
                             continue
                     else:
                         is_speech = True
 
                     if is_speech:
                         speech_frames += 1
+
                         if not speaking:
                             speaking = True
                             start_t = time.monotonic()
+                            audio_frames.extend(pre_roll)   # 🔑 pré-roll
+
                         audio_frames.append(frame)
                         silent = 0
+
                     elif speaking:
                         silent += 1
                         if silent >= self.silence_frames_end:
                             break
 
-                    # ---- Hard cap segment duration (anti musique/bruit qui ne "clôture" jamais) ----
+                    # ---- hard cap anti musique continue ----
                     elapsed_ms = int((time.monotonic() - seg_start) * 1000)
                     if elapsed_ms >= self.max_utt_ms:
-                        speech_ratio = speech_frames / max(1, total_frames)
-
-                        if speech_ratio < self.min_speech_ratio:
-                            # Segment probablement bruit/musique -> drop
-                            self.get_logger().info(
-                                f"🔇 Dropped segment (speech_ratio={speech_ratio:.2f}, elapsed_ms={elapsed_ms})"
-                            )
-                            audio_frames.clear()
-                            speaking = False
-                            silent = 0
-                            start_t = None
-                            break
-                        else:
-                            # Segment long mais majoritairement voix -> on transcrit quand même
-                            self.get_logger().info(
-                                f"⏱️ Max segment reached, transcribing (speech_ratio={speech_ratio:.2f}, elapsed_ms={elapsed_ms})"
-                            )
-                            break
+                        break
 
                 if not audio_frames:
                     continue
@@ -323,15 +309,25 @@ class ListenNode(Node):
                 if utt_ms < self.min_utt_ms:
                     continue
 
-                # ---- Filtre speech_ratio avant transcription (évite transcrire musique/bruit) ----
+                # ----------------- FILTRAGE BRUIT -----------------
                 speech_ratio = speech_frames / max(1, total_frames)
-                if speech_ratio < self.min_speech_ratio:
+
+                # segments courts => toujours tenter
+                if utt_ms < 1200:
+                    speech_ratio = 1.0
+
+                if speech_ratio < self.min_speech_ratio and grace_after_noise <= 0:
                     self.get_logger().info(
-                        f"🔇 Skipped transcription (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
+                        f"🔇 Skipped (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
                     )
+                    grace_after_noise = 2      # fenêtre de grâce
+                    audio_frames.clear()
+                    pre_roll.clear()
                     continue
 
-                # ---- Transcription ----
+                grace_after_noise = max(0, grace_after_noise - 1)
+
+                # ----------------- TRANSCRIPTION -----------------
                 raw = b"".join(audio_frames)
                 pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
 
@@ -340,10 +336,10 @@ class ListenNode(Node):
                     language=self.lang,
                     beam_size=1,
                     vad_filter=False,
+                    condition_on_previous_text=False,
                 )
 
-                texts = []
-                confs = []
+                texts, confs = [], []
                 for s in segments:
                     t = (s.text or "").strip()
                     if t:
@@ -353,19 +349,23 @@ class ListenNode(Node):
                 text = " ".join(texts).strip()
                 conf = aggregate_confidence(confs)
 
-                if text:
-                    # filtre sorties trop faibles
-                    if len(text) < 2 or text in {".", "..", "...", "…"}:
-                        continue
+                if not text or len(text) < 2 or text in {".", "..", "...", "…"}:
+                    continue
 
-                    if conf < self.min_confidence:
-                        self.get_logger().info(f"❌ Ignored low-confidence transcription ({conf:.2f}): {text}")
-                        continue
-
-                    self.result_pub.publish(ListenResult(sentence=text, confidence=float(conf)))
+                if conf < self.min_confidence:
                     self.get_logger().info(
-                        f"📝 ({conf:.2f}) {text}  [speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
+                        f"❌ Low confidence ({conf:.2f}): {text}"
                     )
+                    continue
+
+                self.result_pub.publish(
+                    ListenResult(sentence=text, confidence=float(conf))
+                )
+                self.get_logger().info(
+                    f"📝 ({conf:.2f}) {text}  "
+                    f"[speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
+                )
+
 
 
     def destroy_node(self):

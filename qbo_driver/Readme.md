@@ -110,5 +110,7 @@ publisher.publish(String(data="70"))
 ## 🔧 Astuce pour initialiser la langue via un script
 ```bash
 ros2 topic pub --once /system_lang std_msgs/String '{data: "fr"}'
+
 ```
 
+service call /vectorize_index std_srvs/srv/Trigger "{}"

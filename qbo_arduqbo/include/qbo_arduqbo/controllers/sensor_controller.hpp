@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <rclcpp/time.hpp>
 
 #include "rclcpp/rclcpp.hpp"
 #include "diagnostic_updater/diagnostic_updater.hpp"
@@ -29,6 +30,8 @@ struct DistanceSensor
 
   rclcpp::Publisher<sensor_msgs::msg::PointCloud>::SharedPtr pub;
   sensor_msgs::msg::PointCloud cloud;
+  rclcpp::Time last_seen;
+  bool alive{false};
 };
 
 class SensorController : public rclcpp::Node
@@ -66,4 +69,8 @@ private:
 
   // status flags
   bool board_configured_ = false;
+
+  // 🆕 health
+  rclcpp::Time last_seen;
+  bool alive{false};
 };

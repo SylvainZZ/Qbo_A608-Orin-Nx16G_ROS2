@@ -27,6 +27,7 @@ sudo nano /etc/systemd/system/qbo_bringup.service
 Description=Qbo ROS 2 Bringup
 After=network-online.target jtop.service
 Requires=network-online.target jtop.service
+
 StartLimitIntervalSec=0
 
 [Service]
@@ -35,7 +36,10 @@ User=qbo-v2
 WorkingDirectory=/home/qbo-v2/qbo_ws/
 Environment="HOME=/home/qbo-v2"
 Environment="DISPLAY=:0.0"
+
+# 🧠 Lancement ROS2
 ExecStart=/bin/bash -c "echo 'STARTING QBO BRINGUP' >> /tmp/qbo_bringup_debug.log && date >> /tmp/qbo_bringup_debug.log && source /opt/ros/humble/setup.bash && source /home/qbo-v2/qbo_ws/install/setup.bash && ros2 launch qbo_bringup qbo_startup.launch.py"
+
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal

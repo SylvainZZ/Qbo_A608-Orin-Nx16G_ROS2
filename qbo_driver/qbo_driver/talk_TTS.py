@@ -32,6 +32,13 @@ FIXED_SR = 16000  # Jabra: 16k uniquement
 
 ACRONYM_LEXICON = {
     "QBO": "ku bé o",
+    "Qbo": "ku bé o",
+    "Q.board1": "ku board un",
+    "Q.board2": "ku board deux",
+    "Q.board3": "ku board trois",
+    "Q.board4": "ku board quatre",
+    "Q.board5": "ku board cinq",
+    "ATmega1280": "a t méga douze quatre-vingt",
     "KNX": "ka en x",
     "ROS2": "R O S deux",
     "ROS": "R O S",
@@ -39,15 +46,26 @@ ACRONYM_LEXICON = {
     "CPU": "cé pé u",
     "USB": "u ès bé",
     "I2C": "i deux c",
+    "I²C": "i deux c",
+    "PC": "pé cé",
     "UART": "u a r t",
     "IMU": "i m u",
     "SLAM": "s l a m",
     "LIDAR": "li dar",
+    "VL53L1X": "vé el cinquante trois el un ex",
+    "LiFePo4": "li fé po quatre",
 }
 
 WORD_LEXICON = {
     "JetPack": "Jet pack",
     "NVIDIA": "En vidia",
+    "IDE": "I D E",
+    "OS": "O S",
+    "Wi-Fi": "oui fi",
+    "eMMC": "e m m c",
+    "Linux": "Linuxe",
+    "Windows": "Windeu",
+    "macOS": "Mac O S",
 }
 
 
@@ -230,6 +248,9 @@ class QboTalkCoquiNode(Node):
         self.get_logger().info(f"Available languages: {getattr(self.tts, 'languages', None)}")
         self.get_logger().info(f"Available speakers: {getattr(self.tts, 'speakers', None)}")
 
+        # Force Jabra sink par défaut
+        self._force_jabra_sink()
+
         # Warmup
         try:
             self.get_logger().info("Warmup...")
@@ -253,6 +274,13 @@ class QboTalkCoquiNode(Node):
 
         self.get_logger().info(f"Langue initiale : {self.lang}")
 
+    def _force_jabra_sink(self):
+        sink = "alsa_output.usb-0b0e_Jabra_SPEAK_410_USB_501AA56D4720x010900-00.analog-stereo"
+        subprocess.run(
+            ["pactl", "set-default-sink", sink],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
     def _publish_tts_active(self, active: bool):
         msg = Bool()
         msg.data = bool(active)

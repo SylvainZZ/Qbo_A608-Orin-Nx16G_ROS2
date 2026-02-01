@@ -11,15 +11,15 @@
     min_utt_ms: 500
 
     # anti tampon musique/bruit
-    max_utt_ms: 4000
-    min_speech_ratio: 0.60
+    max_utt_ms: 3000
+    min_speech_ratio: 0.50
 
     # lien TTS
-    tts_ignore_ms: 250
+    tts_ignore_ms: 200
 
     # Whisper
     system_lang: "fr"
     whisper_model: "small"
 
     # confidence gating
-    min_confidence: 0.55
+    min_confidence: 0.45

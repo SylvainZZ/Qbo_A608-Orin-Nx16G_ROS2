@@ -137,7 +137,7 @@ ros2 service call /qbo_arduqbo/imu_ctrl/imu_state/calibrate qbo_msgs/srv/Calibra
 
 ### Tester l'éclairage du nez
 ```bash
-ros2 topic pub -1 /qbo_arduqbo/cmd_nose qbo_msgs/msg/Nose "{color: 4}"
+ros2 topic pub -1 /qbo_arduqbo/nose_ctrl/cmd_nose qbo_msgs/msg/Nose "{color: 4}"
 # 0 = Off
 # 1 = Red
 # 2 = Blue

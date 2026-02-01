@@ -75,7 +75,7 @@ ament_target_dependencies(lcd_controller
 
 add_library(nose_controller src/controllers/nose_controller.cpp)
 target_link_libraries(nose_controller qbo_serial)
-ament_target_dependencies(nose_controller rclcpp qbo_msgs)
+ament_target_dependencies(nose_controller rclcpp diagnostic_updater qbo_msgs)
 
 add_library(mouth_controller src/controllers/mouth_controller.cpp)
 target_link_libraries(mouth_controller qbo_serial)
