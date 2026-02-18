@@ -128,9 +128,11 @@ class ListenNode(Node):
         super().__init__("qbo_listen")
 
         # ---- Params (simplifiés) ----
-        self.declare_parameter("audio_device_name", "Jabra SPEAK 410 USB")
+        self.declare_parameter("audio_device_name", "XVF3800")  # partie du nom du device audio d'entrée (ex: "Jabra", "ALSA", "USB", etc.)
+        self.declare_parameter("asr_channel_index", 1)
+        self.declare_parameter("audio_channels_opened", 2)  # nombre de canaux effectivement ouverts sur le device (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
         self.declare_parameter("sample_rate", FIXED_SR)  # immuable (on vérifie)
-        self.declare_parameter("input_channels", 1)
+        # self.declare_parameter("input_channels", 1)
         self.declare_parameter("frame_ms", 20)  # 10 ou 20ms conseillé
         self.declare_parameter("vad_enabled", True)
         self.declare_parameter("vad_mode", 2)  # 0..3 (3 = plus agressif)
@@ -146,16 +148,18 @@ class ListenNode(Node):
 
         self.device_name = self.get_parameter("audio_device_name").value
         sr = int(self.get_parameter("sample_rate").value)
-        self.channels = int(self.get_parameter("input_channels").value)
+        # self.channels = int(self.get_parameter("input_channels").value)
+        self.asr_channel_index = int(self.get_parameter("asr_channel_index").value)
+        self.input_channels_opened = int(self.get_parameter("audio_channels_opened").value)
         self.frame_ms = int(self.get_parameter("frame_ms").value)
 
         if sr != FIXED_SR:
             self.get_logger().warning(
                 f"sample_rate demandé={sr}, mais Jabra impose {FIXED_SR}. Forçage à {FIXED_SR}."
             )
-        if self.channels != 1:
-            self.get_logger().warning("Jabra input mono attendu. Forçage channels=1.")
-            self.channels = 1
+        # if self.channels != 1:
+        #     self.get_logger().warning("Jabra input mono attendu. Forçage channels=1.")
+        #     self.channels = 1
 
         self.vad_enabled = bool(self.get_parameter("vad_enabled").value)
         self.vad_mode = int(self.get_parameter("vad_mode").value)
@@ -213,16 +217,31 @@ class ListenNode(Node):
     def _audio_cb(self, indata, frames, t, status):
         if status:
             self.get_logger().warning(f"Audio status: {status}")
-        # indata est bytes (RawInputStream) -> on pousse tel quel
+
+        # indata = bytes buffer
+        # Convert to numpy int16
+        pcm = np.frombuffer(indata, dtype=np.int16)
+
+        # Reshape: (frames, channels)
         try:
-            self.buffer_queue.put_nowait(bytes(indata))
+            pcm = pcm.reshape(-1, self.input_channels_opened)
+        except ValueError:
+            return  # buffer incomplet, on ignore
+
+        # Sélection du canal ASR
+        ch = self.asr_channel_index
+        mono = pcm[:, ch]
+
+        try:
+            self.buffer_queue.put_nowait(mono.tobytes())
         except queue.Full:
-            # drop si congestion, préfère la stabilité
             pass
+
+
 
     def _listen_loop(self):
         self.get_logger().info(
-            f"🎹 Listening @ {FIXED_SR} Hz mono (Jabra) | frame={self.frame_ms}ms ..."
+            f"🎹 Listening @ {FIXED_SR} Hz mono {self.device_name} | frame={self.frame_ms}ms ..."
         )
 
         pre_roll = deque(maxlen=5)        # 5 × 20 ms = 100 ms de contexte
@@ -233,7 +252,7 @@ class ListenNode(Node):
             blocksize=self.blocksize,
             device=self.device_index,
             dtype="int16",
-            channels=1,
+            channels=self.input_channels_opened,
             latency="high",
             callback=self._audio_cb,
         ):

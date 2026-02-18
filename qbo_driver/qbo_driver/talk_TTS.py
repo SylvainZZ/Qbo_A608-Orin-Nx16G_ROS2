@@ -3,10 +3,10 @@
 ROS 2 Node: Coqui TTS (YourTTS) GPU, service compatible Text2Speach.srv
 Backend audio: SoX play uniquement (pas de sounddevice / pas de stream).
 
-- 16 kHz fixe (Jabra)
+- 16 kHz fixe
 - sortie stéréo (duplication mono)
 - /tts_active publié pendant lecture
-- pas de mute micro / AEC/NR (géré par Jabra)
+- pas de mute micro / AEC/NR (géré en amont par ReSpeaker via son mixage hardware)
 """
 
 import os
@@ -27,7 +27,7 @@ from qbo_msgs.srv import Text2Speach
 
 from TTS.api import TTS
 
-FIXED_SR = 16000  # Jabra: 16k uniquement
+FIXED_SR = 16000
 
 
 ACRONYM_LEXICON = {
@@ -160,6 +160,8 @@ def play_with_sox_raw(stereo_i16: np.ndarray, sr: int):
         "-b", "16",
         "-c", "2",
         "-",  # stdin
+        "bass", "-3",      # enlève un peu de grave (évite l'effet sourd)
+        "treble", "4",     # boost présence
     ]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
@@ -184,7 +186,7 @@ class QboTalkCoquiNode(Node):
 
         sr = int(self.get_parameter("sample_rate").value)
         if sr != FIXED_SR:
-            self.get_logger().warning(f"sample_rate demandé={sr} mais Jabra impose {FIXED_SR}. Forçage.")
+            self.get_logger().warning(f"sample_rate demandé={sr} mais on impose {FIXED_SR}. Forçage.")
         self.stream_sr = FIXED_SR
 
         ch = int(self.get_parameter("output_channels").value)
@@ -194,14 +196,24 @@ class QboTalkCoquiNode(Node):
 
         self.volume = int(self.get_parameter("audio_playback_volume").value)
 
+        # ---- Carte son / périph audio ----
+        self.declare_parameter("speaker_device", "ReSpeaker XVF3800")  # Nom ALSA du périphérique de sortie (ex: "hw:0,0" ou "default"), utilisé pour forcer la sortie vers ReSpeaker via SoX play -d
+        self.declare_parameter("speaker_volume", 100)  # Volume logiciel (gain appliqué aux samples, 0..150%)
+        self.speaker_device = self.get_parameter("speaker_device").value.strip()
+        self.speaker_volume = int(self.get_parameter("speaker_volume").value)
+
+        self._configure_audio_sink()
+
         # Anti-pop (à ajuster si besoin)
         self.fade_ms = 20.0
         self.pad_ms = 10.0
 
         # Normalisation/limiter doux
-        self.declare_parameter("target_rms", 0.08)
+        self.declare_parameter("target_rms", 0.20)
+        self.declare_parameter("max_peak", 0.98)
         self.declare_parameter("soft_limit", 2.0)
         self.target_rms = float(self.get_parameter("target_rms").value)
+        self.max_peak = float(self.get_parameter("max_peak").value)
         self.soft_limit = float(self.get_parameter("soft_limit").value)
 
         # ---- Langue / compat ----
@@ -236,8 +248,8 @@ class QboTalkCoquiNode(Node):
         self.get_logger().info("🔊 Backend audio: SoX play (raw stdin), pas de stream ouvert")
 
         # ---- ROS /tts_active ----
-        self.tts_active_pub = self.create_publisher(Bool, "/tts_active", 10)
-        self._publish_tts_active(False)
+        # self.tts_active_pub = self.create_publisher(Bool, "/tts_active", 10)
+        # self._publish_tts_active(False)
 
         # ---- Load Coqui ----
         self.get_logger().info(f"Loading Coqui model: {self.model_name} (gpu={self.use_gpu}) ...")
@@ -247,9 +259,6 @@ class QboTalkCoquiNode(Node):
         self.get_logger().info(f"Model loaded in {time.time() - t0:.2f}s")
         self.get_logger().info(f"Available languages: {getattr(self.tts, 'languages', None)}")
         self.get_logger().info(f"Available speakers: {getattr(self.tts, 'speakers', None)}")
-
-        # Force Jabra sink par défaut
-        self._force_jabra_sink()
 
         # Warmup
         try:
@@ -274,17 +283,57 @@ class QboTalkCoquiNode(Node):
 
         self.get_logger().info(f"Langue initiale : {self.lang}")
 
-    def _force_jabra_sink(self):
-        sink = "alsa_output.usb-0b0e_Jabra_SPEAK_410_USB_501AA56D4720x010900-00.analog-stereo"
-        subprocess.run(
-            ["pactl", "set-default-sink", sink],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    def _publish_tts_active(self, active: bool):
-        msg = Bool()
-        msg.data = bool(active)
-        self.tts_active_pub.publish(msg)
+    def _configure_audio_sink(self):
+        device_hint = self.speaker_device
+        volume = int(self.get_parameter("speaker_volume").value)
+
+        try:
+            # Récupère la liste des sinks
+            result = subprocess.run(
+                ["pactl", "list", "short", "sinks"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+
+            sinks = result.stdout.splitlines()
+            selected_sink = None
+
+            for line in sinks:
+                if all(word in line.lower() for word in device_hint.lower().split()):
+                    selected_sink = line.split()[1]
+                    break
+
+            if not selected_sink:
+                self.get_logger().warning(
+                    f"Aucun sink correspondant à '{device_hint}' trouvé. Utilisation du défaut."
+                )
+                return
+
+            # Définit le sink par défaut
+            subprocess.run(
+                ["pactl", "set-default-sink", selected_sink],
+                check=True,
+            )
+
+            # Applique le volume
+            subprocess.run(
+                ["pactl", "set-sink-volume", selected_sink, f"{volume}%"],
+                check=True,
+            )
+
+            self.get_logger().info(
+                f"🔊 Sink sélectionné automatiquement : {selected_sink} | Volume: {volume}%"
+            )
+
+        except Exception as e:
+            self.get_logger().error(f"Erreur configuration audio : {e}")
+
+
+    # def _publish_tts_active(self, active: bool):
+    #     msg = Bool()
+    #     msg.data = bool(active)
+    #     self.tts_active_pub.publish(msg)
 
     def _coqui_language(self):
         if (self.lang or "").lower().startswith("en"):
@@ -338,36 +387,79 @@ class QboTalkCoquiNode(Node):
         self.get_logger().info("Speaker embedding hook installed ✅ (no recompute for cached wav)")
 
     def _play_audio(self, wav: np.ndarray, sr: int):
+
         wav = np.asarray(wav, dtype=np.float32).reshape(-1)
+        wav = wav.copy()
 
-        # resample vers 16k si besoin
-        if sr != self.stream_sr:
-            n = int(len(wav) * self.stream_sr / sr)
-            wav = resample(wav, n).astype(np.float32)
+        # --- DIAG ---
+        # peak0 = float(np.max(np.abs(wav))) if wav.size else 0.0
+        # rms0  = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
+        # self.get_logger().info(f"[AUDIO] pre peak={peak0:.3f} rms={rms0:.3f}")
 
-        # gain volume
+        # --- Compression douce ---
+        threshold = 0.15
+        ratio = 3.0
+
+        abs_wav = np.abs(wav)
+        over = abs_wav > threshold
+        wav[over] = np.sign(wav[over]) * (
+            threshold + (abs_wav[over] - threshold) / ratio
+        )
+
+        # peak = float(np.max(np.abs(wav))) if wav.size else 0.0
+        # rms  = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
+        # self.get_logger().info(f"[AUDIO] after_comp peak={peak:.3f} rms={rms:.3f}")
+
+        # self.max_peak = 0.98
+        # self.target_rms = 0.20
+
+        # Normalisation RMS
+        rms = np.sqrt(np.mean(wav * wav))
+        if rms > 1e-6:
+            wav *= self.target_rms / rms
+
+        # Plafond peak
+        peak = np.max(np.abs(wav))
+        if peak > self.max_peak:
+            wav *= self.max_peak / peak
+
+        # peak = float(np.max(np.abs(wav))) if wav.size else 0.0
+        # rms  = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
+        # self.get_logger().info(f"[AUDIO] after_norm peak={peak:.3f} rms={rms:.3f}")
+
+        # --- Volume utilisateur ---
         wav = wav * self._volume_gain()
 
-        # normalisation RMS
-        rms = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
-        if rms > 1e-6:
-            wav = wav * (self.target_rms / rms)
+        # --- Clip sécurité ---
+        wav = np.clip(wav, -1.0, 1.0)
+        # clipped = float(np.mean(np.abs(wav) >= 0.999))
+        # self.get_logger().info(f"[AUDIO] clip_ratio={clipped:.4f}")
 
-        # limiteur doux
-        k = self.soft_limit
-        wav = np.tanh(wav * k) / np.tanh(k)
+        # peak1 = float(np.max(np.abs(wav))) if wav.size else 0.0
+        # rms1  = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
+        # self.get_logger().info(f"[AUDIO] post peak={peak1:.3f} rms={rms1:.3f} (target_rms={self.target_rms:.3f} gain={self._volume_gain():.2f})")
 
         # pad + fade anti-pop
         pad_n = int(self.stream_sr * self.pad_ms / 1000.0)
         if pad_n > 0:
-            wav = np.concatenate([np.zeros(pad_n, np.float32), wav, np.zeros(pad_n, np.float32)])
+            wav = np.concatenate([
+                np.zeros(pad_n, np.float32),
+                wav,
+                np.zeros(pad_n, np.float32)
+            ])
+
         wav = apply_fade(wav, self.stream_sr, self.fade_ms)
 
+        # peak = float(np.max(np.abs(wav))) if wav.size else 0.0
+        # rms  = float(np.sqrt(np.mean(wav * wav))) if wav.size else 0.0
+        # clipped = float(np.mean(np.abs(wav) >= 0.999))
+        # self.get_logger().info(f"[AUDIO] final peak={peak:.3f} rms={rms:.3f} clip={clipped:.4f}")
+
         # mono -> stéréo
-        stereo_f32 = np.column_stack([wav, wav]).astype(np.float32, copy=False)
+        stereo_i16 = np.repeat(wav[:, None], 2, axis=1)
 
         # float32 -> int16 PCM
-        stereo_i16 = np.clip(stereo_f32 * 32767.0, -32768, 32767).astype(np.int16, copy=False)
+        stereo_i16 = (stereo_i16 * 32767.0).astype(np.int16)
 
         # playback via SoX
         play_with_sox_raw(stereo_i16, self.stream_sr)
@@ -408,7 +500,7 @@ class QboTalkCoquiNode(Node):
             except queue.Empty:
                 continue
 
-            self._publish_tts_active(True)
+            # self._publish_tts_active(True)
 
             try:
                 t0 = time.time()
@@ -434,6 +526,7 @@ class QboTalkCoquiNode(Node):
                 t_sox = time.time()
 
                 self._play_audio(wav, sr2)
+                # self._play_audio(wav, sr)
                 t_play = time.time()
 
                 self.get_logger().info(
@@ -444,14 +537,14 @@ class QboTalkCoquiNode(Node):
                 self.get_logger().error(f"Erreur synthèse/lecture : {e}")
 
             finally:
-                self._publish_tts_active(False)
+                # self._publish_tts_active(False)
                 self.q.task_done()
 
     def destroy_node(self):
-        try:
-            self._publish_tts_active(False)
-        except Exception:
-            pass
+        # try:
+        #     # self._publish_tts_active(False)
+        # except Exception:
+        #     pass
         super().destroy_node()
 
 

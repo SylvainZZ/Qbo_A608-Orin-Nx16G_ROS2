@@ -2,7 +2,7 @@
   ros__parameters:
     sample_rate: 16000
     output_channels: 2
-    audio_playback_volume: 80
+    audio_playback_volume: 100
 
     # TTS
     default_lang: "fr"
@@ -14,8 +14,13 @@
     warmup_text: "Bonjour."
     queue_maxsize: 10
     tts_speaker_wav: "/home/qbo-v2/venvs/tts/qbo_fr_ref_22050.wav"
-    speech_rate: 0.80
+    speech_rate: 0.8
 
-    # anti-pop
-    target_rms: 0.08
-    soft_limit: 2.0
+    # Carte son
+    speaker_device: "ReSpeaker XVF3800"  # ALSA device name (ex: "hw:0,0" ou "default")
+    speaker_volume: 100
+
+    # RMS cible - anti-pop
+    target_rms: 0.22
+    max_peak: 0.98
+    soft_limit: 1.5
