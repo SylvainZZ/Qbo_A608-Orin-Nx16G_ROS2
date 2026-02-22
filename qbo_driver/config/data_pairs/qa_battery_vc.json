@@ -1,0 +1,488 @@
+[
+    {
+        "question_variants": [
+            "battery ok",
+            "diagnostic battery ok",
+            "etat batterie battery ok",
+            "message battery ok recu"
+        ],
+        "answer": "Le diagnostic indique un état normal de la batterie.",
+        "intent": null,
+        "meta": {
+            "source": "event",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_diagnostics",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "low battery",
+            "diagnostic low battery",
+            "alerte batterie faible",
+            "message low battery recu"
+        ],
+        "answer": "La tension est basse. Prévois une recharge rapidement.",
+        "intent": null,
+        "meta": {
+            "source": "event",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_diagnostics",
+            "risk": "medium",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "empty battery",
+            "diagnostic empty battery",
+            "alerte batterie vide",
+            "message empty battery recu"
+        ],
+        "answer": "Le niveau batterie est critique. Arrête les actions non essentielles.",
+        "intent": null,
+        "meta": {
+            "source": "event",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_diagnostics",
+            "risk": "high",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "no communication batterie",
+            "diagnostic no communication battery",
+            "perte communication batterie",
+            "message no communication recu"
+        ],
+        "answer": "Le contrôleur batterie ne répond plus. Vérifie la liaison et le nœud.",
+        "intent": null,
+        "meta": {
+            "source": "event",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_comms",
+            "risk": "medium",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est la tension batterie",
+            "donne la tension actuelle",
+            "voltage batterie maintenant",
+            "etat voltage batterie"
+        ],
+        "answer": "La valeur est dans la clé robot state Voltage (V).",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_voltage",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quel type de batterie est configure",
+            "type batterie actuel",
+            "donne le type batterie",
+            "batterie de quel type"
+        ],
+        "answer": "Le type est disponible via la clé _Type.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_specs",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est la tension nominale",
+            "nominal voltage batterie",
+            "donne _nominal voltage",
+            "valeur tension nominale batterie"
+        ],
+        "answer": "La tension nominale est lisible dans _Nominal Voltage (V).",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_specs",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est la capacite batterie",
+            "capacite ah batterie",
+            "donne _capacity",
+            "capacité actuelle en ah"
+        ],
+        "answer": "La capacité est indiquée dans _Capacity (Ah).",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_specs",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "donne le status batterie",
+            "valeur status batterie",
+            "quel est le champ status",
+            "status brut batterie"
+        ],
+        "answer": "La valeur brute est disponible dans la clé Status.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_status_bits",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quel est le charge mode",
+            "mode de charge actuel",
+            "donne charge mode",
+            "valeur mode charge batterie"
+        ],
+        "answer": "Le mode de charge est dans Charge Mode.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "explique charge mode description",
+            "description du mode de charge",
+            "que veut dire charge mode description",
+            "interprète mode de charge batterie"
+        ],
+        "answer": "Le texte explicatif est dans Charge Mode Description.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "alimentation externe active",
+            "external power est actif",
+            "etat external power",
+            "la batterie est sur secteur"
+        ],
+        "answer": "Vérifie la clé External Power pour savoir si une alimentation externe est présente.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_power_source",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "pc on est a oui",
+            "etat pc on batterie",
+            "le pc est alimente",
+            "bit pc on actif"
+        ],
+        "answer": "L'information est disponible dans PC On.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_status_bits",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "boards on est actif",
+            "etat boards on",
+            "cartes alimentees ou non",
+            "bit boards on batterie"
+        ],
+        "answer": "Consulte la clé Boards On pour cet état.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "status",
+            "component": "battery_status_bits",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "donne estimated extras w",
+            "puissance extra estimee",
+            "valeur estimated extras w",
+            "combien vaut estimated extras"
+        ],
+        "answer": "La valeur fixe additionnelle est dans Estimated Extras W (W).",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery_power_estimation",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "a partir de quand c est low battery",
+            "seuil batterie faible",
+            "quand passe en low battery",
+            "condition de low battery"
+        ],
+        "answer": "Low battery est déclenché quand la tension est inférieure ou égale à 12.2 V et au dessus du seuil critique.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_thresholds",
+            "risk": "medium",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "a partir de quand c est empty battery",
+            "seuil batterie vide",
+            "quand passe en empty battery",
+            "condition de empty battery"
+        ],
+        "answer": "Empty battery est déclenché quand la tension est inférieure à 11.5 V.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_thresholds",
+            "risk": "high",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "si la tension est 12.0v quel etat",
+            "etat pour 12v batterie",
+            "12.0v correspond a quel diagnostic",
+            "a 12v on est en low battery"
+        ],
+        "answer": "À 12.0 V, l’état attendu est Low battery.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_thresholds",
+            "risk": "medium",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "si la tension est 11.4v quel etat",
+            "etat pour 11.4v batterie",
+            "11.4v correspond a quel diagnostic",
+            "a 11.4v on est en empty battery"
+        ],
+        "answer": "À 11.4 V, l’état attendu est Empty battery.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_thresholds",
+            "risk": "high",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "si la tension est 12.6v quel etat",
+            "etat pour 12.6v batterie",
+            "12.6v correspond a quel diagnostic",
+            "a 12.6v on est en battery ok"
+        ],
+        "answer": "À 12.6 V, l’état attendu est Battery OK.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_thresholds",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "que veut dire charge mode 1",
+            "interpretation mode 1",
+            "mode 1 batterie",
+            "charge mode 1 description"
+        ],
+        "answer": "Le mode 1 correspond à Charging constant current.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "que veut dire charge mode 2",
+            "interpretation mode 2",
+            "mode 2 batterie",
+            "charge mode 2 description"
+        ],
+        "answer": "Le mode 2 correspond à Charging constant voltage.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "que veut dire charge mode 3",
+            "interpretation mode 3",
+            "mode 3 batterie",
+            "charge mode 3 description"
+        ],
+        "answer": "Le mode 3 correspond à Fully charged.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "que veut dire charge mode 4",
+            "interpretation mode 4",
+            "mode 4 batterie",
+            "charge mode 4 description"
+        ],
+        "answer": "Le mode 4 correspond à Battery operation.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_charge_mode",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "que peut faire qbo sur la batterie",
+            "capacites du domaine batterie",
+            "fonctions disponibles batterie",
+            "actions supportees sur battery"
+        ],
+        "answer": "Qbo peut fournir l’état batterie, les diagnostics et les champs de télémétrie publiés.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_capabilities",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelles sont les limites du domaine batterie",
+            "limitations battery",
+            "ce que tu ne peux pas faire sur batterie",
+            "contraintes du module batterie"
+        ],
+        "answer": "Sans topic ou service de commande fourni, je ne peux pas piloter la batterie, seulement lire et interpréter.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_limitations",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "peux tu lancer un test batterie actif",
+            "autotest batterie disponible",
+            "service de test batterie existe",
+            "tester batterie via commande"
+        ],
+        "answer": "Aucun service de test n’est fourni ici. Je peux seulement analyser les diagnostics publiés.",
+        "intent": null,
+        "meta": {
+            "source": "user",
+            "domain": "battery",
+            "intent_kind": "explain",
+            "component": "battery_limitations",
+            "risk": "low",
+            "lang": "fr"
+        }
+    }
+]

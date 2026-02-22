@@ -1,3 +1,4 @@
+import rclpy
 from rosidl_runtime_py.utilities import get_message, get_service
 
 
@@ -22,7 +23,8 @@ class IntentEngine:
             "set_led": self.intent_set_led,
             "test_leds": self.intent_test_leds,
             "get_battery": self.intent_get_battery,
-            "get_temperature": self.intent_get_temperature
+            "get_temperature": self.intent_get_temperature,
+            "calibrate_imu": self.intent_calibrate_imu
         }
 
     # =====================================================
@@ -71,17 +73,50 @@ class IntentEngine:
 
         self.node.get_logger().info(f"✅ Topic publié sur {target} avec {args}")
 
-    def call_ros_service(self, target, srv_type):
+    def call_ros_service(self, target: str, srv_type: str, timeout: float = 5.0) -> bool:
+        """
+        Appelle un service ROS et attend la réponse.
+        Retourne True si succès, False sinon.
+        """
+        try:
+            # 1️⃣ Récupération type service
+            srv_class = get_service(srv_type)
 
-        srv_class = get_service(srv_type)
-        client = self.node.create_client(srv_class, target)
+            # 2️⃣ Création client
+            client = self.node.create_client(srv_class, target)
 
-        if client.wait_for_service(timeout_sec=2.0):
+            # 3️⃣ Attente disponibilité
+            if not client.wait_for_service(timeout_sec=timeout):
+                self.node.get_logger().warn(
+                    f"❌ Service non disponible : {target}"
+                )
+                return False
+
+            # 4️⃣ Création requête
             request = srv_class.Request()
-            client.call_async(request)
-            self.node.get_logger().info(f"✅ Service appelé : {target}")
-        else:
-            self.node.get_logger().warn(f"❌ Service {target} non disponible")
+
+            # 5️⃣ Appel async + attente résultat
+            future = client.call_async(request)
+            rclpy.spin_until_future_complete(self.node, future, timeout_sec=timeout)
+
+            # 6️⃣ Vérification résultat
+            if future.result() is None:
+                self.node.get_logger().error(
+                    f"❌ Service {target} a échoué (pas de réponse)."
+                )
+                return False
+
+            self.node.get_logger().info(
+                f"✅ Service exécuté avec succès : {target}"
+            )
+
+            return True
+
+        except Exception as e:
+            self.node.get_logger().error(
+                f"❌ Erreur appel service {target} : {e}"
+            )
+            return False
 
     # =====================================================
     # INTENTS NOSE
@@ -89,8 +124,33 @@ class IntentEngine:
 
     def intent_get_led(self, intent, robot_state, params):
 
-        color_code = robot_state.get("nose", {}).get("color_code", 0)
-        return robot_state.get("nose", {}).get("color_name", "Off")
+        try:
+            nose = robot_state.get("Q.Board_5", {}) \
+                .get("nose_ctrl: Nose LED", {})
+
+            values = nose.get("values", {})
+
+            color_code = int(values.get("color_code", 0))
+            color_name = values.get("color_name", "éteint").lower()
+
+            if color_code == 0:
+                return {
+                    "state": "off",
+                    "color_code": 0,
+                    "color_label": "éteint"
+                }
+
+            return {
+                "state": "on",
+                "color_code": color_code,
+                "color_label": color_name
+            }
+
+        except Exception:
+            return {
+                "state": "unknown",
+                "color_label": "inconnu"
+            }
 
     def intent_set_led(self, intent, robot_state, params):
 
@@ -98,9 +158,9 @@ class IntentEngine:
 
         color_code = resolved.get("color", 0)
 
-        # Mise à jour état local (sera écrasé par diagnostics ensuite)
-        robot_state.setdefault("nose", {})
-        robot_state["nose"]["color_code"] = color_code
+        # # Mise à jour état local (sera écrasé par diagnostics ensuite)
+        # robot_state.setdefault("nose", {})
+        # robot_state["nose"]["color_code"] = color_code
 
         if intent.get("type") == "topic":
             self.publish_ros_topic(intent["target"], intent["msg_type"], resolved)
@@ -113,6 +173,20 @@ class IntentEngine:
             self.call_ros_service(intent["target"], intent["msg_type"])
 
         return None
+
+    # =====================================================
+    # INTENTS IMU
+    # =====================================================
+
+    def intent_calibrate_imu(self, intent, robot_state, params):
+
+        if intent.get("type") == "service":
+            success = self.call_ros_service(intent["target"], intent["msg_type"])
+
+        if success:
+            return {"status": "success"}
+        else:
+            return {"status": "failed"}
 
     # =====================================================
     # INTENTS BATTERY

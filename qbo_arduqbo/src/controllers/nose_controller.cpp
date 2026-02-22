@@ -78,13 +78,13 @@ void NoseController::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrap
 {
     static const std::array<std::string, 8> color_names = {
         "Off",
-        "Red",
-        "Blue",
+        "Rouge",
+        "Bleu",
         "Violet",
-        "Green",
-        "Yellow",
+        "Vert",
+        "Jaune",
         "Magenta",
-        "White"
+        "Blanc"
     };
 
     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,

@@ -1,5 +1,6 @@
 from diagnostic_msgs.msg import DiagnosticArray
 import copy
+import time
 
 from qbo_driver.qbo_aiml.constants import BATTERY_LOW_VOLTAGE
 
@@ -36,126 +37,118 @@ class DiagnosticsParser:
             self.callback,
             10
         )
+        self.initialized = False
+        self._level_memory = {}   # {event_key: {"level": int, "since": timestamp}}
+        self._stability_delay = 3.0  # secondes de stabilité requise
+
+    def safe_level(self, level):
+        if isinstance(level, int):
+            return level
+        if isinstance(level, (bytes, bytearray)):
+            return level[0]
+        try:
+            return int(level)
+        except:
+            return 0
+
 
     def callback(self, msg: DiagnosticArray):
 
-        old_state = copy.deepcopy(self.node.robot_state)
+        # old_state = copy.deepcopy(self.node.robot_state)
 
         for status in msg.status:
 
-            name = status.name
+            hardware = status.hardware_id or "unknown"
+            category = status.name
+            level = self.safe_level(status.level)
+            message = status.message
 
-            if "battery_ctrl" in name:
-                self.parse_battery(status)
+            values = {v.key: v.value for v in status.values}
 
-            elif "base_ctrl" in name:
-                self.parse_motors(status)
+            if hardware not in self.node.robot_state:
+                self.node.robot_state[hardware] = {}
 
-            elif "imu_ctrl" in name:
-                self.parse_imu(status)
+            self.node.robot_state[hardware][category] = {
+                "level": level,
+                "message": message,
+                "values": values
+            }
 
-            elif "nose_ctrl" in name:
-                self.parse_nose(status)
+        # 🔒 Ne pas générer d’event au premier cycle
+        if not self.initialized:
+            self.initialized = True
+            return
 
-            elif "OrinA608Diag_node" in name:
-                self.parse_orin(status)
-
-        events = self.detect_changes(old_state, self.node.robot_state)
-
-        for key, message, severity in events:
-            if message:
-                self.node.event_manager.update_event(key, True, message, severity)
-            else:
-                self.node.event_manager.update_event(key, False, "")
-            # Optionnel : parler automatiquement
-            # self.node.say(event)
-
-    # ============================
-    # PARSERS
-    # ============================
-
-    def get_value(self, status, key, cast=float, default=0):
-        for v in status.values:
-            if v.key == key:
-                try:
-                    return cast(v.value)
-                except:
-                    return v.value
-        return default
-
-    def parse_battery(self, status):
-        self.node.robot_state["battery"] = {
-            "voltage": self.get_value(status, "Voltage (V)", float, 0.0),
-            "charge_mode": self.get_value(status, "Charge Mode Description", cast=str, default=""),
-            "external_power": self.get_value(status, "External Power", cast=lambda x: x == "Yes", default=False),
-            "runtime_min": self.get_value(status, "Estimated Runtime (min)", float, 0.0)
-        }
-
-    def parse_motors(self, status):
-        values = {v.key: v.value for v in status.values}
-        self.node.robot_state["motors"] = {
-            "left_ok": values.get("Left Motor OK", "") == "yes",
-            "right_ok": values.get("Right Motor OK", "") == "yes"
-        }
-
-    def parse_imu(self, status):
-        values = {v.key: v.value for v in status.values}
-        self.node.robot_state["imu"] = {
-            "calibrated": values.get("IMU calibrated", "") == "yes"
-        }
-
-    def parse_nose(self, status):
-        values = {v.key: v.value for v in status.values}
-        self.node.robot_state["nose"] = {
-            "color_code": int(values.get("color_code", 0)),
-            "color_name": values.get("color_name", "Off")
-        }
-
-    def parse_orin(self, status):
-        values = {v.key: v.value for v in status.values}
-        self.node.robot_state["temperature"] = {
-            "cpu": float(values.get("CPU °C", 0)),
-            "gpu": float(values.get("GPU °C", 0))
-        }
+        self.detect_changes(self.node.robot_state)
 
     # ============================
     # DETECTION CHANGEMENTS
     # ============================
 
-    def detect_changes(self, old, new):
+    def detect_changes(self, new):
 
-        events = []
+        severity_map = {
+            1: "warning",
+            2: "error"
+        }
 
-        old_batt = old.get("battery", {})
-        new_batt = new.get("battery", {})
+        now = time.time()
 
-        old_level = old_batt.get("level")
-        new_level = new_batt.get("level")
+        for hardware, categories in new.items():
 
-        # 🔋 Changement de niveau batterie
-        if old_level != new_level:
+            for category, data in categories.items():
 
-            if new_level == 1:  # WARN
-                events.append(("battery_low", "battery_low", "warning"))
+                clean_category = category.split(":")[-1].strip()
+                event_key = f"{hardware}|{clean_category}"
 
-            elif new_level == 2:  # ERROR
-                events.append(("battery_empty", "battery_empty", "error"))
+                new_level = data.get("level", 0)
+                new_message = data.get("message", "")
 
-            elif new_level == 0:  # Retour OK
-                events.append(("battery_low", None, None))
-                events.append(("battery_empty", None, None))
+                # 🔹 Gestion stabilité
+                memory = self._level_memory.get(event_key)
 
-        # 🔌 Passage en charge
-        if old_batt.get("external_power") is False \
-        and new_batt.get("external_power") is True:
-            events.append(("battery_charging", "battery_charging", "info"))
+                if memory is None:
+                    self._level_memory[event_key] = {
+                        "level": new_level,
+                        "since": now
+                    }
+                    continue
 
-        # 🧭 IMU
+                # Niveau changé → reset timer
+                if memory["level"] != new_level:
+                    self._level_memory[event_key] = {
+                        "level": new_level,
+                        "since": now
+                    }
+                    continue
 
-        if old_imu != new_imu:
-            if new_imu is False:
-                events.append(("imu_not_calibrated", "IMU not calibrated.", "warning"))
-            else:
-                events.append(("imu_not_calibrated", None, None))
+                # Pas encore stable
+                if now - memory["since"] < self._stability_delay:
+                    continue
 
-        return events
+                # 🔹 Niveau stable → on regarde l’état courant de l’event manager
+                event_data = self.node.event_manager.events.get(event_key)
+
+                # Cas 1 : niveau > 0 → doit être actif
+                if new_level > 0:
+
+                    if not event_data or event_data["state"] in ["inactive", "resolved"]:
+
+                        severity = severity_map.get(new_level, "info")
+
+                        self.node.event_manager.update_event(
+                            event_key,
+                            active=True,
+                            severity=severity,
+                            message=new_message
+                        )
+
+                # Cas 2 : niveau = 0 → doit être résolu
+                else:
+
+                    if event_data and event_data["state"] not in ["inactive", "resolved"]:
+
+                        self.node.event_manager.update_event(
+                            event_key,
+                            active=False
+                        )
