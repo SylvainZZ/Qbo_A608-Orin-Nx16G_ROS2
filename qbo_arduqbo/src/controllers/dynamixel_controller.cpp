@@ -93,9 +93,9 @@ void DynamixelServo::setParams(const std::string & joint_name)
     // Calcul du ratio radian <-> tick
     rad_per_tick_ = range_ / static_cast<double>(ticks_);
 
-    // Log résumé
+    // Summary log
     RCLCPP_INFO(node_->get_logger(),
-        "[%s] Paramètres chargés : id=%d, invert=%s, neutral=%d, min=%.2f rad, max=%.2f rad, ticks=%d, range=%.2f rad, torque_limit=%d, max_speed=%.2f rad/s",
+        "[%s] Parameters loaded: id=%d, invert=%s, neutral=%d, min=%.2f rad, max=%.2f rad, ticks=%d, range=%.2f rad, torque_limit=%d, max_speed=%.2f rad/s",
         joint_name.c_str(), id_, invert_ ? "true" : "false", neutral_,
         min_angle_, max_angle_, ticks_, range_, torque_limit_, max_speed_);
 }
@@ -130,7 +130,7 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
         }
         rad_per_tick_ = range_ / ticks_;
 
-        // Affichage dynamique de la valeur (selon le type)
+        // Dynamic value rendering (by type)
         std::ostringstream value_stream;
         switch (param.get_type()) {
             case rclcpp::ParameterType::PARAMETER_INTEGER:
@@ -140,10 +140,10 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
                 value_stream << param.as_double();
                 break;
             default:
-                value_stream << "<type non supporté>";
+                value_stream << "<unsupported type>";
                 break;
         }
-        RCLCPP_INFO(node_->get_logger(), "[%s] 🔄 Paramètre mis à jour : %s = %s", name_.c_str(), key.c_str(), value_stream.str().c_str());
+        RCLCPP_INFO(node_->get_logger(), "[%s] 🔄 Parameter updated: %s = %s", name_.c_str(), key.c_str(), value_stream.str().c_str());
     }
 
     return result;
@@ -152,19 +152,19 @@ rcl_interfaces::msg::SetParametersResult DynamixelServo::onParameterChange(
 
 void DynamixelServo::setAngle(float ang, float velocity)
 {
-    RCLCPP_INFO(node_->get_logger(), "[%s] 🧪 setAngle() appelée avec ang=%.2f, vel=%.2f, max_speed=%.2f",
+    RCLCPP_INFO(node_->get_logger(), "[%s] 🧪 setAngle() called with ang=%.2f, vel=%.2f, max_speed=%.2f",
             joint_name_.c_str(), ang, velocity, max_speed_);
 
     // 🔺 Limitation des angles
     if (ang > max_angle_) {
         RCLCPP_WARN(node_->get_logger(),
-            "[%s] 🔺 Angle %.2f rad dépasse max (%.2f rad). Limité.",
+            "[%s] 🔺 Angle %.2f rad exceeds max (%.2f rad). Clamped.",
             joint_name_.c_str(), ang, max_angle_);
         ang = max_angle_;
     }
     if (ang < min_angle_) {
         RCLCPP_WARN(node_->get_logger(),
-            "[%s] 🔻 Angle %.2f rad en dessous min (%.2f rad). Limité.",
+            "[%s] 🔻 Angle %.2f rad is below min (%.2f rad). Clamped.",
             joint_name_.c_str(), ang, min_angle_);
         ang = min_angle_;
     }
@@ -172,7 +172,7 @@ void DynamixelServo::setAngle(float ang, float velocity)
     // 🛑 Limitation de la vitesse
     if (velocity > max_speed_) {
         RCLCPP_WARN(node_->get_logger(),
-            "[%s] ⚠️ Vitesse %.2f rad/s dépasse max (%.2f rad/s). Limité.",
+            "[%s] ⚠️ Speed %.2f rad/s exceeds max (%.2f rad/s). Clamped.",
             joint_name_.c_str(), velocity, max_speed_);
         velocity = max_speed_;
     }
@@ -195,7 +195,7 @@ void DynamixelServo::setAngle(float ang, float velocity)
     dxl_wb_->itemWrite(id_, "Goal_Position", goal_ticks);
     dxl_wb_->itemWrite(id_, "Moving_Speed", speed_val);
 
-    // 📊 Log d’exécution visible (niveau INFO volontairement)
+    // 📊 Visible execution log (INFO level by design)
     // RCLCPP_INFO(node_->get_logger(),
     //     "[%s] 🎯 Pos=%.2f rad (%d ticks), Vit=%.2f rad/s (cmd=%d)",
     //     joint_name_.c_str(), ang, goal_ticks, velocity, speed_val);
@@ -261,14 +261,14 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
 
     // Boucle unique
     for (const auto &[motor_key, joint_name] : motor_to_joint) {
-        RCLCPP_INFO(node_->get_logger(), "⏺ Chargement du servo : %s", joint_name.c_str());
+        RCLCPP_INFO(node_->get_logger(), "⏺ Loading servo: %s", joint_name.c_str());
         auto servo = std::make_unique<DynamixelServo>(node_, joint_name, &dxl_wb_);
         servo->setParams(motor_key);
 
         if (dxl_wb_.ping(servo->id_, &servo->model_number_)) {
-            RCLCPP_INFO(node_->get_logger(), "✔️ ID %d détecté (modèle %d)", servo->id_, servo->model_number_);
+            RCLCPP_INFO(node_->get_logger(), "✔️ ID %d detected (model %d)", servo->id_, servo->model_number_);
         } else {
-            RCLCPP_ERROR(node_->get_logger(), "❌ Ping échoué pour ID %d", servo->id_);
+            RCLCPP_ERROR(node_->get_logger(), "❌ Ping failed for ID %d", servo->id_);
         }
 
         servo->setAngle(0.0f, 0.8f);
@@ -277,53 +277,44 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
                         (diagnostic_updater::DiagnosticStatusWrapper & stat) {
             int32_t goal = 0, position = 0, val = 0;
 
-            dxl_wb_.itemRead(servo->id_, "Goal_Position", &goal);
-            dxl_wb_.itemRead(servo->id_, "Present_Position", &position);
+            const bool goal_ok = dxl_wb_.itemRead(servo->id_, "Goal_Position", &goal);
+            const bool position_ok = dxl_wb_.itemRead(servo->id_, "Present_Position", &position);
             int error = goal - position;
 
-            dxl_wb_.itemRead(servo->id_, "Present_Load", &val);
+            const bool load_ok = dxl_wb_.itemRead(servo->id_, "Present_Load", &val);
             int raw_load = val;
 
-            dxl_wb_.itemRead(servo->id_, "Present_Temperature", &val);
+            const bool temp_ok = dxl_wb_.itemRead(servo->id_, "Present_Temperature", &val);
             int temp = val;
-            dxl_wb_.itemRead(servo->id_, "Present_Voltage", &val);
+            const bool volt_ok = dxl_wb_.itemRead(servo->id_, "Present_Voltage", &val);
             float volt = static_cast<float>(val) / 10.0f;
-            dxl_wb_.itemRead(servo->id_, "Moving", &val);
+            const bool moving_ok = dxl_wb_.itemRead(servo->id_, "Moving", &val);
             bool moving = (val == 1);
+            const bool read_ok = goal_ok && position_ok && load_ok && temp_ok && volt_ok && moving_ok;
 
-            // Infos de base
+            // Base info
             stat.add("ID", servo->id_);
-            stat.add("Température", temp);
-            stat.add("Tension", volt);
-            stat.add("Erreur position", error);
+            stat.add("Temperature", temp);
+            stat.add("Voltage", volt);
+            stat.add("Position Error", error);
             stat.add("Moving", moving);
-            stat.add("Limite de couple (Torque_Limit)", servo->torque_limit_);
-            stat.add("Torque activé", servo->isTorqueEnabled() ? "True" : "False");
-            // if (!isTorqueEnabled()) {
-            //     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Couple désactivé (repos)");
-            // } else {
-            //     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Servo opérationnel");
-            // }
+            stat.add("Torque Limit (Torque_Limit)", servo->torque_limit_);
+            stat.add("Torque Enabled", servo->isTorqueEnabled() ? "True" : "False");
 
-            // Estimation :
-            // - Charge normalisée = [0.0–1.0]
-            // - Hypothèse : à charge max (1023), on est au courant stall max
+            // Estimation:
+            // - Normalized load = [0.0–1.0]
+            // - Assumption: at max load (1023), current is near stall current
             // - AX-18A ≈ 1.5 A @ 12 V
             float load_ratio = static_cast<float>(raw_load & 0x3FF) / 1023.0f;
             float estimated_current = load_ratio * 1.5f;  // 1.5 A max
             float power_watts = volt * estimated_current;
 
-            // Ajout dans le diagnostic
-            stat.add("Charge brute", std::to_string(raw_load));
-            stat.addf("Consommation estimée", "%.2f W", power_watts);
+            // Add to diagnostic
+            stat.add("Raw Load", std::to_string(raw_load));
+            stat.addf("Estimated Power", "%.2f W", power_watts);
 
-            // Optionnel : avertissement si > 10 W (par exemple)
-            if (power_watts > 10.0f) {
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "⚠️ Consommation élevée !");
-            }
-
-            // Infos spécifiques selon modèle
-            std::string model_name = "Inconnu", torque = "-", rpm = "-", gear = "-";
+            // Model-specific info
+            std::string model_name = "Unknown", torque = "-", rpm = "-", gear = "-";
 
             switch (servo->model_number_) {
                 case 18:
@@ -339,24 +330,31 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
                     gear = "254:1";
                     break;
                 default:
-                    model_name = "Modèle inconnu";
+                    model_name = "Unknown model";
                     break;
             }
 
-            stat.add("_Modèle", model_name);
-            stat.add("_Couple (Stall)", torque);
-            stat.add("_Vitesse à vide", rpm);
-            stat.add("_Rapport de réduction", gear);
+            stat.add("_Model", model_name);
+            stat.add("_Stall Torque", torque);
+            stat.add("_No-load Speed", rpm);
+            stat.add("_Gear Ratio", gear);
 
-            // Niveau de gravité
-            if (temp > temp_warn)
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "⚠️ Température élevée !");
-            else if (volt < volt_min || volt > volt_max)
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "⚠️ Tension hors plage !");
-            else if (std::abs(error) > error_thresh)
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "⚠️ Erreur de position importante");
-            else
+            // Severity level with clear priority: ERROR > WARN > OK
+            if (!read_ok) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Register read failed");
+            } else if (temp > temp_warn) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High temperature");
+            } else if (volt < volt_min || volt > volt_max) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Voltage out of range");
+            } else if (std::abs(error) > error_thresh) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High position error");
+            } else if (power_watts > 10.0f) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High power consumption");
+            } else if (!servo->isTorqueEnabled()) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Torque disabled (idle)");
+            } else {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "OK");
+            }
         });
 
         servos_.push_back(std::move(servo));
@@ -370,13 +368,13 @@ void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::S
     last_cmd_time_ = steady_clock_.now();  // mise à jour du timer de veille
 
     if (msg->name.size() != msg->position.size()) {
-        RCLCPP_WARN(node_->get_logger(), "Nom et position ne sont pas de même taille !");
+        RCLCPP_WARN(node_->get_logger(), "Name and position arrays do not have the same size!");
         return;
     }
 
     bool velocityIncluded = (msg->velocity.size() == msg->position.size());
     if (!velocityIncluded) {
-        RCLCPP_WARN(node_->get_logger(), "Vélocité non fournie ou incomplète, valeur par défaut 1.0 utilisée.");
+        RCLCPP_WARN(node_->get_logger(), "Velocity is missing or incomplete, default value 1.0 is used.");
     }
 
     // RCLCPP_INFO(node_->get_logger(), "Commande exécutée à t=%.3f", node_->now().seconds());
@@ -398,7 +396,7 @@ void DynamixelController::jointCmdCallback(const sensor_msgs::msg::JointState::S
                     if (servo->servoTorqueEnable(req, res) && res->success) {
                         servo->setTorqueEnabled(true);
                         RCLCPP_INFO(node_->get_logger(),
-                            "[%s] ⚡️ Torque réactivé suite à une commande.",
+                            "[%s] ⚡️ Torque re-enabled after command.",
                             servo->getName().c_str());
                     }
                 }
@@ -430,7 +428,7 @@ void DynamixelController::publishJointStates()
             msg.position.push_back(angle);
             servo->angle_ = angle;  // mise à jour locale
         } else {
-            RCLCPP_WARN(node_->get_logger(), "⚠️ Lecture position échouée pour ID %d", servo->id_);
+            RCLCPP_WARN(node_->get_logger(), "⚠️ Position read failed for ID %d", servo->id_);
             msg.position.push_back(servo->angle_);  // fallback
         }
 
@@ -490,7 +488,7 @@ void DynamixelController::checkInactivity()
 
             if (result && res->success) {
                 RCLCPP_WARN(node_->get_logger(),
-                    "[%s] ⏸️ Torque désactivé après inactivité.",
+                    "[%s] ⏸️ Torque disabled after inactivity.",
                     servo->getName().c_str());
                 servo->setTorqueEnabled(false);  // ajoute une fonction pour suivre l'état
             }

@@ -1,6 +1,10 @@
 #include "qbo_arduqbo/controllers/nose_controller.hpp"
 #include <rclcpp/rclcpp.hpp>
 
+namespace {
+bool last_nose_action_ok = true;
+}
+
 NoseController::NoseController(
     std::shared_ptr<QboDuinoDriver> driver,
     const rclcpp::NodeOptions & options)
@@ -30,8 +34,8 @@ NoseController::NoseController(
     );
 
     // 🔍 Diagnostic setup
-    updater_.setHardwareID("Q.Board_5");
-    updater_.add("Nose LED", this, &NoseController::produceDiagnostics);
+    updater_.setHardwareID("Qboard_5");
+    updater_.add("Nose Status", this, &NoseController::produceDiagnostics);
 
     RCLCPP_INFO(this->get_logger(), "✅ NoseController initialized with:\n"
                                 "       - Rate: %.2f Hz\n"
@@ -51,10 +55,13 @@ void NoseController::setNose(const qbo_msgs::msg::Nose::SharedPtr msg)
     last_color_ = msg->color;
 
     int code = driver_->setNose(msg->color);
-    if (code < 0)
+    if (code < 0) {
+        last_nose_action_ok = false;
         RCLCPP_ERROR(this->get_logger(), "Unable to send nose color to the Arduino.");
-    else
+    } else {
+        last_nose_action_ok = true;
         RCLCPP_DEBUG(this->get_logger(), "Nose color %d sent to Arduino.", msg->color);
+    }
 }
 
 void NoseController::testNoseLedsCallback(
@@ -65,10 +72,12 @@ void NoseController::testNoseLedsCallback(
 
     int code = driver_->testNose();
     if (code < 0) {
+        last_nose_action_ok = false;
         RCLCPP_WARN(this->get_logger(), "⚠️ testNose sent, but no response received (as expected)");
         res->success = true;  // ✅ car l'action a été envoyée avec succès
         res->message = "Nose test sent, no response expected";
     } else {
+        last_nose_action_ok = true;
         res->success = true;
         res->message = "Nose test executed successfully";
     }
@@ -78,17 +87,22 @@ void NoseController::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrap
 {
     static const std::array<std::string, 8> color_names = {
         "Off",
-        "Rouge",
-        "Bleu",
-        "Violet",
-        "Vert",
-        "Jaune",
+        "Red",
+        "Blue",
+        "Purple",
+        "Green",
+        "Yellow",
         "Magenta",
-        "Blanc"
+        "White"
     };
 
-    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
-                 "Nose LED operational");
+    if (last_nose_action_ok) {
+        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                     "Nose controller operational");
+    } else {
+        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                     "Nose controller command/test failed");
+    }
 
     stat.add("color_code", static_cast<int>(last_color_));
     stat.add("color_name", color_names[last_color_]);

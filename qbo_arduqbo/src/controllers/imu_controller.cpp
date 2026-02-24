@@ -18,12 +18,12 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     this->get_node_topics_interface(),
     1.0),
     driver_(driver),
-    is_calibrated_(false),
+    is_calibrated_(true),
     is_calibrating_(false)
 {
     uint8_t i2c_state = 0;
 
-    // Lecture des paramètres
+    // Read parameters
     get_parameter("topic", topic_);
     get_parameter("rate", rate_);
 
@@ -54,7 +54,7 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
         std::bind(&ImuController::timerCallback, this)
     );
 
-    updater_.setHardwareID("Q.Board4");
+    updater_.setHardwareID("Qboard_4");
     updater_.add("IMU Status", this, &ImuController::diagnosticCallback);
 
     // Init IMU message
@@ -63,23 +63,24 @@ ImuController::ImuController(std::shared_ptr<QboDuinoDriver> driver, const rclcp
     imu_msg_.angular_velocity_covariance = { 0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008 };
     imu_msg_.linear_acceleration_covariance = { 0.002, 0, 0, 0, 0.002, 0, 0, 0, 0.002 };
 
-    imu_calibrated_.data = false;
+    imu_calibrated_.data = true;
+    last_calibration_time_ = this->now();
 
     RCLCPP_INFO(this->get_logger(), "✅ ImuController initialized with:\n"
                                 "       - Rate: %.2f Hz\n"
                                 "       - Command topic: %s\n"
                                 "       - IMU calibrated: %s\n"
                                 "       - Last calibration timestamp: %.0f",
-            rate_, topic_.c_str(), is_calibrated_ ? "yes" : "no", last_calibrated_);
+            rate_, topic_.c_str(), is_calibrated_ ? "yes" : "no", last_calibration_time_.seconds());
 }
 
 void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status)
 {
-    // 🔵 État matériel de l’IMU
+    // 🔵 IMU hardware state
     bool hardware_ok = has_gyro_ && has_accel_;
     bool calibration_ok = is_calibrated_;
 
-    // 🟢 État global
+    // 🟢 Global state
     if (!hardware_ok) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "IMU hardware incomplete");
     } else if (!calibration_ok) {
@@ -88,15 +89,15 @@ void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapp
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "IMU operational");
     }
 
-    // 🟣 État matériel détecté
+    // 🟣 Detected hardware state
     status.add("Gyroscope Present", has_gyro_ ? "yes" : "no");
     status.add("Accelerometer Present", has_accel_ ? "yes" : "no");
 
-    // 🔧 Infos techniques statiques
-    status.add("_Accelerometer Model", "LIS35DE");
-    status.add("_I2C Address LIS35DE", "0x1C");
-    status.add("_Gyroscope Model", "L3G400D");
-    status.add("_I2C Address L3G400D", "0x69");
+    // 🔧 Static technical info
+    status.add("Accelerometer Model", "LIS35DE");
+    status.add("I2C Address Accelerometer", "0x1C");
+    status.add("Gyroscope Model", "L3G400D");
+    status.add("I2C Address Gyroscope", "0x69");
 
     // 🟠 Calibration
     std::string formatted_time = "N/A";
@@ -115,7 +116,7 @@ void ImuController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapp
     status.add("IMU calibrated", calibration_ok ? "yes" : "no");
     status.add("Last calibration", formatted_time);
 
-    // 🔴 Message explicite (affiché si status.message vide)
+    // 🔴 Explicit message (shown if status.message is empty)
     if (!hardware_ok) {
         std::string msg = std::string(!has_gyro_ ? "Gyroscope missing" : "") +
                           std::string((!has_gyro_ && !has_accel_) ? " & " : "") +
@@ -129,7 +130,7 @@ void ImuController::timerCallback()
 {
     if (is_calibrating_) {
         RCLCPP_DEBUG(get_logger(), "IMU read skipped: calibration in progress");
-        return;  // on ne lit pas pendant la calibration
+        return;  // do not read while calibration is in progress
     }
 
     int16_t gx, gy, gz, ax, ay, az;
@@ -144,12 +145,12 @@ void ImuController::timerCallback()
 
     RCLCPP_DEBUG(get_logger(), "IMU raw: gx=%d, gy=%d, gz=%d, ax=%d, ay=%d, az=%d", gx, gy, gz, ax, ay, az);
 
-    // Conversion rad/s
+    // Convert to rad/s
     imu_msg_.angular_velocity.x = static_cast<float>(gx) * GYRO_MEASUREMENT_SCALE;
     imu_msg_.angular_velocity.y = static_cast<float>(gy) * GYRO_MEASUREMENT_SCALE;
     imu_msg_.angular_velocity.z = static_cast<float>(gz) * GYRO_MEASUREMENT_SCALE;
 
-    // m/s²
+    // Convert to m/s²
     imu_msg_.linear_acceleration.x = static_cast<float>(ax) * ACC_MEASUREMENT_SCALE;
     imu_msg_.linear_acceleration.y = static_cast<float>(ay) * ACC_MEASUREMENT_SCALE;
     imu_msg_.linear_acceleration.z = static_cast<float>(az) * ACC_MEASUREMENT_SCALE;
@@ -174,7 +175,7 @@ bool ImuController::calibrateService(
     uint8_t result = 0;
     int code = driver_->calibrateIMU(result);
 
-    // Attendre la fin de la calibration (attente active 3s max)
+    // Wait for calibration to complete (active wait, max 3s)
     int wait_ms = 0;
     while (result == 0 && wait_ms < 3000) {
         rclcpp::sleep_for(std::chrono::milliseconds(100));
@@ -188,6 +189,7 @@ bool ImuController::calibrateService(
         res->success = false;
         res->message = "IMU calibration failed.";
         is_calibrated_ = false;
+        imu_calibrated_.data = false;
         is_calibrating_ = false;
         timer_->reset();   // restart it
         return true;
@@ -197,6 +199,7 @@ bool ImuController::calibrateService(
     res->success = true;
     res->message = "IMU calibration successful.";
     is_calibrated_ = true;
+    imu_calibrated_.data = true;
     is_calibrating_ = false;
     last_calibration_time_ = this->now();
 

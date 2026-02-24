@@ -4,7 +4,7 @@ from dynamixel_sdk import *  # pip install dynamixel-sdk
 
 # === Configuration ===
 PORT = "/dev/ttyUSB1"         # Modifie ici si besoin
-BAUDRATE = 1000000              # AX-12/18A par défaut : 57600
+BAUDRATE = 1000000            # AX-12/18A par défaut : 57600
 PROTOCOL_VERSION = 1.0        # AX-18A utilise protocole 1.0
 ID_RANGE = range(1, 11)       # ID à scanner (1 à 10)
 
@@ -12,28 +12,28 @@ ID_RANGE = range(1, 11)       # ID à scanner (1 à 10)
 portHandler = PortHandler(PORT)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 
-print(f"🔌 Port : {PORT} | Baudrate : {BAUDRATE} | Protocole : {PROTOCOL_VERSION}")
+print(f"🔌 Port: {PORT} | Baud rate: {BAUDRATE} | Protocol: {PROTOCOL_VERSION}")
 
 if not portHandler.openPort():
-    print("❌ Impossible d'ouvrir le port série.")
+    print("❌ Unable to open the serial port.")
     exit(1)
 else:
-    print("✅ Port ouvert.")
+    print("✅ Port opened.")
 
 if not portHandler.setBaudRate(BAUDRATE):
-    print(f"❌ Impossible de fixer le baudrate à {BAUDRATE}.")
+    print(f"❌ Unable to set baud rate to {BAUDRATE}.")
     exit(1)
 else:
-    print("✅ Baudrate configuré.")
+    print("✅ Baud rate configured.")
 
-print("🔍 Scan en cours...\n")
+print("🔍 Scanning in progress...\n")
 
 for dxl_id in ID_RANGE:
     dxl_model_number, comm_result, error = packetHandler.ping(portHandler, dxl_id)
     if comm_result == COMM_SUCCESS:
-        print(f"🟢 Servo trouvé → ID {dxl_id} | Modèle {dxl_model_number}")
+        print(f"🟢 Servo found → ID {dxl_id} | Model {dxl_model_number}")
     else:
-        print(f"🔸 ID {dxl_id} : aucun retour")
+        print(f"🔸 ID {dxl_id}: no response")
 
 portHandler.closePort()
-print("\n🔁 Scan terminé.")
+print("\n🔁 Scan completed.")

@@ -49,7 +49,7 @@ SensorController::SensorController(std::shared_ptr<QboDuinoDriver> driver,
       std::bind(&SensorController::timerCallback, this));
 
   // 🔍 Diagnostic setup
-  updater_.setHardwareID("Q.Board1 distance sensors");
+  updater_.setHardwareID("Qboard_1");
   updater_.add("Sensors Status", this, &SensorController::diagnosticCallback);
 
   RCLCPP_INFO(this->get_logger(),

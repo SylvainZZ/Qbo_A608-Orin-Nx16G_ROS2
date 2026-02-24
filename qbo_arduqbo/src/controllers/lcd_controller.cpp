@@ -163,14 +163,14 @@ void LcdController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapp
     status.summary(
         (has_lcd_) ? diagnostic_msgs::msg::DiagnosticStatus::OK :
         diagnostic_msgs::msg::DiagnosticStatus::ERROR,
-        (i2c_status_checked_ ? "LCD status read" : "LCD I2C check failed at startup"));
+        (i2c_status_checked_ ? "LCD Operational" : "LCD I2C check failed at startup"));
 
     // 🟢 État dynamique
     status.add("LCD Present", has_lcd_ ? "yes" : "no");
 
     // 🟣 Infos techniques statiques
-    status.add("_LCD Model", "C2042A");
-    status.add("_I2C_Adress", "0x63");
+    status.add("LCD Model", "C2042A");
+    status.add("I2C Address", "0x63");
 
     // 🔴 Message explicite si erreur
     if (!has_lcd_) {

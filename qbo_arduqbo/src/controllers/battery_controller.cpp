@@ -26,7 +26,7 @@ CBatteryController::CBatteryController(
     diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
         "/diagnostics", 10, std::bind(&CBatteryController::diagCallback, this, std::placeholders::_1));
 
-    // Lecture des paramètres
+    // Reading parameters
     get_parameter("error_battery_level", error_battery_level_);
     get_parameter("warn_battery_level", warn_battery_level_);
     get_parameter("capacity_ah", capacity_ah_);
@@ -34,7 +34,7 @@ CBatteryController::CBatteryController(
     get_parameter("battery_type", battery_type_);
 
     // Diagnostics
-    updater_.setHardwareID("Q.board3");
+    updater_.setHardwareID("Qboard_3");
     updater_.add("Battery Status", this, &CBatteryController::diagnosticCallback);
 
     RCLCPP_INFO(this->get_logger(), "✅ CBatteryController initialized with:\n"
@@ -59,7 +59,7 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 {
     int code=driver_->getBattery(level_,stat_);
     if (code<0) {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::STALE, "No communication");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::STALE, "Battery Controller: No communication with the Qboard_3");
         return;
     }
 
@@ -75,13 +75,13 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     if (runtime_publish_counter >= 20) {
         runtime_publish_counter = 0;
 
-        // Hypothèse : on a bien reçu une valeur valide
+        // Assumption: we received a valid value
         if (A608_power_w_ > 0.0) {
-            fixed_extra_power_w = 4; // ← à ajuster selon tes mesures
+            fixed_extra_power_w = 4; // ← to adjust according to your measurements
 
             total_power_w = A608_power_w_ + fixed_extra_power_w;
 
-            // On suppose que le voltage moyen = tension mesurée via voltage_history_
+            // We assume the average voltage = voltage measured via voltage_history_
             double smoothed_voltage = std::accumulate(voltage_history_.begin(), voltage_history_.end(), 0.0) / voltage_history_.size();
 
             double estimated_current_draw = total_power_w / smoothed_voltage;
@@ -98,10 +98,10 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
         }
     }
 
-    status.add("Voltage (V)", formatDouble(voltage));
-    status.add("_Type", battery_type_);
-    status.add("_Nominal Voltage (V)", formatDouble(nominal_voltage_));
-    status.add("_Capacity (Ah)", formatDouble(capacity_ah_));
+    status.add("Voltage", formatDouble(voltage)); // in volts
+    status.add("Type", battery_type_); // e.g. "Li-ion", "NiMH", or other
+    status.add("Nominal Voltage", formatDouble(nominal_voltage_)); // in volts
+    status.add("Capacity", formatDouble(capacity_ah_)); // in Ah
     status.add("Status", std::to_string(stat_));
 
     uint8_t charge_mode = (stat_ >> 3) & 0x07;  // bits 5-3
@@ -135,18 +135,18 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     status.add("Charge Mode Description", charge_desc);
 
     if (last_estimated_runtime_minutes_ > 0.0) {
-        status.add("Estimated Runtime (min)", formatDouble(last_estimated_runtime_minutes_));
-        status.add("Estimated Power (W)", formatDouble(total_power_w));
+        status.add("Estimated Runtime", formatDouble(last_estimated_runtime_minutes_)); // in minutes
+        status.add("Estimated Power", formatDouble(total_power_w)); // in watts
     }
-    status.add("Estimated Extras W (W)", formatDouble(fixed_extra_power_w));
+    status.add("Estimated Extras", formatDouble(fixed_extra_power_w));
 
     // Niveau batterie
     if (voltage < error_battery_level_) {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Empty battery");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Battery Controller: Empty battery");
     } else if (voltage <= warn_battery_level_) {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Low battery");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Battery Controller: Low battery");
     } else {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Battery OK");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Battery Controller: Battery OK");
     }
 }
 

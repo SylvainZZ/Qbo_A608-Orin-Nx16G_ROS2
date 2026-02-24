@@ -15,8 +15,12 @@ QboArduqboManager::QboArduqboManager(std::shared_ptr<rclcpp::Node> node,
 void QboArduqboManager::setup() {
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     updater_ = std::make_unique<diagnostic_updater::Updater>(node_);
+    auto qboard1_id_diag = std::make_shared<int>(-1);
+    auto qboard1_version_diag = std::make_shared<int>(-1);
+    auto qboard2_id_diag = std::make_shared<int>(-1);
+    auto qboard2_version_diag = std::make_shared<int>(-1);
 
-    updater_->setHardwareID("qbo_arduqbo System");
+    updater_->setHardwareID("System");
 
     // =====================
     // ⚙️  Paramètres globaux
@@ -42,14 +46,30 @@ void QboArduqboManager::setup() {
     RCLCPP_INFO(node_->get_logger(), "PORT2: %s (%s)", port2_.c_str(), enable_qboard2_ ? "enabled" : "disabled");
     RCLCPP_INFO(node_->get_logger(), "BAUD: %d / %d | TIMEOUT: %.2f / %.2f", baud1_, baud2_, timeout1_, timeout2_);
 
-    updater_->add("Controller Status", [this](diagnostic_updater::DiagnosticStatusWrapper &status) {
-        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "QBO ArduQBO controllers initialized");
+    updater_->add("Arduqbo Status", [this, qboard1_id_diag, qboard1_version_diag, qboard2_id_diag, qboard2_version_diag](diagnostic_updater::DiagnosticStatusWrapper &status) {
+        const bool qboard1_started = !enable_qboard1_ || (*qboard1_id_diag >= 0 && *qboard1_version_diag >= 0);
+        const bool qboard2_started = !enable_qboard2_ || (*qboard2_id_diag >= 0 && *qboard2_version_diag >= 0);
+
+        if (!qboard1_started && !qboard2_started) {
+            status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Arduqbo: QBoard1 and QBoard2 failed to start");
+        } else if (!qboard1_started) {
+            status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Arduqbo: QBoard1 failed to start");
+        } else if (!qboard2_started) {
+            status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Arduqbo: QBoard2 failed to start");
+        } else {
+            status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Arduqbo operational");
+        }
+
         status.add("_QBoard1", enable_qboard1_ ? "Enabled" : "Disabled");
+        status.add("_QBoard1 ID", *qboard1_id_diag >= 0 ? std::to_string(*qboard1_id_diag) : "N/A");
+        status.add("_QBoard1 Version", *qboard1_version_diag >= 0 ? std::to_string(*qboard1_version_diag) : "N/A");
         status.add("_Controller Battery", enable_battery_ ? "Enabled" : "Disabled");
         status.add("_Controller Base", enable_base_ ? "Enabled" : "Disabled");
         status.add("_Controller IMU", enable_imu_base_ ? "Enabled" : "Disabled");
         status.add("_Controller LCD", enable_lcd_ ? "Enabled" : "Disabled");
         status.add("_QBoard2", enable_qboard2_ ? "Enabled" : "Disabled");
+        status.add("_QBoard2 ID", *qboard2_id_diag >= 0 ? std::to_string(*qboard2_id_diag) : "N/A");
+        status.add("_QBoard2 Version", *qboard2_version_diag >= 0 ? std::to_string(*qboard2_version_diag) : "N/A");
         status.add("_Controller Nose", enable_nose_ ? "Enabled" : "Disabled");
         status.add("_Controller Mouth", enable_mouth_ ? "Enabled" : "Disabled");
         status.add("_Controller Audio", enable_audio_ ? "Enabled" : "Disabled");
@@ -72,6 +92,8 @@ void QboArduqboManager::setup() {
         // QBoard1 (Base)
         int code1 = arduino_driver_->getVersion("base", board_id, version);
         if (code1 >= 0 && id == 0) {
+            *qboard1_id_diag = board_id;
+            *qboard1_version_diag = version;
             qboard1_version_ = version;
             RCLCPP_INFO(node_->get_logger(), "      QBoard1 detected — ID: %d, Version: %d", board_id, version);
         } else {
@@ -130,6 +152,8 @@ void QboArduqboManager::setup() {
         // QBoard2 (Head)
         int code2 = arduino_driver_->getVersion("head", board_id, version);
         if (code2 >= 0 && id == 0) {
+            *qboard2_id_diag = board_id;
+            *qboard2_version_diag = version;
             qboard2_version_ = version;
             RCLCPP_INFO(node_->get_logger(), "      QBoard2 detected — ID: %d, Version: %d", board_id, version);
         } else {
@@ -198,7 +222,7 @@ int main(int argc, char **argv)
     options.automatically_declare_parameters_from_overrides(true);
 
     auto node = std::make_shared<rclcpp::Node>("qbo_arduqbo", options);
-    RCLCPP_INFO(node->get_logger(), "🎬 Démarrage du noeud qbo_arduqbo");
+    RCLCPP_INFO(node->get_logger(), "🎬 Starting qbo_arduqbo node");
     try
     {
         std::string port1 = "";
@@ -209,15 +233,15 @@ int main(int argc, char **argv)
         node->get_parameter("port2", port2);
 
         if (port1.empty()) {
-            RCLCPP_FATAL(node->get_logger(), "❌ Port USB Qboard 1 non défini (clé : qbo_arduqbo.port1)");
+            RCLCPP_FATAL(node->get_logger(), "❌ USB port for QBoard1 is not defined (key: qbo_arduqbo.port1)");
             return 1;
         }
 
         if (port2.empty()) {
-            RCLCPP_FATAL(node->get_logger(), "❌ Port USB Qboard 2 non défini (clé : qbo_arduqbo.port2)");
+            RCLCPP_FATAL(node->get_logger(), "❌ USB port for QBoard2 is not defined (key: qbo_arduqbo.port2)");
             return 1;
         }
-        RCLCPP_INFO(node->get_logger(), "✅ Configuration initiale validée, lancement de qbo_arduqbo...");
+        RCLCPP_INFO(node->get_logger(), "✅ Initial configuration validated, launching qbo_arduqbo...");
 
         QboArduqboManager manager(node, options, port1, port2);
 
@@ -226,7 +250,7 @@ int main(int argc, char **argv)
     }
     catch (const std::exception &e)
     {
-        RCLCPP_FATAL(node->get_logger(), "🛑 Exception fatale : %s", e.what());
+        RCLCPP_FATAL(node->get_logger(), "🛑 Fatal exception: %s", e.what());
         return 1;
     }
 

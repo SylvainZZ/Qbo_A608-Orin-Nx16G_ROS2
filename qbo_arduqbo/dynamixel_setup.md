@@ -1,11 +1,10 @@
-
 # qbo_dynamixel
 
 **Version :** 0.1.3
 
 ## 📦 Description du package
 
-Ce package ROS 2 (`Humble`) est conçu pour contrôler des servos Dynamixel AX12A / AX18A sur la plateforme Qbo équipée d'une Jetson Orin NX (JetPack 6.2, Ubuntu 22.04) et de la carte A608.
+Ce package ROS 2 (`Humble`) est conçu pour contrôler des servos Dynamixel AX12A / AX18A sur la plateforme Qbo équipée d'une Jetson Orin NX (JetPack 6.1, Ubuntu 22.04) et de la carte A608 de chez Seeed.
 
 Il permet :
 
@@ -14,6 +13,15 @@ Il permet :
 - La supervision via `/diagnostics`
 - Le contrôle du couple via le service `/torque_enable`
 - Une configuration dynamique des servos via un fichier YAML
+
+Étapes rapides (résumé) :
+
+1. Installer les dépendances ROS 2 nécessaires.
+2. Identifier le port série et scanner les servos pour valider les IDs.
+3. Renseigner le fichier YAML (ports, IDs, limites, vitesse).
+4. Compiler le package et sourcer l'environnement.
+5. Lancer le nœud `qbo_dynamixel` avec le fichier de paramètres.
+6. Tester les commandes `/cmd_joints` et vérifier `/diagnostics`.
 
 ---
 
@@ -158,7 +166,5 @@ qbo_dynamixel:
 ```
 
 ```bash
-
-**Auteur :** Sylvain Zwolinski
-**Licence :** BSD-3-Clause
-
+**Auteur : Sylvain Zwolinski
+**Licence : BSD-3-Clause

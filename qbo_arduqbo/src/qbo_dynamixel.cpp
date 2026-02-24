@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     options.automatically_declare_parameters_from_overrides(true);
 
     auto node = rclcpp::Node::make_shared("qbo_dynamixel", options);
-    RCLCPP_INFO(node->get_logger(), "🎬 Démarrage du noeud qbo_dynamixel");
+    RCLCPP_INFO(node->get_logger(), "🎬 Starting qbo_dynamixel node");
 
     try
     {
@@ -26,15 +26,15 @@ int main(int argc, char **argv)
 
         // Vérifications simples
         if (usb_port.empty()) {
-            RCLCPP_FATAL(node->get_logger(), "❌ Port USB non défini (clé : dynamixel.port)");
+            RCLCPP_FATAL(node->get_logger(), "❌ USB port is not defined (key: dynamixel.port)");
             return 1;
         }
         if (baud_rate <= 0) {
-            RCLCPP_FATAL(node->get_logger(), "❌ Baudrate invalide : %d", baud_rate);
+            RCLCPP_FATAL(node->get_logger(), "❌ Invalid baud rate: %d", baud_rate);
             return 1;
         }
         if (protocol_version != 1.0 && protocol_version != 2.0) {
-            RCLCPP_FATAL(node->get_logger(), "❌ Version du protocole invalide : %.1f (attendu : 1.0 ou 2.0)", protocol_version);
+            RCLCPP_FATAL(node->get_logger(), "❌ Invalid protocol version: %.1f (expected: 1.0 or 2.0)", protocol_version);
             return 1;
         }
 
@@ -44,18 +44,18 @@ int main(int argc, char **argv)
         // ✅ Vérification présence de config
         if (motor_keys.empty()) {
             RCLCPP_FATAL(node->get_logger(),
-                "❌ Aucun moteur n'est défini. Vérifie le fichier YAML (clé : dynamixel.motor_keys).");
+                "❌ No motor is defined. Check the YAML file (key: dynamixel.motor_keys).");
             return 1;
         }
 
-        RCLCPP_INFO(node->get_logger(), "✅ Configuration initiale validée, lancement du contrôleur...");
+        RCLCPP_INFO(node->get_logger(), "✅ Initial configuration validated, launching controller...");
         auto controller = std::make_shared<DynamixelController>(node);
         RCLCPP_INFO(node->get_logger(), "✅ DynamixelController ready.");
         rclcpp::spin(node);
     }
     catch (const std::exception &e)
     {
-        RCLCPP_FATAL(node->get_logger(), "🛑 Exception fatale : %s", e.what());
+        RCLCPP_FATAL(node->get_logger(), "🛑 Fatal exception: %s", e.what());
         return 1;
     }
 

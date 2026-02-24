@@ -79,7 +79,7 @@ ament_target_dependencies(nose_controller rclcpp diagnostic_updater qbo_msgs)
 
 add_library(mouth_controller src/controllers/mouth_controller.cpp)
 target_link_libraries(mouth_controller qbo_serial)
-ament_target_dependencies(mouth_controller rclcpp qbo_msgs)
+ament_target_dependencies(mouth_controller rclcpp qbo_msgs diagnostic_updater)
 
 add_library(audio_controller src/controllers/audio_controller.cpp)
 target_link_libraries(audio_controller qbo_serial)

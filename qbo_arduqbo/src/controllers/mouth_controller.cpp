@@ -1,8 +1,19 @@
 #include "qbo_arduqbo/controllers/mouth_controller.hpp"
 #include <rclcpp/rclcpp.hpp>
 
+namespace {
+bool last_mouth_test_ok = true;
+}
+
 MouthController::MouthController(std::shared_ptr<QboDuinoDriver> driver, const rclcpp::NodeOptions & options)
-: Node("mouth_ctrl", "qbo_arduqbo", options), driver_(driver)
+: Node("mouth_ctrl", "qbo_arduqbo", options), driver_(driver), updater_(
+        this->get_node_base_interface(),
+        this->get_node_clock_interface(),
+        this->get_node_logging_interface(),
+        this->get_node_parameters_interface(),
+        this->get_node_timers_interface(),
+        this->get_node_topics_interface(),
+        1.0)
 {
     // Lecture des paramètres
     this->get_parameter("topic", topic_);
@@ -16,6 +27,9 @@ MouthController::MouthController(std::shared_ptr<QboDuinoDriver> driver, const r
         this->get_name() + std::string("/test_leds"),
         std::bind(&MouthController::testMouthLedsCallback, this, std::placeholders::_1, std::placeholders::_2)
     );
+    // 🔍 Diagnostic setup
+    updater_.setHardwareID("Qboard_5");
+    updater_.add("Mouth Status", this, &MouthController::produceDiagnostics);
 
     RCLCPP_INFO(this->get_logger(), "✅ MouthController initialized with:\n"
                                 "       - Rate: %.2f Hz\n"
@@ -59,14 +73,30 @@ void MouthController::testMouthLedsCallback(
 
     int code = driver_->testMouth();
     if (code < 0) {
+        last_mouth_test_ok = false;
         RCLCPP_WARN(this->get_logger(), "⚠️ testMouth sent, but no response received (as expected)");
         res->success = true;  // ✅ car l'action a été envoyée avec succès
         res->message = "Mouth test sent, no response expected";
     } else {
+        last_mouth_test_ok = true;
         res->success = true;
         res->message = "Mouth test executed successfully";
     }
 }
 
+void MouthController::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+    // Ici, on pourrait ajouter des vérifications spécifiques à la bouche, par exemple :
+    // - Dernier pattern envoyé
+    // - Réponses du driver
+    // - État de la communication
 
+    // Pour l'instant, on se contente d'indiquer que le contrôleur est actif
+
+    if (!last_mouth_test_ok) {
+        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Mouth controller test failed");
+    } else {
+        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Mouth controller operational");
+    }
+}
 

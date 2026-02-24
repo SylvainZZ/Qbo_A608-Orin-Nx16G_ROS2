@@ -51,6 +51,7 @@ private:
   float v_linear_, v_angular_, x_, y_, th_;
   bool v_dirty_;
   double last_estimated_motor_power_ = 0.0;
+  bool last_odometry_ok_ = false;
 
   // Interfaces ROS 2
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twist_sub_;

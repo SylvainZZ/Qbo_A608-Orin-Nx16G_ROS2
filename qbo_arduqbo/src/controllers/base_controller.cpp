@@ -46,8 +46,8 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
       this->get_name() + std::string("/set_odometry"),
       std::bind(&BaseController::setOdometryService, this, std::placeholders::_1, std::placeholders::_2));
 
-    updater_.setHardwareID("Q.board1");
-    updater_.add("Motors Status", this, &BaseController::diagnosticCallback);
+    updater_.setHardwareID("Qboard_1");
+    updater_.add("Base Status", this, &BaseController::diagnosticCallback);
 
     timer_ = create_wall_timer(std::chrono::milliseconds((int)(1000.0 / rate_)), std::bind(&BaseController::timerCallback, this));
 
@@ -104,7 +104,7 @@ BaseController::BaseController(std::shared_ptr<QboDuinoDriver> driver, const rcl
 
     static_tf_broadcaster_->sendTransform(static_tf);
 
-    RCLCPP_INFO(this->get_logger(), "✅ CBaseController initialized with:\n"
+    RCLCPP_INFO(this->get_logger(), "✅ BaseController initialized with:\n"
                                 "       - Rate: %.2f Hz\n"
                                 "       - Command topic: %s\n"
                                 "       - Odometry topic: %s\n"
@@ -126,9 +126,11 @@ void BaseController::timerCallback() {
     float x, y, th;
     int code = driver_->getOdometry(x, y, th);
     if (code < 0) {
+        last_odometry_ok_ = false;
         RCLCPP_ERROR(get_logger(), "Unable to get odometry from the base controller board, code: %d", code);
         return;
     } else {
+        last_odometry_ok_ = true;
         RCLCPP_DEBUG(get_logger(), "Odometry message from base controller board: x=%.2f, y=%.2f, th=%.2f", x, y, th);
     }
 
@@ -229,27 +231,33 @@ void BaseController::diagnosticCallback(diagnostic_updater::DiagnosticStatusWrap
     bool left_motor_ok = motors_state & 0x01;
     bool right_motor_ok = motors_state & 0x02;
 
-    status.summary(
-        (left_motor_ok && right_motor_ok) ? diagnostic_msgs::msg::DiagnosticStatus::OK :
-        diagnostic_msgs::msg::DiagnosticStatus::ERROR,
-        (ok ? "Motor status read" : "Communication error"));
+    if (!left_motor_ok || !right_motor_ok) {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+                      ok ? "Motor error detected" : "Motor communication error");
+    } else if (!last_odometry_ok_) {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                      "Odometry read failed");
+    } else {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                      "Base controller operational");
+    }
 
     // 🟢 Etat dynamique
     status.add("Left Motor OK", left_motor_ok ? "yes" : "no");
     status.add("Right Motor OK", right_motor_ok ? "yes" : "no");
 
     // 🟣 Infos techniques statiques
-    status.add("_Motor Model", "EMG30");
-    status.add("_Rated Voltage", "12V");
-    status.add("_Rated Torque", "1.5 kg.cm");
-    status.add("_Rated Speed", "170 rpm");
-    status.add("_No-load Speed", "216 rpm");
-    status.add("_Stall Current", "2.5 A");
-    status.add("_Reduction Gearbox", "30:1");
-    status.add("_Encoder CPR", "360 counts/turn");
+    status.add("Motor Model", "EMG30");
+    status.add("Rated Voltage", "12V");
+    status.add("Rated Torque", "1.5 kg.cm");
+    status.add("Rated Speed", "170 rpm");
+    status.add("No-load Speed", "216 rpm");
+    status.add("Stall Current", "2.5 A");
+    status.add("Reduction Gearbox", "30:1");
+    status.add("Encoder CPR", "360 counts/turn");
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(2) << last_estimated_motor_power_ << " W";
-    status.add("Estimation consommation moteurs", oss.str());
+    status.add("Estimated Motor Power", oss.str());
 
     // 🔴 Si un ou deux moteurs sont KO, message global explicite
     if (!left_motor_ok || !right_motor_ok) {
