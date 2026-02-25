@@ -8,71 +8,156 @@
             "voltage batterie",
             "niveau de tension batterie"
         ],
-        "answer": "La tension actuelle de la batterie est de {Voltage (V)} V.",
-        "intent": null,
+        "answer": "La tension actuelle de la batterie est de {voltage} volt.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Voltage",
+                "result_key": "voltage"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_monitor",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "etat de la batterie",
-            "statut batterie",
-            "comment va la batterie",
-            "diagnostic batterie",
-            "niveau batterie",
-            "batterie ok"
+            "quel est le type de batterie",
+            "type de batterie",
+            "chimie batterie",
+            "batterie de quel type",
+            "technologie de la batterie"
         ],
-        "answer": "Le statut actuel de la batterie est {Status}.",
-        "intent": null,
+        "answer": "Le type de batterie est {type}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Type",
+                "result_key": "type"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_monitor",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "mode de charge batterie",
+            "quelle est la tension nominale",
+            "voltage nominal batterie",
+            "tension nominale batterie",
+            "nominal voltage batterie",
+            "valeur nominale de la batterie"
+        ],
+        "answer": "La tension nominale de la batterie est de {nominal_voltage} volt à vide.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Nominal Voltage",
+                "result_key": "nominal_voltage"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est la capacite batterie",
+            "capacite batterie",
+            "combien d ah la batterie",
+            "capacity batterie",
+            "capacite nominale"
+        ],
+        "answer": "La capacité de la batterie est de {capacity} Ah.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Capacity",
+                "result_key": "capacity"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quel est le status batterie",
+            "status batterie",
+            "code status batterie",
+            "etat brut batterie",
+            "valeur status"
+        ],
+        "answer": "Le status batterie est {status}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Status",
+                "result_key": "status"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
             "quel est le mode de charge",
-            "etat de charge batterie",
+            "mode de charge batterie",
             "charge mode batterie",
-            "comment la batterie est chargee"
+            "code mode de charge",
+            "valeur charge mode"
         ],
-        "answer": "Le mode de charge actuel est {Charge Mode Description}.",
-        "intent": null,
+        "answer": "Le mode de charge batterie est {charge_mode}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Charge Mode",
+                "result_key": "charge_mode"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_monitor",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "la batterie est en charge",
-            "est ce que ca charge",
-            "batterie en train de charger",
-            "charge en cours",
-            "etat charge batterie"
-        ],
-        "answer": "Le mode actuel indique : {Charge Mode Description}.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_monitor",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
@@ -80,18 +165,26 @@
     {
         "question_variants": [
             "alimentation externe active",
-            "est ce que je suis branche au secteur",
             "external power batterie",
-            "alim externe batterie",
-            "robot branche secteur"
+            "robot branche au secteur",
+            "presence alimentation externe",
+            "etat external power"
         ],
-        "answer": "Alimentation externe : {External Power}.",
-        "intent": null,
+        "answer": "L'alimentation externe est {external_power}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "External Power",
+                "result_key": "external_power"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "status",
-            "component": "power_system",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
@@ -99,341 +192,563 @@
     {
         "question_variants": [
             "le pc est allume",
-            "pc on batterie",
-            "etat pc alimentation",
-            "ordinateur embarque allume",
+            "pc on",
+            "etat pc on",
+            "ordinateur embarque actif",
             "pc sous tension"
         ],
-        "answer": "Etat PC : {PC On}.",
-        "intent": null,
+        "answer": "L'état PC On est {pc_on}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "PC On",
+                "result_key": "pc_on"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "status",
-            "component": "power_system",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "les cartes sont alimentees",
+            "les cartes sont allumees",
             "boards on",
-            "etat cartes electroniques",
-            "alimentation cartes",
-            "boards sous tension"
+            "etat boards on",
+            "cartes electroniques alimentees",
+            "alimentation des cartes"
         ],
-        "answer": "Etat des cartes : {Boards On}.",
-        "intent": null,
+        "answer": "L'état Boards On est {boards_on}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Boards On",
+                "result_key": "boards_on"
+            }
+        },
         "meta": {
-            "source": "user",
-            "domain": "battery",
-            "intent_kind": "status",
-            "component": "power_system",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "type de batterie",
-            "quelle batterie utilisee",
-            "chimie batterie",
-            "batterie type",
-            "modele batterie"
-        ],
-        "answer": "Le type de batterie est {_Type}.",
-        "intent": null,
-        "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_specs",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "tension nominale batterie",
-            "voltage nominal batterie",
-            "nominal voltage",
-            "valeur nominale batterie",
-            "reference tension batterie"
+            "description du mode de charge",
+            "charge mode description",
+            "explication mode de charge",
+            "libelle du mode de charge",
+            "description charge batterie"
         ],
-        "answer": "La tension nominale est {_Nominal Voltage (V)} V.",
-        "intent": null,
+        "answer": "La description du mode de charge est : {charge_mode_description}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Charge Mode Description",
+                "result_key": "charge_mode_description"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_specs",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "capacite batterie",
-            "combien d ampere heure",
-            "capacity ah",
-            "valeur ah batterie",
-            "capacité en ah"
+            "quelle est l autonomie estimee",
+            "estimated runtime",
+            "temps restant batterie",
+            "duree estimee restante",
+            "autonomie batterie"
         ],
-        "answer": "La capacité nominale est de {_Capacity (Ah)} Ah.",
-        "intent": null,
+        "answer": "L'autonomie estimée de la batterie est de {estimated_runtime} minutes.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Estimated Runtime",
+                "result_key": "estimated_runtime"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_specs",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "puissance estimee",
+            "quelle est la puissance estimee",
             "estimated power",
             "consommation estimee",
-            "puissance actuelle estimee",
-            "power w batterie"
+            "puissance actuelle batterie",
+            "power batterie"
         ],
-        "answer": "La puissance estimée actuelle est {Estimated Power (W)} W.",
-        "intent": null,
+        "answer": "La puissance estimée de la batterie est de {estimated_power} watts.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Estimated Power",
+                "result_key": "estimated_power"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_monitor",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "extras w",
-            "puissance additionnelle fixe",
-            "estimated extras w",
-            "consommation fixe supplementaire",
-            "extras puissance"
+            "quelle est la puissance extras",
+            "estimated extras",
+            "extras batterie",
+            "puissance additionnelle batterie",
+            "consommation extras"
         ],
-        "answer": "La puissance additionnelle fixe estimée est {Estimated Extras W (W)} W.",
-        "intent": null,
+        "answer": "La puissance additionnelle estimée (extras) est de {estimated_extras} watts.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Estimated Extras",
+                "result_key": "estimated_extras"
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_monitor",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "autonomie estimee",
-            "combien de minutes restantes",
-            "runtime estime",
-            "temps restant batterie",
-            "duree restante"
+            "etat batterie",
+            "donne les infos batterie",
+            "statut batterie complet"
         ],
-        "answer": "L'autonomie estimée est de {Estimated Runtime (min)} minutes si disponible.",
-        "intent": null,
+        "answer": "La tension est de {voltage} volt et l'autonomie estimée est de {runtime} minutes.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+            "voltage": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Voltage",
+                "result_key": "voltage"
+                },
+            "runtime": {
+                "hardware": "Qboard_3",
+                "category": "battery_ctrl: Battery Status",
+                "key": "Estimated Runtime",
+                "result_key": "runtime"
+                }
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
             "intent_kind": "get",
-            "component": "battery_monitor",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "seuil batterie faible",
-            "a partir de quand batterie faible",
-            "niveau avertissement batterie",
-            "warn battery level",
-            "tension batterie faible"
+            "resume batterie complet",
+            "bilan batterie actuel",
+            "vue globale batterie"
         ],
-        "answer": "Le seuil d'avertissement batterie faible est de 12.2 V.",
-        "intent": null,
+        "answer": "La batterie est à {voltage} volt, status {status}, autonomie estimée {estimated_runtime} minutes et puissance estimée {estimated_power} watts.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Voltage",
+                    "result_key": "voltage"
+                },
+                "status": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Status",
+                    "result_key": "status"
+                },
+                "estimated_runtime": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Runtime",
+                    "result_key": "estimated_runtime"
+                },
+                "estimated_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Power",
+                    "result_key": "estimated_power"
+                }
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_thresholds",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "seuil batterie vide",
-            "a partir de quand batterie vide",
-            "error battery level",
-            "niveau critique batterie",
-            "tension batterie critique"
+            "etat de charge detaille",
+            "infos charge batterie",
+            "comment se passe la charge"
         ],
-        "answer": "Le seuil critique batterie vide est de 11.5 V.",
-        "intent": null,
+        "answer": "Le mode de charge est {charge_mode}, description {charge_mode_description}, alimentation externe {external_power}.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "charge_mode": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Charge Mode",
+                    "result_key": "charge_mode"
+                },
+                "charge_mode_description": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Charge Mode Description",
+                    "result_key": "charge_mode_description"
+                },
+                "external_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "External Power",
+                    "result_key": "external_power"
+                }
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_thresholds",
-            "risk": "medium",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "battery ok",
-            "diagnostic battery ok",
-            "message batterie ok",
-            "etat batterie ok",
-            "resume battery ok"
-        ],
-        "answer": "Diagnostic reçu : batterie en état normal.",
-        "intent": null,
-        "meta": {
-            "source": "event",
-            "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_monitor",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "low battery",
-            "batterie faible",
-            "diagnostic low battery",
-            "alerte batterie faible",
-            "message batterie faible"
+            "etat alimentation robot",
+            "alimentation pc et cartes",
+            "robot est il bien alimente"
         ],
-        "answer": "Diagnostic reçu : batterie faible. Recharge recommandée.",
-        "intent": null,
+        "answer": "Alimentation externe {external_power}, PC On {pc_on}, Boards On {boards_on}.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "external_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "External Power",
+                    "result_key": "external_power"
+                },
+                "pc_on": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "PC On",
+                    "result_key": "pc_on"
+                },
+                "boards_on": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Boards On",
+                    "result_key": "boards_on"
+                }
+            }
+        },
         "meta": {
-            "source": "event",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_monitor",
-            "risk": "medium",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "empty battery",
-            "batterie vide",
-            "diagnostic batterie vide",
-            "alerte batterie vide",
-            "message batterie vide"
-        ],
-        "answer": "Diagnostic reçu : batterie vide. Arrêt imminent si non rechargée.",
-        "intent": null,
-        "meta": {
-            "source": "event",
-            "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_monitor",
-            "risk": "high",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "no communication batterie",
-            "pas de communication batterie",
-            "diagnostic communication batterie",
-            "erreur communication batterie",
-            "batterie non detectee"
-        ],
-        "answer": "Diagnostic reçu : pas de communication avec le contrôleur batterie.",
-        "intent": null,
-        "meta": {
-            "source": "event",
-            "domain": "battery",
-            "intent_kind": "status",
-            "component": "battery_comm",
-            "risk": "medium",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "la batterie peut elle etre calibree",
-            "calibration batterie",
-            "peux tu calibrer la batterie",
-            "procedure calibration batterie",
-            "reset batterie"
-        ],
-        "answer": "La calibration de la batterie dépend du BMS et n'est pas gérée directement dans ce domaine.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_limits",
-            "risk": "medium",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "peux tu couper l alimentation",
-            "eteins la batterie",
-            "desactive alimentation",
-            "coupe le courant batterie",
-            "arrete alimentation robot"
-        ],
-        "answer": "Je ne peux pas couper l'alimentation batterie via ce domaine.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_limits",
-            "risk": "high",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "que peut faire le module batterie",
-            "fonction batterie",
-            "capacites module batterie",
-            "a quoi sert batterie",
-            "role monitoring batterie"
-        ],
-        "answer": "Le module batterie surveille la tension, l'état de charge et publie des diagnostics sur l'alimentation.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_monitor",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }
     },
     {
         "question_variants": [
-            "la batterie peut elle indiquer la sante interne",
-            "etat sante batterie",
-            "soh batterie",
-            "degradation batterie",
-            "usure batterie"
+            "comparaison tension actuelle nominale",
+            "ecart tension batterie",
+            "voltage actuel vs nominal"
         ],
-        "answer": "Ce domaine fournit la tension et l'état de charge, mais pas un indicateur détaillé de santé interne.",
-        "intent": null,
+        "answer": "La tension actuelle est {voltage} volt pour une tension nominale de {nominal_voltage} volt.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Voltage",
+                    "result_key": "voltage"
+                },
+                "nominal_voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Nominal Voltage",
+                    "result_key": "nominal_voltage"
+                }
+            }
+        },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_battery",
             "domain": "battery",
-            "intent_kind": "explain",
-            "component": "battery_limits",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "fiche technique batterie",
+            "caracteristiques batterie",
+            "specs batterie"
+        ],
+        "answer": "Type {type}, tension nominale {nominal_voltage} volt, capacité {capacity} Ah.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "type": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Type",
+                    "result_key": "type"
+                },
+                "nominal_voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Nominal Voltage",
+                    "result_key": "nominal_voltage"
+                },
+                "capacity": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Capacity",
+                    "result_key": "capacity"
+                }
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "conso et autonomie batterie",
+            "puissance et temps restant",
+            "batterie consommation actuelle"
+        ],
+        "answer": "Puissance estimée {estimated_power} watts, extras {estimated_extras} watts, autonomie estimée {estimated_runtime} minutes.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "estimated_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Power",
+                    "result_key": "estimated_power"
+                },
+                "estimated_extras": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Extras",
+                    "result_key": "estimated_extras"
+                },
+                "estimated_runtime": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Runtime",
+                    "result_key": "estimated_runtime"
+                }
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "etat operationnel batterie",
+            "batterie et systeme actifs",
+            "etat global alimentation robot"
+        ],
+        "answer": "Status batterie {status}, alimentation externe {external_power}, PC On {pc_on}, Boards On {boards_on}.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "status": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Status",
+                    "result_key": "status"
+                },
+                "external_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "External Power",
+                    "result_key": "external_power"
+                },
+                "pc_on": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "PC On",
+                    "result_key": "pc_on"
+                },
+                "boards_on": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Boards On",
+                    "result_key": "boards_on"
+                }
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "donne le profil batterie actuel",
+            "profil batterie en direct",
+            "etat technique batterie"
+        ],
+        "answer": "Type {type}, tension actuelle {voltage} volt, tension nominale {nominal_voltage} volt, capacité {capacity} Ah.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "type": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Type",
+                    "result_key": "type"
+                },
+                "voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Voltage",
+                    "result_key": "voltage"
+                },
+                "nominal_voltage": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Nominal Voltage",
+                    "result_key": "nominal_voltage"
+                },
+                "capacity": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Capacity",
+                    "result_key": "capacity"
+                }
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "etat charge et autonomie",
+            "suivi charge en cours",
+            "charge batterie et temps restant"
+        ],
+        "answer": "Mode de charge {charge_mode} ({charge_mode_description}), puissance {estimated_power} watts, autonomie {estimated_runtime} minutes.",
+        "intent": {
+            "action": "get_multi_state",
+            "params": {
+                "charge_mode": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Charge Mode",
+                    "result_key": "charge_mode"
+                },
+                "charge_mode_description": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Charge Mode Description",
+                    "result_key": "charge_mode_description"
+                },
+                "estimated_power": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Power",
+                    "result_key": "estimated_power"
+                },
+                "estimated_runtime": {
+                    "hardware": "Qboard_3",
+                    "category": "battery_ctrl: Battery Status",
+                    "key": "Estimated Runtime",
+                    "result_key": "estimated_runtime"
+                }
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery",
+            "domain": "battery",
+            "intent_kind": "get",
+            "component": "battery",
             "risk": "low",
             "lang": "fr"
         }

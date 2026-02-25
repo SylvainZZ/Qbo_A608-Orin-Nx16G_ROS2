@@ -22,10 +22,11 @@ class QALoader:
     # ========================================
     # LOAD EXISTING INDEX
     # ========================================
-    def load_latest_index(self):
+    def load_latest_index(self, prefix="index"):
 
         try:
-            files = [f for f in os.listdir(self.llm_dir) if f.endswith('.faiss')]
+            files = [f for f in os.listdir(self.llm_dir)
+                    if f.startswith(prefix + "_") and f.endswith(".faiss")]
             if not files:
                 self.logger.warn("⚠ Aucun index FAISS trouvé.")
                 return
@@ -60,7 +61,7 @@ class QALoader:
                 return
 
             self.logger.info(f"📦 {len(self.qa_pairs)} variantes chargées")
-            self.logger.info(f"🔎 Index type: {type(self.index)} | metric: {self.index.metric_type}")
+            # self.logger.info(f"🔎 Index type: {type(self.index)} | metric: {self.index.metric_type}")
             self.logger.info(f"✅ Index chargé : {latest_faiss}")
 
         except Exception as e:
@@ -87,9 +88,9 @@ class QALoader:
 
         # normalisation requête
         qvec = qvec / np.linalg.norm(qvec, axis=1, keepdims=True)
-        print("Norm min/max:",
-            np.min(np.linalg.norm(qvec, axis=1)),
-            np.max(np.linalg.norm(qvec, axis=1)))
+        # print("Norm min/max:",
+        #     np.min(np.linalg.norm(qvec, axis=1)),
+        #     np.max(np.linalg.norm(qvec, axis=1)))
 
         scores, indices = self.index.search(qvec, 1)
 
@@ -127,26 +128,23 @@ class QALoader:
 
         # normalisation requête
         qvec = qvec / np.linalg.norm(qvec, axis=1, keepdims=True)
-        print("Norm min/max:",
-            np.min(np.linalg.norm(qvec, axis=1)),
-            np.max(np.linalg.norm(qvec, axis=1)))
+        # print("Norm min/max:",
+        #     np.min(np.linalg.norm(qvec, axis=1)),
+        #     np.max(np.linalg.norm(qvec, axis=1)))
 
         scores, indices = self.index.search(qvec, k)
 
         results = []
 
-        for i in range(len(indices[0])):
-            idx = indices[0][i]
-
+        for idx, score in zip(indices[0], scores[0]):
+            if idx < 0:
+                continue
             if idx >= len(self.qa_pairs):
                 continue
 
-            raw_score = scores[0][i]
-            confidence = float(raw_score)
-
             results.append({
                 "item": self.qa_pairs[idx]["entry"],
-                "score": confidence
+                "score": float(score)
             })
 
         return results
@@ -154,7 +152,7 @@ class QALoader:
     # ========================================
     # REBUILD INDEX
     # ========================================
-    def rebuild_index(self):
+    def rebuild_index(self, prefix="index", filter_fn=None):
 
         if not self.data_dir:
             return False, "DATA_DIR non défini."
@@ -173,6 +171,8 @@ class QALoader:
 
                     if isinstance(data, list):
                         all_entries.extend(data)
+                        if filter_fn is not None:
+                            all_entries = [e for e in all_entries if filter_fn(e)]
                     else:
                         self.logger.warn(
                             f"⚠ Fichier ignoré (format invalide) : {fname}"
@@ -241,9 +241,9 @@ class QALoader:
             # =====================================================
 
             now = datetime.now().strftime("%Y_%m_%d_%H_%M")
-            index_file = f"index_{now}.faiss"
-            variants_file = f"index_{now}.json"
-            entries_file = f"entries_{now}.json"
+            index_file = f"{prefix}_{now}.faiss"
+            variants_file = f"{prefix}_{now}.json"
+            entries_file = f"{prefix}_entries_{now}.json"
 
             faiss.write_index(index, os.path.join(self.llm_dir, index_file))
 
@@ -256,7 +256,7 @@ class QALoader:
             self.logger.info(f"✅ Index sauvegardé : {index_file}")
             self.logger.info(f"📦 {len(self.qa_pairs)} variantes indexées")
 
-            self.load_latest_index()
+            self.load_latest_index(prefix=prefix)
 
             return True, f"Index créé avec {len(self.qa_pairs)} variantes."
 

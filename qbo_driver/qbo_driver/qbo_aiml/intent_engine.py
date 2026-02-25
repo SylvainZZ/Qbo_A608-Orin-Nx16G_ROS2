@@ -1,14 +1,6 @@
 import rclpy
 from rosidl_runtime_py.utilities import get_message, get_service
-
-
-''' IntentEngine:
-- Reçoit un intent structuré (action + params)
-- Accède à l'état robot partagé (diagnostics)
-- Résout les paramètres dynamiques (ex: {battery_voltage})
-- Exécute l'action correspondante (publication topic ou appel service)
-
-'''
+from qbo_driver.qbo_aiml.constants import COLOR_TRANSLATIONS_FR
 
 class IntentEngine:
 
@@ -19,12 +11,10 @@ class IntentEngine:
         self.node = node
 
         self.intent_handlers = {
-            "get_led": self.intent_get_led,
-            "set_led": self.intent_set_led,
-            "test_leds": self.intent_test_leds,
-            "get_battery": self.intent_get_battery,
-            "get_temperature": self.intent_get_temperature,
-            "calibrate_imu": self.intent_calibrate_imu
+            "publish_topic": self.intent_publish_topic,
+            "call_service": self.intent_call_service,
+            "get_multi_state": self.intent_get_multi_state,
+            "get_state": self.intent_get_state
         }
 
     # =====================================================
@@ -63,6 +53,24 @@ class IntentEngine:
 
         return resolved
 
+    def intent_publish_topic(self, intent, robot_state, params):
+        try:
+            resolved = self.resolve_params(intent.get("params", {}), params)
+
+            target = intent.get("target")
+            msg_type = intent.get("msg_type")
+
+            if not target or not msg_type:
+                self.node.get_logger().warn("❌ Intent publish_topic incomplet (target/msg_type).")
+                return {"status": "failed"}
+
+            self.publish_ros_topic(target, msg_type, resolved)
+            return {"status": "sent"}
+
+        except Exception as e:
+            self.node.get_logger().error(f"❌ Erreur publish_topic : {e}")
+            return {"status": "failed"}
+
     def publish_ros_topic(self, target, msg_type, args):
 
         msg_class = get_message(msg_type)
@@ -72,6 +80,24 @@ class IntentEngine:
         pub.publish(msg)
 
         self.node.get_logger().info(f"✅ Topic publié sur {target} avec {args}")
+
+    def intent_call_service(self, intent, robot_state, params):
+        try:
+            _ = self.resolve_params(intent.get("params", {}), params)
+
+            target = intent.get("target")
+            srv_type = intent.get("srv_type") or intent.get("msg_type")
+
+            if not target or not srv_type:
+                self.node.get_logger().warn("❌ Intent call_service incomplet (target/srv_type).")
+                return {"status": "failed"}
+
+            ok = self.call_ros_service(target, srv_type)
+            return {"status": "success" if ok else "failed"}
+
+        except Exception as e:
+            self.node.get_logger().error(f"❌ Erreur call_service : {e}")
+            return {"status": "failed"}
 
     def call_ros_service(self, target: str, srv_type: str, timeout: float = 5.0) -> bool:
         """
@@ -119,100 +145,46 @@ class IntentEngine:
             return False
 
     # =====================================================
-    # INTENTS NOSE
+    # INTENTS GÉNÉRIQUES
     # =====================================================
 
-    def intent_get_led(self, intent, robot_state, params):
+    def intent_get_state(self, intent, robot_state, params):
+
+        cfg = intent.get("params", {})
+        hw = cfg.get("hardware")
+        cat = cfg.get("category")
+        key = cfg.get("key")
+        map_name = cfg.get("map")
+
+        out_key = cfg.get("result_key") or "value"
 
         try:
-            nose = robot_state.get("Q.Board_5", {}) \
-                .get("nose_ctrl: Nose LED", {})
+            value = robot_state[hw][cat]["values"][key]
+        except KeyError:
+            return {out_key: None}
 
-            values = nose.get("values", {})
+        # Mapping optionnel
+        if map_name == "color":
+            value = COLOR_TRANSLATIONS_FR.get(value, value)
 
-            color_code = int(values.get("color_code", 0))
-            color_name = values.get("color_name", "éteint").lower()
+        return {out_key: value}
 
-            if color_code == 0:
-                return {
-                    "state": "off",
-                    "color_code": 0,
-                    "color_label": "éteint"
-                }
+    def intent_get_multi_state(self, intent, robot_state, params):
 
-            return {
-                "state": "on",
-                "color_code": color_code,
-                "color_label": color_name
-            }
+        results = {}
+        config = intent.get("params", {})
 
-        except Exception:
-            return {
-                "state": "unknown",
-                "color_label": "inconnu"
-            }
+        for result_key, path in config.items():
 
-    def intent_set_led(self, intent, robot_state, params):
+            hw = path.get("hardware")
+            cat = path.get("category")
+            key = path.get("key")
 
-        resolved = self.resolve_params(intent.get("params", {}), params)
+            try:
+                value = robot_state[hw][cat]["values"][key]
+            except KeyError:
+                value = None
 
-        color_code = resolved.get("color", 0)
+            results[result_key] = value
 
-        # # Mise à jour état local (sera écrasé par diagnostics ensuite)
-        # robot_state.setdefault("nose", {})
-        # robot_state["nose"]["color_code"] = color_code
-
-        if intent.get("type") == "topic":
-            self.publish_ros_topic(intent["target"], intent["msg_type"], resolved)
-
-        return None
-
-    def intent_test_leds(self, intent, robot_state, params):
-
-        if intent.get("type") == "service":
-            self.call_ros_service(intent["target"], intent["msg_type"])
-
-        return None
-
-    # =====================================================
-    # INTENTS IMU
-    # =====================================================
-
-    def intent_calibrate_imu(self, intent, robot_state, params):
-
-        if intent.get("type") == "service":
-            success = self.call_ros_service(intent["target"], intent["msg_type"])
-
-        if success:
-            return {"status": "success"}
-        else:
-            return {"status": "failed"}
-
-    # =====================================================
-    # INTENTS BATTERY
-    # =====================================================
-
-    def intent_get_battery(self, intent, robot_state, params):
-
-        battery = robot_state.get("battery", {})
-        voltage = battery.get("voltage", 0)
-        runtime = battery.get("runtime_min", 0)
-        charging = battery.get("external_power", False)
-
-        return {
-            "voltage": voltage,
-            "runtime": runtime,
-            "charging": charging
-        }
-
-    # =====================================================
-    # INTENTS TEMPERATURE
-    # =====================================================
-
-    def intent_get_temperature(self, intent, robot_state, params):
-
-        temp = robot_state.get("temperature", {})
-        return {
-            "cpu": temp.get("cpu", 0),
-            "gpu": temp.get("gpu", 0)
-        }
+        return results

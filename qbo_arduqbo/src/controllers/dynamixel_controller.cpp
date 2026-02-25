@@ -351,7 +351,7 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
             } else if (power_watts > 10.0f) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High power consumption");
             } else if (!servo->isTorqueEnabled()) {
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Torque disabled (idle)");
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Torque disabled (idle)");
             } else {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "OK");
             }

@@ -1,0 +1,31 @@
+[
+  {
+    "question_variants": [
+      "Torque disabled (idle)",
+      "torque disabled idle",
+      "dynamixel torque disabled",
+      "motor torque disabled",
+      "Torque désactivé (idle)"
+    ],
+    "answer": [
+      "J'ai détecté que le torque moteur est désactivé.",
+      "Le torque des Dynamixel est désactivé."
+    ],
+    "intent": {
+      "type": "service",
+      "action": "enable_torque",
+      "target": "/qbo_arduqbo/dynamixel/enable_torque",
+      "msg_type": "qbo_msgs/srv/TorqueEnable",
+      "params": {}
+    },
+    "meta": {
+      "source": "qbo_arduqbo/dynamixel/diagnostics",
+      "domain": "pan_and_tilt",
+      "component": "dynamixel",
+      "intent_kind": "diagnostic",
+      "risk": "small",
+      "lang": "fr",
+      "severity_min": "info"
+    }
+  }
+]

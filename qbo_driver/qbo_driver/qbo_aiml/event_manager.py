@@ -6,10 +6,22 @@ class EventManager:
     VALID_STATES = [
         "inactive",
         "active",
+        "notified",
         "proposed",
         "executing",
-        "resolved"
+        "resolved",
+        "ignored"
     ]
+
+    ALLOWED_TRANSITIONS = {
+        "inactive": ["active"],
+        "active": ["notified", "proposed", "resolved"],
+        "notified": ["proposed", "resolved", "ignored"],
+        "proposed": ["executing", "resolved"],
+        "executing": ["resolved"],
+        "resolved": ["active"],
+        "ignored": ["active", "resolved"]
+    }
 
     def __init__(self, cooldown_default=30, logger=None):
 
@@ -46,7 +58,7 @@ class EventManager:
                 "state": "inactive",
                 "severity": severity,
                 "message": message,
-                "first_seen": now,
+                "first_seen": None,
                 "last_change": now,
                 "last_update": now,
                 "cooldown_until": 0,
@@ -55,9 +67,38 @@ class EventManager:
 
         return self.events[key]
 
-    # -----------------------------------------------------
-    # Mise à jour d’un event (entrée depuis diagnostics)
-    # -----------------------------------------------------
+    # =====================================================
+    # Transition centralisée (FSM)
+    # =====================================================
+    def _transition(self, event, new_state):
+
+        current = event["state"]
+
+        if new_state not in self.ALLOWED_TRANSITIONS.get(current, []):
+            self._log(
+                "error",
+                f"❌ Transition invalide {current} → {new_state} "
+                f"pour {event['key']}"
+            )
+            return False
+
+        event["state"] = new_state
+        event["last_change"] = time.time()
+
+        self._archive_transition(event, new_state)
+
+        return True
+
+    def get_events_by_state(self, state):
+        return [
+            (key, event)
+            for key, event in self.events.items()
+            if event["state"] == state
+        ]
+
+    # =====================================================
+    # Update depuis diagnostics
+    # =====================================================
     def update_event(self, key, active=True, severity="info",
                      message="", cooldown=None):
 
@@ -70,37 +111,44 @@ class EventManager:
         event["message"] = message
         event["last_update"] = now
 
-        # 🔒 Cooldown protection
+        # 🔒 Protection cooldown
         if active and now < event["cooldown_until"]:
             return
 
-        # 🔹 Activation
+        # -----------------------------
+        # Activation
+        # -----------------------------
         if active:
 
             if event["state"] in ["inactive", "resolved"]:
-                event["state"] = "active"
-                event["last_change"] = now
-                self.event_queue.append(event)
 
-                self._log(
-                    "warn",
-                    f"🚨 Event activé: {key} ({severity}) | {message}"
-                )
+                if event["first_seen"] is None:
+                    event["first_seen"] = now
 
-        # 🔹 Résolution
+                if self._transition(event, "active"):
+                    self.event_queue.append(event)
+
+                    self._log(
+                        "warn",
+                        f"🚨 Event activé: {key} ({severity}) | {message}"
+                    )
+
+        # -----------------------------
+        # Résolution automatique (diagnostic revenu OK)
+        # -----------------------------
         else:
-            if event["state"] not in ["inactive", "resolved"]:
-                event["state"] = "resolved"
-                event["last_change"] = now
-                event["cooldown_until"] = now + cooldown
 
-                self._archive_event(event)
+            if event["state"] in ["active", "proposed", "executing"]:
 
-                self._log("info", f"✅ Event résolu: {key}")
+                if self._transition(event, "resolved"):
 
-    # -----------------------------------------------------
-    # Récupération prochain event à traiter
-    # -----------------------------------------------------
+                    event["cooldown_until"] = now + cooldown
+
+                    self._log("info", f"✅ Event résolu: {key}")
+
+    # =====================================================
+    # Dispatch prochain event
+    # =====================================================
     def get_next_event(self):
 
         if not self.event_queue:
@@ -108,7 +156,6 @@ class EventManager:
 
         now = time.time()
 
-        # 🔹 Filtrer snooze + état valide
         valid = []
 
         for event in list(self.event_queue):
@@ -124,7 +171,7 @@ class EventManager:
         if not valid:
             return None
 
-        # 🔹 Priorité
+        # Priorité ERROR > WARNING > INFO
         sorted_events = sorted(
             valid,
             key=lambda e: {
@@ -137,46 +184,39 @@ class EventManager:
         event = sorted_events[0]
         self.event_queue.remove(event)
 
-        event["state"] = "proposed"
-        event["last_change"] = now
-
-        self._log("info", f"📢 Event dispatch: {event['key']}")
-
+        # if self._transition(event, "proposed"):
+        #     self._log("info", f"📢 Event dispatch: {event['key']}")
         return event
 
-    # -----------------------------------------------------
-    # Marquer en exécution (après confirmation utilisateur)
-    # -----------------------------------------------------
+        #return None
+
+    # =====================================================
+    # Marquer en exécution (après confirmation)
+    # =====================================================
     def mark_executing(self, key):
 
         event = self.events.get(key)
         if not event:
             return
 
-        event["state"] = "executing"
-        event["last_change"] = time.time()
+        self._transition(event, "executing")
 
-    # -----------------------------------------------------
-    # Résolution explicite (ex: action réussie)
-    # -----------------------------------------------------
+    # =====================================================
+    # Résolution explicite (action réussie)
+    # =====================================================
     def resolve_event(self, key):
 
         event = self.events.get(key)
         if not event:
             return
 
-        if event["state"] != "inactive":
-            event["state"] = "resolved"
-            event["last_change"] = time.time()
+        if self._transition(event, "resolved"):
             event["cooldown_until"] = time.time() + self.cooldown_default
-
-            self._archive_event(event)
-
             self._log("info", f"✅ Event résolu: {key}")
 
-    # -----------------------------------------------------
-    # Snooze temporel
-    # -----------------------------------------------------
+    # =====================================================
+    # Snooze
+    # =====================================================
     def snooze_event(self, key, duration=30):
 
         event = self.events.get(key)
@@ -187,24 +227,21 @@ class EventManager:
 
         self._log("info", f"😴 Event snoozed: {key} ({duration}s)")
 
-    # -----------------------------------------------------
-    # Archive historique
-    # -----------------------------------------------------
-    def _archive_event(self, event):
+    # =====================================================
+    # Archive transitions
+    # =====================================================
+    def _archive_transition(self, event, transition_type):
 
         self.history.append({
             "key": event["key"],
             "severity": event["severity"],
             "message": event["message"],
-            "first_seen": event["first_seen"],
-            "resolved_at": event["last_change"]
+            "transition": transition_type,
+            "timestamp": time.time()
         })
 
-        # Reset état interne
-        event["state"] = "inactive"
-
-    # -----------------------------------------------------
-    # Accès historique
-    # -----------------------------------------------------
+    # =====================================================
+    # Historique
+    # =====================================================
     def get_history(self):
         return self.history

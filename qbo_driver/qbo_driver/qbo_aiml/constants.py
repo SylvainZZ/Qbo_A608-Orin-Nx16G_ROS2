@@ -41,6 +41,18 @@ COLOR_KEYWORDS = {
     "blanc": 7
 }
 
+# Label firmware → traduction FR
+COLOR_TRANSLATIONS_FR = {
+    "Off": "éteint",
+    "Red": "rouge",
+    "Blue": "bleu",
+    "Purple": "violet",
+    "Green": "vert",
+    "Yellow": "jaune",
+    "Magenta": "magenta",
+    "White": "blanc"
+}
+
 # ==========================
 # PHRASES FALLBACK
 # ==========================

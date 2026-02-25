@@ -1,36 +1,18 @@
 from diagnostic_msgs.msg import DiagnosticArray
 import copy
 import time
+import random
+import os
+import json
 
 from qbo_driver.qbo_aiml.constants import BATTERY_LOW_VOLTAGE
 
 
-'''
-Ce module parse les messages de diagnostic ROS pour extraire des informations sur l'état du robot (batterie, moteurs, IMU, température)
-et détecter des événements importants (ex: batterie faible, IMU non calibrée).
-Il est utilisé par l'AIMLNode pour alimenter sa compréhension du contexte robotique et adapter les réponses de l'IA en conséquence.
-- DiagnosticsParser : classe qui s'abonne à /diagnostics, parse les messages et met à jour le robot_state du node parent.
-- parse_battery(), parse_motors(), parse_imu(), parse_nose(), parse_orin() : méthodes de parsing spécifiques pour chaque composant.
-- detect_changes() : compare l'ancien et le nouveau état du robot pour détecter des événements importants et générer des alertes.
-
-🔥 Ce que ce module apporte :
-    ✔ Extraction d'informations détaillées sur l'état du robot
-    ✔ Détection d'événements critiques
-    ✔ Mise à jour automatique du robot_state
-    ✔ Intégration transparente avec l'AIMLNode
-
-🧠 Évolutions futures possibles :
-    - Ajouter parsing pour d'autres composants (ex: caméra, micro)
-    - Ajouter détection d'événements plus complexes (ex: surchauffe + batterie faible)
-    - Intégrer apprentissage pour détecter des patterns d'événements
-    - Ajouter publication de topics d'état pour d'autres nodes
-
-'''
-
 class DiagnosticsParser:
 
-    def __init__(self, node):
+    def __init__(self, node, watchers_dir):
         self.node = node
+        self.watchers_dir = watchers_dir
         self.node.create_subscription(
             DiagnosticArray,
             '/diagnostics',
@@ -40,6 +22,21 @@ class DiagnosticsParser:
         self.initialized = False
         self._level_memory = {}   # {event_key: {"level": int, "since": timestamp}}
         self._stability_delay = 3.0  # secondes de stabilité requise
+        self.previous_state = {}
+        self.last_spoken = {}
+
+        rules_path = os.path.join(self.watchers_dir, "state_watchers.json")
+
+        if not os.path.exists(rules_path):
+            self.node.get_logger().warn(
+                f"Fichier watchers introuvable : {rules_path}"
+            )
+            self.state_rules = []
+        else:
+            with open(rules_path, "r") as f:
+                self.state_rules = json.load(f)
+
+        self.last_spoken = {}
 
     def safe_level(self, level):
         if isinstance(level, int):
@@ -54,7 +51,7 @@ class DiagnosticsParser:
 
     def callback(self, msg: DiagnosticArray):
 
-        # old_state = copy.deepcopy(self.node.robot_state)
+        old_state = copy.deepcopy(self.node.robot_state)
 
         for status in msg.status:
 
@@ -80,6 +77,7 @@ class DiagnosticsParser:
             return
 
         self.detect_changes(self.node.robot_state)
+        self.detect_state_transitions(old_state, self.node.robot_state)
 
     # ============================
     # DETECTION CHANGEMENTS
@@ -152,3 +150,66 @@ class DiagnosticsParser:
                             event_key,
                             active=False
                         )
+    # ============================
+    # DÉTECTION CHANGEMENT MODE CHARGE
+    # ============================
+    def detect_state_transitions(self, old, new):
+
+        for hardware, categories in new.items():
+
+            for category, data in categories.items():
+
+                for rule in self.state_rules:
+
+                    match = rule["match"]
+
+                    if match.get("hardware_contains") not in hardware:
+                        continue
+
+                    if match.get("category_contains") not in category:
+                        continue
+
+                    key = match.get("key")
+                    if key not in data["values"]:
+                        continue
+
+                    new_val = data["values"].get(key)
+
+                    try:
+                        old_val = old[hardware][category]["values"].get(key)
+                    except KeyError:
+                        old_val = None
+
+                    if new_val == old_val:
+                        continue
+
+                    self.handle_rule(rule, old_val, new_val)
+
+    def handle_rule(self, rule, old, new):
+
+        rule_id = rule["id"]
+        cooldown = rule.get("cooldown", 5)
+
+        now = time.time()
+        last = self.last_spoken.get(rule_id, 0)
+
+        if now - last < cooldown:
+            return
+
+        # Cas transitions mapping (battery)
+        if "transitions" in rule:
+            phrases = rule["transitions"].get(new)
+            if not phrases:
+                return
+            text = random.choice(phrases)
+
+        # Cas simple on_change (IP)
+        elif "on_change" in rule:
+            phrases = rule["on_change"]
+            text = random.choice(phrases).format(old=old, new=new)
+
+        else:
+            return
+
+        self.node.enqueue_speech(text, priority="info")
+        self.last_spoken[rule_id] = now

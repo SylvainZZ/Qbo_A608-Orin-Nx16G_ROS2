@@ -10,19 +10,100 @@
         ],
         "answer": "D'accord, je mets la LED du nez en rouge.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 1
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "le nez fonctionne",
+            "etat du nez",
+            "statut led nez",
+            "est ce que la led du nez marche",
+            "diagnostic nez",
+            "controle du nez"
+        ],
+        "answer": "Je vais lancer un test des LED du nez pour vérifier le fonctionnement.",
+        "intent": {
+            "action": "call_service",
+            "target": "/qbo_arduqbo/nose_ctrl/test_leds",
+            "srv_type": "qbo_msgs/srv/TestLeds",
+            "params": {}
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_nose",
+            "domain": "nose",
+            "intent_kind": "test",
+            "component": "Qboard_5",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est la couleur du nez",
+            "couleur actuelle du nez",
+            "le nez est de quelle couleur",
+            "donne la couleur du nez",
+            "statut couleur nez",
+            "c est quoi la couleur du nez"
+        ],
+        "answer": "La couleur actuelle du nez est {color_name}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_5",
+                "category": "nose_ctrl: Nose Status",
+                "key": "color_name",
+                "result_key": "color_name",
+                "map": "color"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_nose",
+            "domain": "nose",
+            "intent_kind": "get",
+            "component": "Qboard_5",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "quelle est le code couleur du nez",
+            "code couleur actuel du nez",
+            "le nez a quel code couleur",
+            "donne le code couleur du nez",
+            "statut code couleur nez",
+            "c est quoi le code couleur du nez"
+        ],
+        "answer": "Le code couleur actuel du nez est {color_code}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_5",
+                "category": "nose_ctrl: Nose Status",
+                "key": "color_code",
+                "result_key": "color_code"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_nose",
+            "domain": "nose",
+            "intent_kind": "get",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -38,12 +119,11 @@
         ],
         "answer": "D'accord, je mets la LED du nez en vert.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 4
             }
         },
         "meta": {
@@ -66,12 +146,11 @@
         ],
         "answer": "D'accord, je mets la LED du nez en bleu.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 2
             }
         },
         "meta": {
@@ -94,12 +173,11 @@
         ],
         "answer": "D'accord, je mets la LED du nez en jaune.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 5
             }
         },
         "meta": {
@@ -122,12 +200,11 @@
         ],
         "answer": "D'accord, je mets la LED du nez en violet.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 3
             }
         },
         "meta": {
@@ -150,12 +227,11 @@
         ],
         "answer": "D'accord, je mets la LED du nez en blanc.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 7
             }
         },
         "meta": {
@@ -169,21 +245,20 @@
     },
     {
         "question_variants": [
-            "mets le nez en cyan",
-            "allume le nez en cyan",
-            "passe la led du nez en cyan",
-            "je veux le nez cyan",
-            "nez cyan",
-            "couleur du nez cyan"
+            "mets le nez en magenta",
+            "allume le nez en magenta",
+            "passe la led du nez en magenta",
+            "je veux le nez magenta",
+            "nez magenta",
+            "couleur du nez magenta"
         ],
-        "answer": "D'accord, je mets la LED du nez en cyan.",
+        "answer": "D'accord, je mets la LED du nez en magenta.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 6
             }
         },
         "meta": {
@@ -197,45 +272,16 @@
     },
     {
         "question_variants": [
-            "mets le nez en orange",
-            "allume le nez en orange",
-            "passe la couleur du nez en orange",
-            "je veux le nez orange",
-            "nez orange",
-            "couleur nez orange"
-        ],
-        "answer": "D'accord, je mets la LED du nez en orange.",
-        "intent": {
-            "type": "topic",
-            "action": "set_led",
-            "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
-            "msg_type": "qbo_msgs/msg/Nose",
-            "params": {
-                "color": "{color}"
-            }
-        },
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "set",
-            "component": "nose_led",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "mets le nez en couleur {color_label}",
-            "passe le nez en {color_label}",
-            "allume le nez en {color_label}",
-            "change la led du nez en {color_label}",
-            "je veux la couleur {color_label} sur le nez",
-            "nez couleur {color_label}"
+            "mets le nez en couleur {color}",
+            "passe le nez en {color}",
+            "allume le nez en {color}",
+            "change la led du nez en {color}",
+            "je veux la couleur {color} sur le nez",
+            "nez couleur {color}"
         ],
         "answer": "D'accord, je mets la LED du nez en {color_label}.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
@@ -262,12 +308,11 @@
         ],
         "answer": "D'accord, je coupe la LED du nez.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{color}"
+                "color": 0
             }
         },
         "meta": {
@@ -281,92 +326,25 @@
     },
     {
         "question_variants": [
-            "mets le nez au code {number}",
-            "couleur nez code {number}",
-            "applique le code couleur {number} au nez",
-            "passe le nez en code {number}",
-            "régle la couleur du nez sur {number}"
+            "mets le nez au code {color_code}",
+            "couleur nez code {color_code}",
+            "applique le code couleur {color_code} au nez",
+            "passe le nez en code {color_code}",
+            "régle la couleur du nez sur {color_code}"
         ],
-        "answer": "D'accord, je règle la LED du nez sur le code {number}.",
+        "answer": "D'accord, je règle la LED du nez sur le code {color_code}.",
         "intent": {
-            "type": "topic",
-            "action": "set_led",
+            "action": "publish_topic",
             "target": "/qbo_arduqbo/nose_ctrl/cmd_nose",
             "msg_type": "qbo_msgs/msg/Nose",
             "params": {
-                "color": "{number}"
+                "color": "{color_code}"
             }
         },
         "meta": {
             "source": "user",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "quelle est la couleur du nez",
-            "couleur actuelle du nez",
-            "le nez est de quelle couleur",
-            "donne la couleur du nez",
-            "statut couleur nez",
-            "c est quoi la couleur du nez"
-        ],
-        "answer": "La couleur actuelle du nez est {nose.color_name} avec le code {nose.color_code}.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "get",
-            "component": "robot_state",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "donne le code couleur du nez",
-            "code actuel du nez",
-            "quel est le code du nez",
-            "valeur du nez",
-            "code couleur nez",
-            "indice couleur nez"
-        ],
-        "answer": "Le nez est réglé sur le code {nose.color_code} et la couleur {nose.color_name}.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "get",
-            "component": "robot_state",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "le nez fonctionne",
-            "etat du nez",
-            "statut led nez",
-            "est ce que la led du nez marche",
-            "diagnostic nez",
-            "controle du nez"
-        ],
-        "answer": "Je peux lancer un test des LED du nez pour vérifier le fonctionnement.",
-        "intent": {
-            "type": "service",
-            "action": "test_leds",
-            "target": "/qbo_arduqbo/nose_ctrl/test_leds",
-            "msg_type": "std_srvs/srv/Trigger",
-            "params": {}
-        },
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "test",
             "component": "nose_led",
             "risk": "low",
             "lang": "fr"
@@ -381,12 +359,11 @@
             "test nose leds",
             "diagnostic test nez"
         ],
-        "answer": "D’accord, je lance le test des LED du nez.",
+        "answer": "D'accord, je lance le test des LED du nez.",
         "intent": {
-            "type": "service",
-            "action": "test_leds",
+            "action": "call_service",
             "target": "/qbo_arduqbo/nose_ctrl/test_leds",
-            "msg_type": "std_srvs/srv/Trigger",
+            "srv_type": "qbo_msgs/srv/TestLeds",
             "params": {}
         },
         "meta": {
@@ -409,10 +386,9 @@
         ],
         "answer": "D'accord, je lance le test des LED du nez.",
         "intent": {
-            "type": "service",
-            "action": "test_leds",
+            "action": "call_service",
             "target": "/qbo_arduqbo/nose_ctrl/test_leds",
-            "msg_type": "std_srvs/srv/Trigger",
+            "srv_type": "qbo_msgs/srv/TestLeds",
             "params": {}
         },
         "meta": {
@@ -420,6 +396,34 @@
             "domain": "nose",
             "intent_kind": "test",
             "component": "nose_led",
+            "risk": "low",
+            "lang": "fr"
+        }
+    },
+    {
+        "question_variants": [
+            "donne le code couleur du nez",
+            "code actuel du nez",
+            "quel est le code du nez",
+            "valeur du nez",
+            "code couleur nez",
+            "indice couleur nez"
+        ],
+        "answer": "Le code couleur actuel du nez est {color_code}.",
+        "intent": {
+            "action": "get_state",
+            "params": {
+                "hardware": "Qboard_5",
+                "category": "nose_ctrl: Nose Status",
+                "key": "color_code",
+                "result_key": "color_code"
+            }
+        },
+        "meta": {
+            "source": "user",
+            "domain": "nose",
+            "intent_kind": "get",
+            "component": "robot_state",
             "risk": "low",
             "lang": "fr"
         }
@@ -452,7 +456,7 @@
             "palette nez",
             "couleurs led nez"
         ],
-        "answer": "Le nez accepte un code couleur de 0 à 7. Je peux appliquer une couleur via {color_label} si elle correspond à un code valide.",
+        "answer": "Le nez accepte un code couleur de 0 à 7. Je peux appliquer une couleur si elle correspond à un code valide.",
         "intent": null,
         "meta": {
             "source": "user",
@@ -471,7 +475,7 @@
             "surprends moi avec une couleur du nez",
             "couleur random nez"
         ],
-        "answer": "Je peux mettre une couleur si tu me donnes {color_label} ou un code de 0 à 7.",
+        "answer": "Je peux mettre une couleur si tu me donnes une couleur ou un code de 0 à 7.",
         "intent": null,
         "meta": {
             "source": "user",

@@ -9,6 +9,8 @@ from qbo_msgs.srv import Text2Speach
 from std_srvs.srv import Trigger
 
 import os
+import time
+from collections import deque
 
 # 🔽 Imports internes
 from qbo_driver.qbo_aiml.qa_loader import QALoader
@@ -25,18 +27,13 @@ package_share = get_package_share_directory('qbo_driver')
 # === Configuration des chemins ===
 DATA_DIR = os.path.join(package_share, 'config', 'data_pairs')
 LLM_DIR = os.path.join(package_share, 'config', 'LLM')
+WATCHERS_DIRS = os.path.join(package_share, 'config', 'others')
 path_to_json = os.path.join(package_share, 'config', 'event_phrases.json')
 EMBED_MODEL_NAME = "intfloat/e5-small-v2"
 # GEN_MODEL_NAME = "bigscience/bloomz-1b1"
 
 
 class AIMLNode(Node):
-
-    THRESHOLDS = {
-        "listen": 0.70,      # actions
-        "diagnostic": 0.80,  # événements
-        "dialog": 0.75       # conversation pure
-    }
 
     def __init__(self):
         super().__init__('qbo_aiml')
@@ -64,9 +61,21 @@ class AIMLNode(Node):
             DATA_DIR
         )
 
+        # Index diagnostics dédié
+        self.qa_diag = QALoader(
+            LLM_DIR,
+            self.embed_model,
+            self.embed_tokenizer,
+            self.get_logger(),
+            DATA_DIR
+        )
+
         self.intent_engine = IntentEngine(self)
         self.parameter_extractor = ParameterExtractor()
-        self.diagnostics_parser = DiagnosticsParser(self)
+        self.diagnostics_parser = DiagnosticsParser(
+            node=self,
+            watchers_dir=WATCHERS_DIRS
+        )
         self.event_manager = EventManager(
             cooldown_default=30,
             logger=self.get_logger()
@@ -85,7 +94,13 @@ class AIMLNode(Node):
         # 🔹 3️⃣ Charger index RAG
         # ==============================
 
-        self.qa_loader.load_latest_index()
+        self.qa_loader.load_latest_index(prefix="index")   # ton index actuel (listen/CLI)
+        self.qa_diag.load_latest_index(prefix="diag")      # index diagnostics dédié
+        self.THRESHOLDS = {
+            "listen": 0.70,      # actions
+            "diagnostic": 0.88,  # événements
+            "dialog": 0.75       # conversation pure
+        }
 
         # ==============================
         # 🔹 4️⃣ Robot state
@@ -104,11 +119,21 @@ class AIMLNode(Node):
             self.listen_callback,
             10
         )
+        # ==============================
+        # 🔹 6️⃣ TTS Queue
+        # ==============================
+        self.speech_queue = deque()
+        self.speaking = False
 
         self.speaker_client = self.create_client(
             Text2Speach,
             '/qbo_driver/say_to_TTS'
         )
+        # self.create_timer(2.0, self._process_speech_queue)
+
+        # ==============================
+        # 🔹 7️⃣ Service de vectorisation à la demande
+        # ==============================
 
         self.vector_service = self.create_service(
             Trigger,
@@ -116,15 +141,27 @@ class AIMLNode(Node):
             self.vectorize_callback
         )
 
+        self._history_last_len = 0
+
         self.get_logger().info("✅ AIML prêt.")
 
     # ==============================
     # SERVICE VECTORISATION
     # ==============================
     def vectorize_callback(self, request, response):
-        success, message = self.qa_loader.rebuild_index()
-        response.success = success
-        response.message = message
+
+        ok1, msg1 = self.qa_loader.rebuild_index(
+            prefix="index",
+            filter_fn=None
+        )
+
+        ok2, msg2 = self.qa_diag.rebuild_index(
+            prefix="diag",
+            filter_fn=lambda e: (e.get("meta", {}).get("intent_kind") == "diagnostic")
+        )
+
+        response.success = bool(ok1 and ok2)
+        response.message = f"index: {msg1} | diag: {msg2}"
         return response
 
     # ==============================
@@ -141,53 +178,53 @@ class AIMLNode(Node):
         self.last_detected_params = self.parameter_extractor.extract(sentence)
         self.get_logger().info(f"🧪 extract() -> {self.last_detected_params}")
 
-        if self.pending_confirmation:
+        # if self.pending_confirmation:
 
-            confirm = self.last_detected_params.get("confirm")
-            self.get_logger().info(
-                f"🔎 En attente de confirmation... détecté : {confirm}"
-            )
+        #     confirm = self.last_detected_params.get("confirm")
+        #     self.get_logger().info(
+        #         f"🔎 En attente de confirmation... détecté : {confirm}"
+        #     )
 
-            intent_result = None
-            event_key = self.pending_confirmation["key"]
+        #     intent_result = None
+        #     event_key = self.pending_confirmation["key"]
 
-            if confirm == "yes":
+        #     if confirm == "yes":
 
-                self.get_logger().info("✅ Confirmation reçue")
+        #         self.get_logger().info("✅ Confirmation reçue")
 
-                self.event_manager.mark_executing(event_key)
+        #         self.event_manager.mark_executing(event_key)
 
-                intent_result = self.intent_engine.execute(
-                    self.pending_confirmation["intent"],
-                    self.robot_state,
-                    self.last_detected_params
-                )
+        #         intent_result = self.intent_engine.execute(
+        #             self.pending_confirmation["intent"],
+        #             self.robot_state,
+        #             self.last_detected_params
+        #         )
 
-                self.pending_confirmation = None
+        #         self.pending_confirmation = None
 
-                if intent_result and intent_result.get("status") == "success":
+        #         if intent_result and intent_result.get("status") == "success":
 
-                    self.say("Calibration lancée avec succès.")
-                    self.event_manager.resolve_event(event_key)
+        #             self.enqueue_speech("Calibration lancée avec succès.", priority="info")
+        #             self.event_manager.resolve_event(event_key)
 
-                else:
-                    self.say("La calibration a échoué.")
+        #         else:
+        #             self.enqueue_speech("La calibration a échoué.", priority="info")
 
-                return
+        #         return
 
-            if confirm == "no":
+        #     if confirm == "no":
 
-                self.say("D'accord, j'annule.")
+        #         self.enqueue_speech("D'accord, j'annule.", priority="info")
 
-                # on snooze pour éviter répétition immédiate
-                self.event_manager.snooze_event(event_key)
+        #         # on snooze pour éviter répétition immédiate
+        #         self.event_manager.snooze_event(event_key)
 
-                self.pending_confirmation = None
-                return
+        #         self.pending_confirmation = None
+        #         return
 
-            # réponse ambiguë
-            self.say("Tu veux que je le fasse ? Réponds par oui ou non.")
-            return
+        #     # réponse ambiguë
+        #     self.enqueue_speech("Tu veux que je le fasse ? Réponds par oui ou non.", priority="info")
+        #     return
 
 
         # 2️⃣ Recherche QA
@@ -200,7 +237,7 @@ class AIMLNode(Node):
         )
 
         if not best_item:
-            self.say("Je ne suis pas sûr de comprendre ta question.")
+            self.enqueue_speech("Je ne suis pas sûr de comprendre ta question.", priority="info")
             self.get_logger().warn("❌ Aucun match.")
             return
 
@@ -210,7 +247,7 @@ class AIMLNode(Node):
             threshold = self.THRESHOLDS["dialog"]
 
         if confidence < threshold:
-            self.say("Je ne sais pas répondre à ça pour le moment.")
+            self.enqueue_speech("Je ne sais pas répondre à ça pour le moment.", priority="info")
             self.get_logger().warn(f"❌ Score trop faible ({confidence:.2f})")
             return
 
@@ -233,7 +270,7 @@ class AIMLNode(Node):
         )
 
         # 5️⃣ TTS
-        self.say(final_text)
+        self.enqueue_speech(final_text, priority="info")
 
     def cli_loop(self):
         while rclpy.ok():
@@ -267,7 +304,7 @@ class AIMLNode(Node):
         answer_template = random.choice(answers)
 
         # 🔹 Si on a un retour d'intent (lecture état)
-        if intent_result:
+        if intent_result is not None:
 
             # Injecter toutes les valeurs dynamiques
             for key, value in intent_result.items():
@@ -305,19 +342,19 @@ class AIMLNode(Node):
 
             item = c["item"]
             score = c["score"]
-            print("Score FAISS brut:", c["score"])
+            # print("Score FAISS brut:", c["score"])
 
             # 🔹 Bonus si intent présent et phrase ressemble à commande
             if "intent" in item and any(v in sentence for v in ["allume", "mets", "éteins", "lance"]):
                 score += 0.15
 
             # 🔹 Bonus si slot détecté et QA utilise ce slot
-            if "color" in params and "{color}" in item.get("question", ""):
-                score += 0.20
+            # if "color" in params and "{color}" in item.get("question", ""):
+            #     score += 0.20
 
             # 🔹 Bonus si question pure sans intent pour phrase interrogative
-            if "intent" not in item and sentence.endswith("?"):
-                score += 0.10
+            # if "intent" not in item and sentence.endswith("?"):
+            #     score += 0.10
 
             if score > best_score:
                 best = item
@@ -334,6 +371,13 @@ class AIMLNode(Node):
 
     def process_events(self):
 
+        # self.get_logger().info("⏱️ Vérification événements diagnostics...")
+
+        # --- Debug: afficher les N dernières transitions ---
+        history = self.event_manager.get_history()
+        self._log_history_tail(history, n=5)
+
+        # --- Traiter les diagnostics actuels ---
         event = self.event_manager.get_next_event()
         if not event:
             return
@@ -342,60 +386,203 @@ class AIMLNode(Node):
         message = event["message"]
         severity = event["severity"]
 
-        self.event_manager.snooze_event(key, 20)
-
         self.get_logger().info(f"🧠 Traitement event: {key}")
 
-        best_item, confidence = self.qa_loader.search(message)
+        # requête enrichie (message seul est trop faible)
+        query = f"{key} | {severity} | {message}"
 
-        if confidence < self.THRESHOLDS["diagnostic"]:
-            self.get_logger().info(
-                f"⚠ Confidence trop faible pour event ({confidence:.2f})"
-            )
-            return
+        candidates = self.qa_diag.search_topk(query, k=20)
+        route = self._route_from_event(key, message)
 
-        final_text = self.generate_answer(
-            best_item,
-            None,
-            {}
+        self.get_logger().info(f"🔎 THRESHOLDS: {self.THRESHOLDS['diagnostic']}")
+
+        best_item, confidence = self._select_diag_candidate(
+            candidates,
+            route,
+            threshold=self.THRESHOLDS["diagnostic"],
+            margin=0.0
         )
 
-        self.say(final_text)
-
-        if "intent" in best_item:
-
-            self.pending_confirmation = {
-                "intent": best_item["intent"],
-                "key": key,
-                "prompt": final_text
-            }
-
-            self.event_manager.snooze_event(key)
-
+        if not best_item:
+            # fallback silencieux : pas de proposed, pas de TTS, snooze plus long
             self.get_logger().info(
-                f"🟡 Pending confirmation set for {key}"
+                f"⚠ Aucun QA diagnostic fiable (best={confidence:.2f}). Snooze long."
             )
+            self.event_manager.snooze_event(key, 120)
+            return
+
+        final_text = self.generate_answer(best_item, None, {})
+
+        # On notifie seulement
+        self.event_manager._transition(event, "notified")
+        self.event_manager.snooze_event(key, 60)
+
+        self.enqueue_speech(final_text, priority="info")
+
+        # On stocke le best_item pour plus tard
+        event["diag_item"] = best_item
+
+    def propose_event_action(self, key, event, best_item):
+
+        if event["state"] != "notified":
+            return
+
+        if "intent" not in best_item:
+            return
+
+        self.event_manager._transition(event, "proposed")
+
+        question = self.generate_answer(best_item, None, {})
+        self.enqueue_speech(question, priority="info")
+
+        self.pending_confirmation = {
+            "intent": best_item["intent"],
+            "key": key,
+            "prompt": question
+        }
+
+        self.event_manager.snooze_event(key, 30)
 
     # ============================
     # ENONCE L'INFORMATION
     # ============================
 
-    def say(self, text):
-
+    def enqueue_speech(self, text, priority="normal"):
         if not text:
             return
+        item = {
+            "text": text,
+            "priority": priority
+        }
+        # priorité haute passe devant
+        if priority == "critical":
+            self.speech_queue.appendleft(item)
+        else:
+            self.speech_queue.append(item)
 
+        self._process_speech_queue()
+
+    def _process_speech_queue(self):
+        if self.speaking:
+            return
+        if not self.speech_queue:
+            return
+        item = self.speech_queue.popleft()
+        self.speaking = True
+
+        self._speak(item["text"])
+
+    def _speak(self, text):
         self.get_logger().info(f"💬 {text}")
-
         if not hasattr(self, "speaker_client"):
+            self.speaking = False
+            self._process_speech_queue()
             return
 
-        if self.speaker_client.wait_for_service(timeout_sec=0.5):
-            req = Text2Speach.Request()
-            req.sentence = text
-            self.speaker_client.call_async(req)
-        else:
-            self.get_logger().debug("TTS non disponible.")
+        if not self.speaker_client.wait_for_service(timeout_sec=0.2):
+            self.get_logger().debug("TTS indisponible (mode silencieux).")
+            self.speaking = False
+            self._process_speech_queue()
+            return
+
+        req = Text2Speach.Request()
+        req.sentence = text
+
+        future = self.speaker_client.call_async(req)
+        future.add_done_callback(self._on_tts_done)
+
+    def _on_tts_done(self, future):
+        try:
+            future.result()
+        except Exception as e:
+            self.get_logger().error(f"TTS error: {e}")
+
+        self.speaking = False
+        self._process_speech_queue()
+
+    # ============================
+    # LOGGING HISTORIQUE
+    # ============================
+
+    def _log_history_tail(self, history, n=5):
+
+        if len(history) == self._history_last_len:
+            return  # rien de nouveau
+
+        self._history_last_len = len(history)
+
+        tail = history[-n:]
+        self.get_logger().info(f"📜 Historique (+{len(tail)} derniers):")
+
+        for h in tail:
+            ts = time.strftime("%H:%M:%S", time.localtime(h["timestamp"]))
+            self.get_logger().info(
+                f"  [{ts}] {h['transition']} | {h['key']} | {h['severity']} | {h.get('message','')}"
+            )
+
+    # ============================
+    # RECHERCHE DIAGNOSTIC APPROFONDIE
+    # ============================
+    def _route_from_event(self, key: str, message: str) -> dict:
+        # key = "hardware|category"
+        self.get_logger().info(f"🔍 Routing event: {key} | {message}")
+        category = key.split("|", 1)[1] if "|" in key else key
+        s = (category + " " + message).lower()
+
+        # mapping très simple (tu pourras raffiner)
+        if "dynamixel" in s or "torque" in s or "motor" in s:
+            self.get_logger().info("⚠ Routing vers moteurs.")
+            return {"domain": "motors", "component": "dynamixel"}
+        if "imu" in s:
+            self.get_logger().info("⚠ Routing vers IMU.")
+            return {"domain": "imu", "component": "imu"}
+        if "battery" in s or "voltage" in s:
+            self.get_logger().info("⚠ Routing vers batterie.")
+            return {"domain": "battery", "component": "battery"}
+        if "nose" in s or "led" in s:
+            self.get_logger().info("⚠ Routing vers nez.")
+            return {"domain": "nose", "component": "nose_led"}
+        self.get_logger().info("⚠ Routing générique appliqué.")
+        return {"domain": None, "component": None}
+
+    def _select_diag_candidate(self, candidates, route, threshold, margin=0.0):
+        # filtre strict meta.intent_kind == diagnostic + domain/component si dispo
+        self.get_logger().info(f"🔎 {len(candidates)} candidats diagnostics trouvés, filtrage en cours...")
+        self.get_logger().info(f"🔎 th: {threshold} | margin: {margin} | route: {route}")
+        filtered = []
+        for c in candidates:
+            item = c["item"]
+            meta = item.get("meta", {})
+            # self.get_logger().info(
+            #     f"DEBUG: meta={meta} route={route} score={c['score']}"
+            # )
+            if meta.get("intent_kind") != "diagnostic":
+                continue
+            if route.get("domain") and meta.get("domain") != route["domain"]:
+                continue
+            if route.get("component") and meta.get("component"):
+                if route["component"] != meta["component"]:
+                    # fallback souple : accepter si domain match fort
+                    if meta.get("domain") != route.get("domain"):
+                        continue
+            filtered.append(c)
+
+        if not filtered:
+            self.get_logger().info("⚠ Aucun candidat ne correspond au filtrage diagnostic.")
+            return None, 0.0
+
+        filtered.sort(key=lambda x: x["score"], reverse=True)
+        best = filtered[0]
+        if best["score"] < threshold:
+            return None, best["score"]
+
+        if len(filtered) >= 2:
+            if (best["score"] - filtered[1]["score"]) < margin:
+                return None, best["score"]
+
+        self.get_logger().info(f"DEBUG: {len(filtered)} candidats après filtrage")
+
+        return best["item"], best["score"]
 
 
 # ==================================
