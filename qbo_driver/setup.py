@@ -23,8 +23,8 @@ setup(
         ('share/' + package_name + '/config/data_pairs',
             glob.glob('config/data_pairs/*.json')),
         # Dossier vide pour les futurs .faiss/.json générés
-        ('share/' + package_name + '/config/LLM',
-            glob.glob('config/LLM/*.faiss') + glob.glob('config/LLM/*.json')),
+        ('share/' + package_name + '/config/index',
+            glob.glob('config/index/*.faiss') + glob.glob('config/index/*.json')),
         ('share/' + package_name + '/config/others',
             glob.glob('config/others/*.json')),
         # Fichiers de configuration pour TTS et ASR

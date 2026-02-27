@@ -23,6 +23,8 @@ class IntentEngine:
     def execute(self, intent: dict, robot_state: dict, params: dict):
 
         try:
+            if not intent:
+                return None
             action = intent.get("action", "")
             handler = self.intent_handlers.get(action)
 

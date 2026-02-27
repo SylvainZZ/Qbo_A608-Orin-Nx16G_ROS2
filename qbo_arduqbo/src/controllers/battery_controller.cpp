@@ -111,8 +111,8 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 
     status.add("Charge Mode", std::to_string(charge_mode));
     status.add("External Power", ext_power ? "Yes" : "No");
-    status.add("PC On", pc_on ? "Yes" : "No");
-    status.add("Boards On", boards_on ? "Yes" : "No");
+    status.add("Power PC", pc_on ? "Yes" : "No");
+    status.add("Power Qboard", boards_on ? "Yes" : "No");
 
     std::string charge_desc;
     switch (charge_mode) {
@@ -141,7 +141,9 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     status.add("Estimated Extras", formatDouble(fixed_extra_power_w));
 
     // Niveau batterie
-    if (voltage < error_battery_level_) {
+    if (!pc_on) {
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Battery Controller: Power PC Off");
+    } else if (voltage < error_battery_level_) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Battery Controller: Empty battery");
     } else if (voltage <= warn_battery_level_) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Battery Controller: Low battery");

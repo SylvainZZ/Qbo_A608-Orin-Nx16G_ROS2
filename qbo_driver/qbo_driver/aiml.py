@@ -2,7 +2,8 @@ import rclpy
 import random
 from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
-from transformers import AutoTokenizer, AutoModel
+
+# from transformers import BitsAndBytesConfig
 
 from qbo_msgs.msg import ListenResult
 from qbo_msgs.srv import Text2Speach
@@ -18,7 +19,7 @@ from qbo_driver.qbo_aiml.intent_engine import IntentEngine
 from qbo_driver.qbo_aiml.parameter_extractors import ParameterExtractor
 from qbo_driver.qbo_aiml.diagnostics_parser import DiagnosticsParser
 from qbo_driver.qbo_aiml.event_manager import EventManager
-from qbo_driver.qbo_aiml.speech_generator import SpeechGenerator
+from qbo_driver.qbo_aiml.llm_engine import LLMEngine
 from qbo_driver.qbo_aiml.constants import COLOR_MAP
 
 # 🔁 Obtenir le chemin absolu vers le dossier 'qbo_driver'
@@ -26,11 +27,11 @@ package_share = get_package_share_directory('qbo_driver')
 
 # === Configuration des chemins ===
 DATA_DIR = os.path.join(package_share, 'config', 'data_pairs')
-LLM_DIR = os.path.join(package_share, 'config', 'LLM')
+INDEX_DIR = os.path.join(package_share, 'config', 'index')
 WATCHERS_DIRS = os.path.join(package_share, 'config', 'others')
 path_to_json = os.path.join(package_share, 'config', 'event_phrases.json')
 EMBED_MODEL_NAME = "intfloat/e5-small-v2"
-# GEN_MODEL_NAME = "bigscience/bloomz-1b1"
+GEN_MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
 
 
 class AIMLNode(Node):
@@ -41,34 +42,35 @@ class AIMLNode(Node):
         self.get_logger().info("🚀 Initialisation AIML...")
 
         # ==============================
-        # 🔹 1️⃣ Charger modèles embedding
+        # 🔹 1️⃣ Charger modèles
         # ==============================
 
-        self.get_logger().info("🔄 Chargement modèle embedding...")
+        self.qa_loader = QALoader(
+            model_name=EMBED_MODEL_NAME,
+            logger=self.get_logger(),
+            data_dir=DATA_DIR,
+            index_dir=INDEX_DIR
+        )
 
-        self.embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
-        self.embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).eval()
+        self.qa_diag = QALoader(
+            model_name=None,  # on partage le même modèle que qa_loader
+            logger=self.get_logger(),
+            data_dir=DATA_DIR,
+            index_dir=INDEX_DIR
+        )
+        self.qa_diag.share_embedding(self.qa_loader)
+
+        self.llm_engine = LLMEngine(
+            model_name=GEN_MODEL_NAME,
+            logger=self.get_logger(),
+            enable=True
+        )
+
+        self.enable_style_rewrite = True
 
         # ==============================
         # 🔹 2️⃣ Modules internes
         # ==============================
-
-        self.qa_loader = QALoader(
-            LLM_DIR,
-            self.embed_model,
-            self.embed_tokenizer,
-            self.get_logger(),
-            DATA_DIR
-        )
-
-        # Index diagnostics dédié
-        self.qa_diag = QALoader(
-            LLM_DIR,
-            self.embed_model,
-            self.embed_tokenizer,
-            self.get_logger(),
-            DATA_DIR
-        )
 
         self.intent_engine = IntentEngine(self)
         self.parameter_extractor = ParameterExtractor()
@@ -94,7 +96,7 @@ class AIMLNode(Node):
         # 🔹 3️⃣ Charger index RAG
         # ==============================
 
-        self.qa_loader.load_latest_index(prefix="index")   # ton index actuel (listen/CLI)
+        self.qa_loader.load_latest_index(prefix="index")   # index actuel (listen/CLI)
         self.qa_diag.load_latest_index(prefix="diag")      # index diagnostics dédié
         self.THRESHOLDS = {
             "listen": 0.70,      # actions
@@ -262,12 +264,27 @@ class AIMLNode(Node):
                 self.last_detected_params
             )
 
-        # 4️⃣ Génération réponse
-        final_text = self.generate_answer(
+        # 4️⃣ Génération réponse de base
+        base_answer = self.generate_answer(
             best_item,
             intent_result,
             self.last_detected_params
         )
+
+        meta = best_item.get("meta", {})
+        intent_kind = meta.get("intent_kind", "")
+        risk = meta.get("risk", "low")
+
+        # 🔹 Reformulation uniquement pour conversation / explain
+        if (
+            self.enable_style_rewrite
+            and risk == "low"
+            and intent_kind in ["conversation", "explain"]
+        ):
+            self.get_logger().info(f"🧠 Réponse avant reformulation: {base_answer}")
+            final_text = self.llm_engine.rewrite(base_answer)
+        else:
+            final_text = base_answer
 
         # 5️⃣ TTS
         self.enqueue_speech(final_text, priority="info")
@@ -336,17 +353,16 @@ class AIMLNode(Node):
     def select_best_candidate(self, candidates, sentence, params):
 
         best = None
-        best_score = 0
+        best_score = -1.0
 
         for c in candidates:
-
             item = c["item"]
             score = c["score"]
             # print("Score FAISS brut:", c["score"])
 
             # 🔹 Bonus si intent présent et phrase ressemble à commande
-            if "intent" in item and any(v in sentence for v in ["allume", "mets", "éteins", "lance"]):
-                score += 0.15
+            # if "intent" in item and any(v in sentence for v in ["allume", "mets", "éteins", "lance"]):
+            #     score += 0.15
 
             # 🔹 Bonus si slot détecté et QA utilise ce slot
             # if "color" in params and "{color}" in item.get("question", ""):
@@ -360,8 +376,9 @@ class AIMLNode(Node):
                 best = item
                 best_score = score
 
-            if best_score < 0.50:
-                return None, 0.0
+        # seuil minimum
+        if best is None or best_score < 0.50:
+            return None, 0.0
 
         return best, best_score
 
@@ -473,7 +490,7 @@ class AIMLNode(Node):
         self._speak(item["text"])
 
     def _speak(self, text):
-        self.get_logger().info(f"💬 {text}")
+        self.get_logger().info(f"💬 speaking: {text}")
         if not hasattr(self, "speaker_client"):
             self.speaking = False
             self._process_speech_queue()
@@ -583,7 +600,6 @@ class AIMLNode(Node):
         self.get_logger().info(f"DEBUG: {len(filtered)} candidats après filtrage")
 
         return best["item"], best["score"]
-
 
 # ==================================
 # MAIN

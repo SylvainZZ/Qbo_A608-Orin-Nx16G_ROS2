@@ -752,5 +752,97 @@
             "risk": "low",
             "lang": "fr"
         }
+    },
+    {
+        "question_variants": [
+            "Battery Controller: Low battery"
+        ],
+        "answer": [
+            "Mon contrôleur batterie me signale que la batterie est faible.",
+            "Mon contrôleur batterie signale une alerte de batterie faible.",
+            "Le contrôleur batterie signale que la batterie est faible.",
+            "Attention, batterie faible selon le contrôleur batterie."
+        ],
+        "intent": {
+            "type": "diagnostic_status",
+            "action": "report_battery_warning",
+            "target": "battery_ctrl: Battery Status",
+            "msg_type": "diagnostic_msgs/msg/DiagnosticStatus",
+            "params": {
+                "hardware": "Qboard_3",
+                "severity": "warn"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery/diagnostics",
+            "domain": "battery",
+            "component": "Qboard_3",
+            "intent_kind": "diagnostic",
+            "risk": "low",
+            "lang": "fr",
+            "severity_min": "warn"
+        }
+    },
+    {
+        "question_variants": [
+            "Battery Controller: Power PC Off"
+        ],
+        "answer": [
+            "J'ai détecté un diagnostic en erreur sur mon contrôleur batterie, il signale que le PC est éteint. Est-ce que tu peux appuyer sur mon bouton rouge pour l'allumer ?",
+            "Le contrôleur batterie signale une erreur : PC éteint. Est-ce que tu peux appuyer sur mon bouton rouge pour l'allumer ?",
+            "Attention, le contrôleur batterie signale que le PC est éteint. Est-ce que tu peux appuyer sur mon bouton rouge pour l'allumer ?",
+            "Mon contrôleur batterie me signale une erreur : PC éteint. Est-ce que tu peux appuyer sur mon bouton rouge pour l'allumer ?"
+        ],
+        "intent": {
+            "type": "diagnostic_status",
+            "action": "report_battery_power_pc_off_error",
+            "target": "battery_ctrl: Battery Status",
+            "msg_type": "diagnostic_msgs/msg/DiagnosticStatus",
+            "params": {
+                "hardware": "Qboard_3",
+                "severity": "error",
+                "summary": "Battery Controller: Power PC Off"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery/diagnostics",
+            "domain": "battery",
+            "component": "Qboard_3",
+            "intent_kind": "diagnostic",
+            "risk": "high",
+            "lang": "fr",
+            "severity_min": "error"
+        }
+    },
+    {
+        "question_variants": [
+            "Battery Controller: Empty battery"
+        ],
+        "answer": [
+            "Attention la batterie est presque vide.",
+            "Le contrôleur batterie signale que la batterie est vide.",
+            "Mon contrôleur batterie me signale que la batterie est vide.",
+            "Alerte, batterie vide selon le contrôleur batterie."
+        ],
+        "intent": {
+            "type": "diagnostic_status",
+            "action": "report_battery_empty_error",
+            "target": "battery_ctrl: Battery Status",
+            "msg_type": "diagnostic_msgs/msg/DiagnosticStatus",
+            "params": {
+                "hardware": "Qboard_3",
+                "severity": "error",
+                "summary": "Battery Controller: Empty battery"
+            }
+        },
+        "meta": {
+            "source": "qbo_arduqbo/ctrl_battery/diagnostics",
+            "domain": "battery",
+            "component": "Qboard_3",
+            "intent_kind": "diagnostic",
+            "risk": "high",
+            "lang": "fr",
+            "severity_min": "error"
+        }
     }
 ]

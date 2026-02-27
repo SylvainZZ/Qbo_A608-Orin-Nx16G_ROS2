@@ -127,10 +127,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -154,10 +154,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -181,10 +181,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -208,10 +208,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -235,10 +235,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -262,10 +262,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -289,10 +289,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -316,10 +316,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -342,10 +342,10 @@
             }
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "set",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -367,10 +367,10 @@
             "params": {}
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "test",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -392,38 +392,10 @@
             "params": {}
         },
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "test",
-            "component": "nose_led",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "donne le code couleur du nez",
-            "code actuel du nez",
-            "quel est le code du nez",
-            "valeur du nez",
-            "code couleur nez",
-            "indice couleur nez"
-        ],
-        "answer": "Le code couleur actuel du nez est {color_code}.",
-        "intent": {
-            "action": "get_state",
-            "params": {
-                "hardware": "Qboard_5",
-                "category": "nose_ctrl: Nose Status",
-                "key": "color_code",
-                "result_key": "color_code"
-            }
-        },
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "get",
-            "component": "robot_state",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -436,13 +408,13 @@
             "comment controler le nez",
             "comment fonctionne la led du nez"
         ],
-        "answer": "Tu peux définir une couleur en envoyant un code de 0 à 7 sur la commande du nez, ou une couleur reconnue via {color_label}.",
+        "answer": "Tu peux définir une couleur en envoyant un code de 0 à 7 sur la commande du nez, ou une couleur.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -456,13 +428,16 @@
             "palette nez",
             "couleurs led nez"
         ],
-        "answer": "Le nez accepte un code couleur de 0 à 7. Je peux appliquer une couleur si elle correspond à un code valide.",
+        "answer": [ "Mon nez s'allume de 7 couleurs différentes qui sont le rouge, le bleu, le violet, le vert, le jaune, le magenta et le blanc.",
+                    "Tu peux choisir parmi 7 couleurs : rouge, bleu, violet, vert, jaune, magenta et blanc.",
+                    "Les couleurs disponibles pour mon nez sont : rouge, bleu, violet, vert, jaune, magenta et blanc."
+        ],
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -475,13 +450,13 @@
             "surprends moi avec une couleur du nez",
             "couleur random nez"
         ],
-        "answer": "Je peux mettre une couleur si tu me donnes une couleur ou un code de 0 à 7.",
+        "answer": "Je peux mettre une couleur si tu me donnes soit la couleur ou un code de 0 à 7, en sachant que le 0 correspond à éteindre le nez.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -495,13 +470,13 @@
             "nez hors service",
             "le nez est bloque"
         ],
-        "answer": "Si le nez ne répond plus, il peut y avoir un problème de communication ou d'alimentation côté contrôleur.",
+        "answer": "Si mon nez ne répond plus, il peut y avoir un problème de communication ou d'alimentation côté contrôleur.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
-            "intent_kind": "status",
-            "component": "nose_led",
+            "intent_kind": "explain",
+            "component": "Qboard_5",
             "risk": "medium",
             "lang": "fr"
         }
@@ -514,33 +489,14 @@
             "diagnostic nose operational",
             "nez ok"
         ],
-        "answer": "Diagnostic reçu : la LED du nez est opérationnelle.",
+        "answer": "Je n'ai pas reçu d'informations d'erreur sur l'état de mon nez, il doit être opérationnel.",
         "intent": null,
         "meta": {
-            "source": "event",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
-            "intent_kind": "status",
-            "component": "nose_led",
+            "intent_kind": "explain",
+            "component": "Qboard_5",
             "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "pas de communication avec le nez",
-            "message no communication nez",
-            "diagnostic no communication",
-            "le nez a perdu la communication",
-            "nez communication perdue"
-        ],
-        "answer": "Diagnostic reçu : pas de communication avec le contrôleur du nez. Vérifie la liaison et l'alimentation du module.",
-        "intent": null,
-        "meta": {
-            "source": "event",
-            "domain": "nose",
-            "intent_kind": "status",
-            "component": "nose_comm",
-            "risk": "medium",
             "lang": "fr"
         }
     },
@@ -555,29 +511,10 @@
         "answer": "Je ne peux pas restaurer automatiquement une couleur précédente sans historique, mais je peux mettre la couleur que tu me donnes.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
-            "risk": "low",
-            "lang": "fr"
-        }
-    },
-    {
-        "question_variants": [
-            "synchronise le nez avec un etat",
-            "mets le nez en couleur selon l etat",
-            "couleur du nez selon statut",
-            "nez selon mode",
-            "nez selon evenement"
-        ],
-        "answer": "Je peux changer la couleur du nez sur commande, mais la logique de synchronisation avec des états doit être définie côté application.",
-        "intent": null,
-        "meta": {
-            "source": "user",
-            "domain": "nose",
-            "intent_kind": "explain",
-            "component": "integration",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -593,10 +530,10 @@
         "answer": "Le nez sert d'indicateur visuel : je peux allumer la LED et changer sa couleur via un code de 0 à 7.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -612,10 +549,10 @@
         "answer": "Dans ce domaine, je ne gère que la couleur du nez. Les effets comme le clignotement nécessitent une logique externe ou une commande dédiée.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }
@@ -628,13 +565,13 @@
             "couleurs illimitees nez",
             "nez rgb complet"
         ],
-        "answer": "Le nez utilise un code couleur limité à 0 à 7. Pour plus de couleurs, il faudrait une interface ou un firmware qui supporte davantage de valeurs.",
+        "answer": "Mon nez utilise un code couleur limité à 0 à 7. Pour plus de couleurs, il faudrait une LED qui supporte davantage de valeurs.",
         "intent": null,
         "meta": {
-            "source": "user",
+            "source": "qbo_arduqbo/ctrl_nose",
             "domain": "nose",
             "intent_kind": "explain",
-            "component": "nose_led",
+            "component": "Qboard_5",
             "risk": "low",
             "lang": "fr"
         }

@@ -5,27 +5,47 @@ import torch
 from datetime import datetime
 import numpy as np
 
+from transformers import AutoTokenizer, AutoModel
+
 from qbo_driver.qbo_aiml.constants import FAISS_CONFIDENCE_THRESHOLD
 
 class QALoader:
 
-    def __init__(self, llm_dir, embed_model, embed_tokenizer, logger, data_dir=None):
-        self.llm_dir = llm_dir
-        self.data_dir = data_dir  # optionnel (pour rebuild)
-        self.embed_model = embed_model
-        self.embed_tokenizer = embed_tokenizer
+    def __init__(self, model_name, logger, data_dir, index_dir):
         self.logger = logger
+        self.data_dir = data_dir
+        self.index_dir = index_dir
 
+        # Embedding (optionnel)
+        self.tokenizer = None
+        self.model = None
+
+        if model_name:
+            self.logger.info(f"🔄 Chargement embedding model: {model_name}")
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.model = AutoModel.from_pretrained(model_name).eval()
+            self.logger.info("✅ Embedding model prêt.")
+        else:
+            self.logger.info("🔁 Embedding non chargé (partage attendu).")
+
+        # FAISS / data
         self.index = None
+        self.entries = []
+        self.variant_to_entry = []
         self.qa_pairs = []
 
     # ========================================
     # LOAD EXISTING INDEX
     # ========================================
+
+    def share_embedding(self, other_loader):
+        self.tokenizer = other_loader.tokenizer
+        self.model = other_loader.model
+
     def load_latest_index(self, prefix="index"):
 
         try:
-            files = [f for f in os.listdir(self.llm_dir)
+            files = [f for f in os.listdir(self.index_dir)
                     if f.startswith(prefix + "_") and f.endswith(".faiss")]
             if not files:
                 self.logger.warn("⚠ Aucun index FAISS trouvé.")
@@ -35,8 +55,8 @@ class QALoader:
             latest_faiss = files[0]
             json_name = latest_faiss.replace('.faiss', '.json')
 
-            faiss_path = os.path.join(self.llm_dir, latest_faiss)
-            json_path = os.path.join(self.llm_dir, json_name)
+            faiss_path = os.path.join(self.index_dir, latest_faiss)
+            json_path = os.path.join(self.index_dir, json_name)
 
             if not os.path.exists(json_path):
                 self.logger.error("❌ JSON associé manquant.")
@@ -72,11 +92,15 @@ class QALoader:
     # ========================================
     def search(self, sentence):
 
+        if self.model is None or self.tokenizer is None:
+            self.logger.error("❌ Embedding non initialisé. Appelle share_embedding() ou charge un model_name.")
+            return None, 0.0
+
         if not self.index:
             self.logger.warn("⚠ Aucun index chargé.")
             return None, 0.0
 
-        inputs = self.embed_tokenizer(
+        inputs = self.tokenizer(
             "query: " + sentence,
             return_tensors="pt",
             truncation=True,
@@ -84,7 +108,7 @@ class QALoader:
         )
 
         with torch.no_grad():
-            qvec = self.embed_model(**inputs).last_hidden_state[:, 0].numpy()
+            qvec = self.model(**inputs).last_hidden_state[:, 0].numpy()
 
         # normalisation requête
         qvec = qvec / np.linalg.norm(qvec, axis=1, keepdims=True)
@@ -113,10 +137,15 @@ class QALoader:
 
     def search_topk(self, sentence, k=5):
 
-        if not self.index:
+        if self.model is None or self.tokenizer is None:
+            self.logger.error("❌ Embedding non initialisé. Appelle share_embedding() ou charge un model_name.")
             return []
 
-        inputs = self.embed_tokenizer(
+        if not self.index:
+            self.logger.warn("⚠ Aucun index chargé.")
+            return []
+
+        inputs = self.tokenizer(
             "query: " + sentence,
             return_tensors="pt",
             truncation=True,
@@ -124,7 +153,7 @@ class QALoader:
         )
 
         with torch.no_grad():
-            qvec = self.embed_model(**inputs).last_hidden_state[:, 0].numpy()
+            qvec = self.model(**inputs).last_hidden_state[:, 0].numpy()
 
         # normalisation requête
         qvec = qvec / np.linalg.norm(qvec, axis=1, keepdims=True)
@@ -219,7 +248,7 @@ class QALoader:
                 for item in self.qa_pairs
             ]
 
-            inputs = self.embed_tokenizer(
+            inputs = self.tokenizer(
                 sentences,
                 padding=True,
                 truncation=True,
@@ -227,7 +256,7 @@ class QALoader:
             )
 
             with torch.no_grad():
-                vectors = self.embed_model(**inputs).last_hidden_state[:, 0].numpy()
+                vectors = self.model(**inputs).last_hidden_state[:, 0].numpy()
 
             # 🔹 Normalisation cosine
             vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
@@ -245,12 +274,12 @@ class QALoader:
             variants_file = f"{prefix}_{now}.json"
             entries_file = f"{prefix}_entries_{now}.json"
 
-            faiss.write_index(index, os.path.join(self.llm_dir, index_file))
+            faiss.write_index(index, os.path.join(self.index_dir, index_file))
 
-            with open(os.path.join(self.llm_dir, variants_file), "w", encoding="utf-8") as f:
+            with open(os.path.join(self.index_dir, variants_file), "w", encoding="utf-8") as f:
                 json.dump(self.qa_pairs, f, ensure_ascii=False, indent=2)
 
-            with open(os.path.join(self.llm_dir, entries_file), "w", encoding="utf-8") as f:
+            with open(os.path.join(self.index_dir, entries_file), "w", encoding="utf-8") as f:
                 json.dump(all_entries, f, ensure_ascii=False, indent=2)
 
             self.logger.info(f"✅ Index sauvegardé : {index_file}")
