@@ -66,7 +66,7 @@ class AIMLNode(Node):
             enable=True
         )
 
-        self.enable_style_rewrite = True
+        self.enable_style_rewrite = False
 
         # ==============================
         # 🔹 2️⃣ Modules internes

@@ -1,0 +1,21 @@
+talk_pico:
+  ros__parameters:
+    service_name: /qbo_driver/say_to_TTS
+    tts_active_topic: /tts_active
+
+    default_lang: fr-FR
+    allow_dynamic_lang: true
+
+    audio_backend: pulse        # pulse recommandé si PulseAudio actif
+    pulse_device: ""            # vide => device par défaut
+    alsa_device: default        # fallback
+
+    audio_playback_volume: 110
+
+    sample_rate_hz: 48000
+    force_mono: true
+
+    block_on_call: True
+    queue_size: 30
+
+    pronunciation_file: config/others/pronunciation_map.json

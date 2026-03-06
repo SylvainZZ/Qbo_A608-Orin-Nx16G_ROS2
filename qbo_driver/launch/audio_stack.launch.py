@@ -20,16 +20,16 @@ def generate_launch_description():
             ],
             output="screen",
         ),
-        Node(
-            package="qbo_driver",
-            executable="/home/qbo-v2/venvs/tts/bin/python",
-            name="qbo_talk",
-            arguments=[
-                "-m", "qbo_driver.talk_TTS",
-                "--ros-args",
-                "--params-file",
-                PathJoinSubstitution([pkg_share, "config", "talk_tts.yaml"]),
-            ],
-            output="screen",
-        ),
+        # Node(
+        #     package="qbo_driver",
+        #     executable="/home/qbo-v2/venvs/tts/bin/python",
+        #     name="qbo_talk",
+        #     arguments=[
+        #         "-m", "qbo_driver.talk_TTS",
+        #         "--ros-args",
+        #         "--params-file",
+        #         PathJoinSubstitution([pkg_share, "config", "talk_tts.yaml"]),
+        #     ],
+        #     output="screen",
+        # ),
     ])

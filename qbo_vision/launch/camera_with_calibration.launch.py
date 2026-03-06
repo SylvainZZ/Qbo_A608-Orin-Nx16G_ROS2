@@ -4,11 +4,12 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
+
     config_path = os.path.join(
         get_package_share_directory('qbo_vision'),
         'config',
         'calibration',
-        'default_camera_info.yaml'
+        'left_camera_640x480.yaml'
     )
 
     return LaunchDescription([
@@ -18,12 +19,14 @@ def generate_launch_description():
             name='usb_cam',
             parameters=[{
                 'video_device': '/dev/video0',
-                'image_width': 800,
-                'image_height': 600,
-                'pixel_format': 'yuyv',
-                'framerate': 20.0,
+                'image_width': 640,
+                'image_height': 480,
+                'pixel_format': 'mjpeg2rgb',
+                'io_method': 'mmap',
+                'framerate': 30.0,
                 'camera_name': 'left_camera',
-                'camera_info_url': f'file://{config_path}'
+                'camera_info_url': f'file://{config_path}',
+                'queue_size': 1
             }],
             remappings=[
                 ('/image_raw', 'camera_left/image_raw'),

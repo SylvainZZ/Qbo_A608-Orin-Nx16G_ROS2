@@ -63,6 +63,32 @@ install(TARGETS face_detector_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+add_executable(face_tracker_node
+  src/face_tracker.cpp
+)
+
+ament_target_dependencies(face_tracker_node
+  rclcpp
+  std_msgs
+  sensor_msgs
+  cv_bridge
+  image_transport
+  qbo_msgs
+)
+
+target_include_directories(face_tracker_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(face_tracker_node
+  ${OpenCV_LIBRARIES}
+)
+
+install(TARGETS face_tracker_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 add_executable(qbo_face_recognizer
   src/face_recognizer.cpp

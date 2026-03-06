@@ -16,7 +16,7 @@
     min_speech_ratio: 0.50 # ratio minimum de frames de parole dans une utterance pour la valider (pour éviter les bruits longs avec peu de parole, comme la musique ou le bruit de fond)
 
     # lien TTS
-    tts_ignore_ms: 200 # durée pendant laquelle on ignore les entrées audio après une sortie TTS (pour éviter de capter la propre voix du robot)
+    tts_ignore_ms: 500 # durée pendant laquelle on ignore les entrées audio après une sortie TTS (pour éviter de capter la propre voix du robot)
 
     # Whisper
     system_lang: "fr" #langue principale du système, pour aider

@@ -54,7 +54,8 @@ setup(
             'OrinA608Diag = qbo_driver.hardwareOrinA608:main',
             'qbo_aiml = qbo_driver.aiml:main',
             'qbo_diagnosticLogger = qbo_driver.diagnosticLog:main',
-            'qbo_test = qbo_driver.test_joint_latency:main'
+            'qbo_test = qbo_driver.test_joint_latency:main',
+            'qbo_tts_pico = qbo_driver.tts_pico:main',
         ],
     },
 )

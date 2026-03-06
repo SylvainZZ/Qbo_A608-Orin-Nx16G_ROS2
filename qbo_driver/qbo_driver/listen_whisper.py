@@ -13,6 +13,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
 from qbo_msgs.msg import ListenResult
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 FIXED_SR = 16000  # Jabra: 16k uniquement
 
@@ -175,10 +176,13 @@ class ListenNode(Node):
 
         # ---- ROS I/O ----
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
-        # self.create_subscription(Bool, "/tts_active", self._on_tts_active, 10)
+        qos = QoSProfile(depth=1)
+        qos.reliability = ReliabilityPolicy.RELIABLE
+        qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+        self.create_subscription(Bool, "/tts_active", self._on_tts_active, qos)
 
         self.tts_active = False
-        self.ignore_until = 0.0
+        self.ignore_until = 0.0  # timestamp jusqu'auquel on ignore (fin TTS + marge)
 
         # ---- Debug devices ----
         list_devices(self.get_logger())
@@ -206,31 +210,27 @@ class ListenNode(Node):
         self.audio_thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.audio_thread.start()
 
-    # def _on_tts_active(self, msg: Bool):
-    #     now = time.monotonic()
-    #     if msg.data:
-    #         self.tts_active = True
-    #     else:
-    #         self.tts_active = False
-    #         self.ignore_until = now + (self.tts_ignore_ms / 1000.0)
+    def _on_tts_active(self, msg: Bool):
+        now = time.monotonic()
+        if msg.data:
+            self.tts_active = True
+        else:
+            self.tts_active = False
+            self.ignore_until = now + (self.tts_ignore_ms / 1000.0)
 
     def _audio_cb(self, indata, frames, t, status):
         if status:
             self.get_logger().warning(f"Audio status: {status}")
 
-        # indata = bytes buffer
-        # Convert to numpy int16
         pcm = np.frombuffer(indata, dtype=np.int16)
 
-        # Reshape: (frames, channels)
-        try:
-            pcm = pcm.reshape(-1, self.input_channels_opened)
-        except ValueError:
-            return  # buffer incomplet, on ignore
+        # frames * channels doit matcher
+        exp = frames * self.input_channels_opened
+        if pcm.size != exp:
+            return
 
-        # Sélection du canal ASR
-        ch = self.asr_channel_index
-        mono = pcm[:, ch]
+        pcm = pcm.reshape(frames, self.input_channels_opened)
+        mono = pcm[:, self.asr_channel_index]
 
         try:
             self.buffer_queue.put_nowait(mono.tobytes())
@@ -244,8 +244,19 @@ class ListenNode(Node):
             f"🎹 Listening @ {FIXED_SR} Hz mono {self.device_name} | frame={self.frame_ms}ms ..."
         )
 
-        pre_roll = deque(maxlen=5)        # 5 × 20 ms = 100 ms de contexte
-        grace_after_noise = 0             # nombre de segments tolérés après bruit
+        pre_roll = deque(maxlen=5)        # 5 × frame_ms (ex 20ms) = 100 ms de contexte
+        grace_after_noise = 0
+
+        def drain_queue(max_items=5000):
+            """Vide la queue rapidement pour éviter de traiter du backlog."""
+            drained = 0
+            while drained < max_items:
+                try:
+                    self.buffer_queue.get_nowait()
+                    drained += 1
+                except queue.Empty:
+                    break
+            return drained
 
         with sd.RawInputStream(
             samplerate=FIXED_SR,
@@ -258,28 +269,44 @@ class ListenNode(Node):
         ):
             while not self.stop_evt.is_set():
 
-                # Pendant ignore-window : on consomme sans traiter
+                # ---------- Ignore TTS / ignore window (drain + reset) ----------
                 now = time.monotonic()
                 if self.tts_active or now < self.ignore_until:
-                    try:
-                        _ = self.buffer_queue.get(timeout=0.5)
-                    except queue.Empty:
-                        pass
+                    drained = drain_queue()
+                    pre_roll.clear()
+                    # petite pause pour ne pas boucler à vide
+                    if drained:
+                        self.get_logger().debug(
+                            f"⏭️ Ignoring audio (TTS/ignore). Drained {drained} frames"
+                        )
+                    time.sleep(0.02)
                     continue
 
                 audio_frames = deque()
                 pre_roll.clear()
-
                 silent = 0
                 speaking = False
                 start_t = None
-
                 speech_frames = 0
                 total_frames = 0
                 seg_start = time.monotonic()
 
                 # ----------------- CAPTURE SEGMENT -----------------
                 while not self.stop_evt.is_set():
+
+                    # Re-check TTS inside capture loop too (important!)
+                    now = time.monotonic()
+                    if self.tts_active or now < self.ignore_until:
+                        drained = drain_queue()
+                        audio_frames.clear()
+                        pre_roll.clear()
+                        silent = 0
+                        speaking = False
+                        if drained:
+                            self.get_logger().debug(
+                                f"⏭️ TTS started mid-segment. Drained {drained} frames, abort segment"
+                            )
+                        break  # abandonner ce segment et revenir au while externe
 
                     try:
                         frame = self.buffer_queue.get(timeout=1.0)
@@ -294,7 +321,7 @@ class ListenNode(Node):
 
                     if self.vad_enabled:
                         try:
-                            is_speech = self.vad.is_speech(frame, FIXED_SR)
+                            is_speech = self.vad.is_speech(frame, FIXED_SR)  # OK car stream FIXED_SR
                         except Exception:
                             continue
                     else:
@@ -302,15 +329,12 @@ class ListenNode(Node):
 
                     if is_speech:
                         speech_frames += 1
-
                         if not speaking:
                             speaking = True
                             start_t = time.monotonic()
-                            audio_frames.extend(pre_roll)   # 🔑 pré-roll
-
+                            audio_frames.extend(pre_roll)  # pré-roll
                         audio_frames.append(frame)
                         silent = 0
-
                     elif speaking:
                         silent += 1
                         if silent >= self.silence_frames_end:
@@ -320,6 +344,10 @@ class ListenNode(Node):
                     elapsed_ms = int((time.monotonic() - seg_start) * 1000)
                     if elapsed_ms >= self.max_utt_ms:
                         break
+
+                # si on a abort parce que TTS, recommencer direct
+                if self.tts_active or time.monotonic() < self.ignore_until:
+                    continue
 
                 if not audio_frames:
                     continue
@@ -339,9 +367,7 @@ class ListenNode(Node):
                     self.get_logger().info(
                         f"🔇 Skipped (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
                     )
-                    grace_after_noise = 2      # fenêtre de grâce
-                    audio_frames.clear()
-                    pre_roll.clear()
+                    grace_after_noise = 2
                     continue
 
                 grace_after_noise = max(0, grace_after_noise - 1)
@@ -350,17 +376,22 @@ class ListenNode(Node):
                 raw = b"".join(audio_frames)
                 pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
 
-                segments, _ = self.voice_model.transcribe(
-                    pcm,
-                    language=self.lang,
-                    beam_size=1,
-                    vad_filter=False,
-                    condition_on_previous_text=False,
-                )
+                try:
+                    segments_iter, _ = self.voice_model.transcribe(
+                        pcm,
+                        language=self.lang,
+                        beam_size=1,
+                        vad_filter=False,  # IMPORTANT: on a déjà VAD webrtcvad
+                        condition_on_previous_text=False,
+                    )
+                    segments = list(segments_iter)  # éviter que le générateur se consume
+                except Exception as e:
+                    self.get_logger().error(f"Whisper error: {e}")
+                    continue
 
                 texts, confs = [], []
                 for s in segments:
-                    t = (s.text or "").strip()
+                    t = (getattr(s, "text", "") or "").strip()
                     if t:
                         texts.append(t)
                         confs.append(segment_confidence(s))
@@ -372,17 +403,14 @@ class ListenNode(Node):
                     continue
 
                 if conf < self.min_confidence:
-                    self.get_logger().info(
-                        f"❌ Low confidence ({conf:.2f}): {text}"
-                    )
+                    self.get_logger().info(f"❌ Low confidence ({conf:.2f}): {text}")
                     continue
 
                 self.result_pub.publish(
                     ListenResult(sentence=text, confidence=float(conf))
                 )
                 self.get_logger().info(
-                    f"📝 ({conf:.2f}) {text}  "
-                    f"[speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
+                    f"📝 ({conf:.2f}) {text}  [speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
                 )
 
 

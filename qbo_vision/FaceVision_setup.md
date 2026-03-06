@@ -25,3 +25,7 @@ rosparam list /face_follower
 ros2 topic echo /qbo_face_tracking/face_pos_and_dist
 
 
+ros2 topic hz /camera_left/image_raw
+ros2 topic delay /camera_left/image_raw
+ros2 topic hz /qbo_face_tracking/face_pos_and_dist
+
