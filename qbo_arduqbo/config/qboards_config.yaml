@@ -87,5 +87,5 @@ qbo_arduqbo:
     sensors.front.floor_sensor.type: "GP2Y0A21YK"
     sensors.front.floor_sensor.address: 8
     sensors.front.floor_sensor.frame_id: "front_addon"
-    sensors.front.floor_sensor.publish_if_obstacle: false
+    sensors.front.floor_sensor.publish_if_obstacle: true
 

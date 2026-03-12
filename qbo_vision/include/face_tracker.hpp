@@ -43,7 +43,7 @@ private:
     // Tracking helpers
     void resetTrackingState();
     void smoothTrackedFaceSize(cv::Rect &face, const cv::Size &frame_size);
-    float computeDistance(const cv::Rect &face);
+    float computeDistance(const cv::Rect &face) const;
 
     // ROS
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
@@ -63,6 +63,7 @@ private:
     bool use_haar_fallback_;
 
     std::string yunet_model_path_;
+    std::string haar_cascade_path_;
     float yunet_score_threshold_;
     float yunet_nms_threshold_;
     int yunet_top_k_;

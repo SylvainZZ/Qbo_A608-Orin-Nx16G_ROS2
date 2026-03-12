@@ -1,0 +1,72 @@
+qbo_face_following:
+  ros__parameters:
+    # Activation
+    move_head: true
+    move_base: true
+
+    # Filtre mesure (pixels)
+    ema_alpha: 0.25
+    deadband_u_px: 7.0
+    deadband_v_px: 7.0
+
+    # Limites mécaniques (reprendre celles des dynamixel)
+    pan_min: -0.8
+    pan_max:  1.22
+    tilt_min: -0.62
+    tilt_max:  0.35
+
+    # Profil tête (social)
+    head_max_vel_pan: 1.8      # rad/s
+    head_max_vel_tilt: 1.4     # rad/s
+    head_max_acc_pan: 4.0      # rad/s^2
+    head_max_acc_tilt: 4.0     # rad/s^2
+
+    # Profil recherche (plus doux quand face perdue)
+    search_max_vel_pan: 0.7     # rad/s
+    search_max_vel_tilt: 0.55   # rad/s
+    search_max_acc_pan: 1.8     # rad/s^2
+    search_max_acc_tilt: 1.5    # rad/s^2
+    tracking_gain_pan: 2.5      # gain proportionnel pour convertir erreur angulaire en consigne de vitesse
+    tracking_gain_tilt: 2.0     # gain proportionnel pour convertir erreur angulaire en consigne de vitesse
+    camera_lateral_offset_m: 0.035   # + a gauche du centre robot (35 mm)
+    camera_offset_min_dist_m: 0.20   # evite une correction excessive quand distance trop petite
+
+    # Base follow (si activée)
+    base_cmd_topic: "/qbo_arduqbo/base_ctrl/cmd_vel"
+    base_deadband_u_px: 40.0          # pixels: si visage dans cette zone centrée, pas de commande de rotation
+    base_max_yaw_rate: 0.6            # rad/s
+    base_yaw_sign: -1.0               # mettre -1.0 si la rotation part dans le mauvais sens
+    base_debug_log: true              # logs throttles pour comprendre les decisions base
+    base_assist_release_factor: 0.70  # hysteresis: desactive l'assist si |u| < deadband*facteur
+    base_head_limit_margin: 0.15      # rad: si tête à +/- (limit - margin), base aide
+
+    # Recherche base quand visage perdu:
+    # 1) d'abord 1 tour dans le sens du dernier cote vu
+    # 2) si perte prolongee, 1 tour dans un sens aleatoire
+    base_search_spin_enabled: true
+    base_search_yaw_rate: 0.25
+    base_search_long_lost_sec: 6.0
+    base_search_restart_delay_sec: 1.0
+    base_search_side_deadband_px: 35.0
+    # Test étape 1: rotation sur place au démarrage, puis retour en mode suivi
+    base_spin_test_mode: true
+    base_spin_test_yaw_rate: 0.25
+    base_spin_test_duration_sec: 3.0
+
+    # Perte visage
+    lost_hold_sec: 0.8        # délai avant de considérer le visage comme perdu (pour éviter les pertes temporaires dues à des occlusions rapides ou des mesures aberrantes)
+    lost_reacquire_sec: 1.2   # délai avant de basculer en vraie recherche random/base spin
+    distance_to_head_m: 1.0   # cible FSM: limite TRACK_NEAR/TRACK_FAR
+    distance_hysteresis_m: 0.10
+
+    # Scan (tu as déjà ça)
+    search_interval_sec: 0.8
+    search_pan_min_step: 0.2
+    search_tilt_min_step: 0.14
+    search_walk_pan_step: 0.20
+    search_walk_tilt_step: 0.10
+    search_tilt_update_every: 3
+    search_min_pan: -0.8
+    search_max_pan: 0.5
+    search_min_tilt: -0.62
+    search_max_tilt: -0.35

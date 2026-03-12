@@ -41,6 +41,17 @@ FaceTracker::FaceTracker()
     this->declare_parameter("confidence_rise",0.08);
     this->declare_parameter("confidence_decay",0.20);
     this->declare_parameter("candidate_confidence_max",0.55);
+    this->declare_parameter("use_yunet", true);
+    this->declare_parameter("use_haar_fallback", true);
+    this->declare_parameter(
+        "haar_cascade_path",
+        std::string("/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_default.xml"));
+    this->declare_parameter(
+        "yunet_model_path",
+        std::string("/home/qbo-v2/qbo_ws/src/qbo_vision/config/models/face_detection_yunet_2022mar.onnx"));
+    this->declare_parameter("yunet_score_threshold", 0.85);
+    this->declare_parameter("yunet_nms_threshold", 0.30);
+    this->declare_parameter("yunet_top_k", 10);
 
     this->get_parameter("publish_debug_image", publish_debug_image_);
     this->get_parameter("debug_image_topic", debug_image_topic_);
@@ -59,6 +70,13 @@ FaceTracker::FaceTracker()
     this->get_parameter("confidence_rise",confidence_rise_);
     this->get_parameter("confidence_decay",confidence_decay_);
     this->get_parameter("candidate_confidence_max",candidate_confidence_max_);
+    this->get_parameter("use_yunet", use_yunet_);
+    this->get_parameter("use_haar_fallback", use_haar_fallback_);
+    this->get_parameter("haar_cascade_path", haar_cascade_path_);
+    this->get_parameter("yunet_model_path", yunet_model_path_);
+    this->get_parameter("yunet_score_threshold", yunet_score_threshold_);
+    this->get_parameter("yunet_nms_threshold", yunet_nms_threshold_);
+    this->get_parameter("yunet_top_k", yunet_top_k_);
 
     size_smoothing_alpha_ = std::clamp(size_smoothing_alpha_, 0.0f, 1.0f);
     confidence_rise_ = std::clamp(confidence_rise_, 0.0f, 1.0f);
@@ -86,14 +104,32 @@ FaceTracker::FaceTracker()
         RCLCPP_INFO(this->get_logger(), "Debug image publisher enabled on: %s", debug_image_topic_.c_str());
     }
 
-    std::string cascade_path =
-        "/home/qbo-v2/qbo_ws/src/qbo_vision/config/classifier/haarcascade_frontalface_default.xml";
-
-    if(!face_cascade_.load(cascade_path))
+    if(!face_cascade_.load(haar_cascade_path_))
     {
         RCLCPP_ERROR(this->get_logger(),
             "Impossible de charger le cascade : %s",
-            cascade_path.c_str());
+            haar_cascade_path_.c_str());
+    }
+
+    if(use_yunet_)
+    {
+        try
+        {
+            yunet_ = cv::FaceDetectorYN::create(
+                yunet_model_path_,
+                "",
+                cv::Size(640, 480),
+                yunet_score_threshold_,
+                yunet_nms_threshold_,
+                yunet_top_k_);
+
+            RCLCPP_INFO(this->get_logger(), "YuNet loaded: %s", yunet_model_path_.c_str());
+        }
+        catch(const cv::Exception &e)
+        {
+            RCLCPP_ERROR(this->get_logger(), "YuNet load failed: %s", e.what());
+            use_yunet_ = false;
+        }
     }
 
     kalman_.init(4,2,0);
@@ -120,74 +156,8 @@ void FaceTracker::cameraInfoCallback(
     fx_ = msg->k[0];
 }
 
-bool FaceTracker::detectFace(const cv::Mat &gray, cv::Rect &face)
-{
-    std::vector<cv::Rect> faces;
 
-    face_cascade_.detectMultiScale(
-        gray,
-        faces,
-        haar_scale_factor_,
-        haar_min_neighbors_,
-        cv::CASCADE_SCALE_IMAGE,
-        cv::Size(haar_min_face_size_px_, haar_min_face_size_px_));
-
-    if(faces.empty())
-        return false;
-
-    float best_score = -1.0f;
-    cv::Rect best_face;
-
-    for(const auto &f : faces)
-    {
-        // 1) Face shape ratio filter (more permissive to handle head pose).
-        float ratio = (float)f.height / (float)f.width;
-
-        if(ratio < face_ratio_min_ || ratio > face_ratio_max_)
-            continue;
-
-        // 2) Coherence with previous tracking: reject only very large jumps.
-        float motion_penalty = 0.0f;
-        if(tracker_initialized_)
-        {
-            float dx = std::abs(f.x - tracked_face_.x);
-            float dy = std::abs(f.y - tracked_face_.y);
-
-            if(dx > max_tracking_jump_px_ || dy > max_tracking_jump_px_)
-                continue;
-
-            motion_penalty = 0.35f * (dx + dy);
-        }
-
-        float score = static_cast<float>(f.area()) - motion_penalty;
-        if(score > best_score)
-        {
-            best_score = score;
-            best_face = f;
-        }
-    }
-
-    if(best_score < 0.0f)
-        return false;
-
-    int margin = edge_margin_px_;
-
-    if(best_face.x < margin ||
-       best_face.y < margin ||
-       best_face.x + best_face.width > gray.cols - margin ||
-       best_face.y + best_face.height > gray.rows - margin)
-        return false;
-
-    float dist = computeDistance(best_face);
-
-    if(dist > max_face_distance_m_ || dist < min_face_distance_m_)
-        return false;
-
-    face = best_face;
-    return true;
-}
-
-float FaceTracker::computeDistance(const cv::Rect &face)
+float FaceTracker::computeDistance(const cv::Rect &face) const
 {
     if(fx_<=0)
         return -1;
@@ -226,6 +196,288 @@ void FaceTracker::smoothTrackedFaceSize(cv::Rect &face, const cv::Size &frame_si
     face = cv::Rect(x, y, smooth_w, smooth_h);
 }
 
+bool FaceTracker::validateFaceRect(const cv::Rect &face, const cv::Size &image_size, float *score) const
+{
+    if(face.width <= 0 || face.height <= 0)
+        return false;
+
+    float ratio = static_cast<float>(face.height) / static_cast<float>(face.width);
+    if(ratio < face_ratio_min_ || ratio > face_ratio_max_)
+        return false;
+
+    int margin = edge_margin_px_;
+    if(face.x < margin ||
+    face.y < margin ||
+    face.x + face.width > image_size.width - margin ||
+    face.y + face.height > image_size.height - margin)
+        return false;
+
+    if(fx_ > 0.0f)
+    {
+        float dist = computeDistance(face);
+        if(!std::isfinite(dist) || dist < min_face_distance_m_ || dist > max_face_distance_m_)
+            return false;
+    }
+
+    if(tracker_initialized_)
+    {
+        float dx = std::abs(face.x - tracked_face_.x);
+        float dy = std::abs(face.y - tracked_face_.y);
+
+        if(dx > max_tracking_jump_px_ || dy > max_tracking_jump_px_)
+            return false;
+
+        if(tracked_face_.height > 0)
+        {
+            float scale_ratio =
+                static_cast<float>(face.height) /
+                static_cast<float>(tracked_face_.height);
+
+            if(scale_ratio > max_scale_jump_ ||
+            scale_ratio < (1.0f / max_scale_jump_))
+                return false;
+        }
+    }
+
+    if(score)
+    {
+        float cx = face.x + face.width * 0.5f;
+        float cy = face.y + face.height * 0.5f;
+        float icx = image_size.width * 0.5f;
+        float icy = image_size.height * 0.5f;
+        float dist_center = std::hypot(cx - icx, cy - icy);
+
+        // Grande bbox + proche du centre = mieux
+        *score = static_cast<float>(face.area()) - 0.3f * dist_center;
+    }
+
+    return true;
+}
+
+bool FaceTracker::detectFaceHaar(const cv::Mat &gray, cv::Rect &face)
+{
+    std::vector<cv::Rect> faces;
+
+    face_cascade_.detectMultiScale(
+        gray,
+        faces,
+        haar_scale_factor_,
+        haar_min_neighbors_,
+        cv::CASCADE_FIND_BIGGEST_OBJECT,
+        cv::Size(haar_min_face_size_px_, haar_min_face_size_px_));
+
+    if(faces.empty())
+        return false;
+
+    float best_score = -1.0f;
+    cv::Rect best_face;
+
+    for(const auto &f : faces)
+    {
+        float score = 0.0f;
+        if(!validateFaceRect(f, gray.size(), &score))
+            continue;
+
+        if(score > best_score)
+        {
+            best_score = score;
+            best_face = f;
+        }
+    }
+
+    if(best_score < 0.0f)
+        return false;
+
+    face = best_face;
+    return true;
+}
+
+bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
+{
+    if(!yunet_)
+        return false;
+
+    try
+    {
+        yunet_->setInputSize(frame_bgr.size());
+
+        cv::Mat detections;
+        yunet_->detect(frame_bgr, detections);
+
+        if(detections.empty() || detections.rows == 0)
+            return false;
+
+        float best_score = -1.0f;
+        cv::Rect best_face;
+
+        for(int i = 0; i < detections.rows; ++i)
+        {
+            float x = detections.at<float>(i, 0);
+            float y = detections.at<float>(i, 1);
+            float w = detections.at<float>(i, 2);
+            float h = detections.at<float>(i, 3);
+            float det_score = detections.at<float>(i, 14);
+
+            cv::Rect f(
+                static_cast<int>(std::round(x)),
+                static_cast<int>(std::round(y)),
+                static_cast<int>(std::round(w)),
+                static_cast<int>(std::round(h)));
+
+            float geom_score = 0.0f;
+            if(!validateFaceRect(f, frame_bgr.size(), &geom_score))
+                continue;
+
+            float final_score = 1000.0f * det_score + geom_score;
+            if(final_score > best_score)
+            {
+                best_score = final_score;
+                best_face = f;
+            }
+        }
+
+        if(best_score < 0.0f)
+            return false;
+
+        face = best_face;
+        return true;
+    }
+    catch(const cv::Exception &e)
+    {
+        RCLCPP_ERROR_THROTTLE(
+            this->get_logger(),
+            *this->get_clock(),
+            3000,
+            "YuNet detect failed: %s",
+            e.what());
+        RCLCPP_WARN(this->get_logger(), "Disabling YuNet and falling back to Haar.");
+        use_yunet_ = false;
+        return false;
+    }
+}
+
+bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect &roi, cv::Rect &face)
+{
+    cv::Rect bounded_roi = roi & cv::Rect(0, 0, frame_bgr.cols, frame_bgr.rows);
+    if(bounded_roi.width <= 0 || bounded_roi.height <= 0)
+        return false;
+
+    cv::Mat roi_img = frame_bgr(bounded_roi).clone();
+
+    if(!yunet_)
+        return false;
+
+    yunet_->setInputSize(roi_img.size());
+
+    cv::Mat detections;
+    yunet_->detect(roi_img, detections);
+
+    if(detections.empty() || detections.rows == 0)
+        return false;
+
+    float best_score = -1.0f;
+    cv::Rect best_face;
+
+    for(int i = 0; i < detections.rows; ++i)
+    {
+        float x = detections.at<float>(i, 0);
+        float y = detections.at<float>(i, 1);
+        float w = detections.at<float>(i, 2);
+        float h = detections.at<float>(i, 3);
+        float det_score = detections.at<float>(i, 14);
+
+        cv::Rect f(
+            bounded_roi.x + static_cast<int>(std::round(x)),
+            bounded_roi.y + static_cast<int>(std::round(y)),
+            static_cast<int>(std::round(w)),
+            static_cast<int>(std::round(h)));
+
+        float geom_score = 0.0f;
+        if(!validateFaceRect(f, frame_bgr.size(), &geom_score))
+            continue;
+
+        float final_score = 1000.0f * det_score + geom_score;
+        if(final_score > best_score)
+        {
+            best_score = final_score;
+            best_face = f;
+        }
+    }
+
+    if(best_score < 0.0f)
+        return false;
+
+    face = best_face;
+    return true;
+}
+
+void FaceTracker::resetKalmanToFace(const cv::Rect &face)
+{
+    float cx = face.x + face.width * 0.5f;
+    float cy = face.y + face.height * 0.5f;
+
+    kalman_.statePost.at<float>(0) = cx;
+    kalman_.statePost.at<float>(1) = cy;
+    kalman_.statePost.at<float>(2) = 0.0f;
+    kalman_.statePost.at<float>(3) = 0.0f;
+
+    kalman_.statePre = kalman_.statePost.clone();
+}
+
+cv::Point2f FaceTracker::predictKalmanCenter()
+{
+    cv::Mat prediction = kalman_.predict();
+    return cv::Point2f(prediction.at<float>(0), prediction.at<float>(1));
+}
+
+cv::Point2f FaceTracker::correctKalmanCenter(const cv::Point2f &meas)
+{
+    cv::Mat measurement(2, 1, CV_32F);
+    measurement.at<float>(0) = meas.x;
+    measurement.at<float>(1) = meas.y;
+
+    cv::Mat estimated = kalman_.correct(measurement);
+    return cv::Point2f(estimated.at<float>(0), estimated.at<float>(1));
+}
+
+cv::Rect FaceTracker::buildLocalRoiFromPrediction(const cv::Size &frame_size, int scale) const
+{
+    if(tracked_face_.width <= 0 || tracked_face_.height <= 0)
+        return cv::Rect();
+
+    float cx = kalman_.statePost.at<float>(0);
+    float cy = kalman_.statePost.at<float>(1);
+
+    int roi_w = tracked_face_.width * scale;
+    int roi_h = tracked_face_.height * scale;
+
+    int roi_x = static_cast<int>(std::round(cx - roi_w / 2.0f));
+    int roi_y = static_cast<int>(std::round(cy - roi_h / 2.0f));
+
+    roi_x = std::max(0, roi_x);
+    roi_y = std::max(0, roi_y);
+    roi_w = std::min(frame_size.width - roi_x, roi_w);
+    roi_h = std::min(frame_size.height - roi_y, roi_h);
+
+    if(roi_w <= 0 || roi_h <= 0)
+        return cv::Rect();
+
+    return cv::Rect(roi_x, roi_y, roi_w, roi_h);
+}
+
+void FaceTracker::resetTrackingState()
+{
+    tracker_initialized_ = false;
+    missed_rechecks_ = 0;
+    candidate_valid_ = false;
+    candidate_hits_ = 0;
+    smoothed_face_valid_ = false;
+    tracker_confidence_ = 0.0f;
+    tracking_state_ = TrackingState::SEARCH;
+    local_roi_ = cv::Rect();
+}
+
+
 void FaceTracker::imageCallback(
         const sensor_msgs::msg::Image::ConstSharedPtr msg)
 {
@@ -258,24 +510,38 @@ void FaceTracker::imageCallback(
         cv::Rect face;
         bool found_face = false;
 
-        // Try local ROI first for faster, more stable reacquisition near last known face.
-        cv::Rect roi = local_roi_ & cv::Rect(0, 0, gray.cols, gray.rows);
-        if(roi.width > 0 && roi.height > 0)
+        // 1) ROI locale prédite si on a une ancienne cible
+        cv::Rect predicted_roi = buildLocalRoiFromPrediction(frame.size(), 3);
+        if(predicted_roi.width > 0 && predicted_roi.height > 0)
         {
-            cv::Rect local_face;
-            cv::Mat gray_local = gray(roi);
-            if(detectFace(gray_local, local_face))
+            if(use_yunet_)
+                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face);
+
+            if(!found_face && use_haar_fallback_)
             {
-                face.x = local_face.x + roi.x;
-                face.y = local_face.y + roi.y;
-                face.width = local_face.width;
-                face.height = local_face.height;
-                found_face = true;
+                cv::Mat gray_local = gray(predicted_roi);
+                cv::Rect local_face;
+                if(detectFaceHaar(gray_local, local_face))
+                {
+                    face = cv::Rect(
+                        predicted_roi.x + local_face.x,
+                        predicted_roi.y + local_face.y,
+                        local_face.width,
+                        local_face.height);
+                    found_face = true;
+                }
             }
         }
 
+        // 2) Si rien trouvé : recherche globale
         if(!found_face)
-            found_face = detectFace(gray, face);
+        {
+            if(use_yunet_)
+                found_face = detectFaceYuNet(frame, face);
+
+            if(!found_face && use_haar_fallback_)
+                found_face = detectFaceHaar(gray, face);
+        }
 
         if(found_face)
         {
@@ -328,13 +594,7 @@ void FaceTracker::imageCallback(
                 candidate_valid_ = false;
                 candidate_hits_ = 0;
 
-                float cx = tracked_face_.x + tracked_face_.width/2.0f;
-                float cy = tracked_face_.y + tracked_face_.height/2.0f;
-
-                kalman_.statePost.at<float>(0) = cx;
-                kalman_.statePost.at<float>(1) = cy;
-                kalman_.statePost.at<float>(2) = 0;
-                kalman_.statePost.at<float>(3) = 0;
+                resetKalmanToFace(tracked_face_);
             }
         }
         else
@@ -348,31 +608,61 @@ void FaceTracker::imageCallback(
     else if(do_recheck)
     {
         cv::Rect face;
+        bool found_face = false;
 
-        if(detectFace(gray,face))
+        cv::Rect predicted_roi = buildLocalRoiFromPrediction(frame.size(), 3);
+        if(predicted_roi.width > 0 && predicted_roi.height > 0)
+        {
+            if(use_yunet_)
+                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face);
+
+            if(!found_face && use_haar_fallback_)
+            {
+                cv::Mat gray_local = gray(predicted_roi);
+                cv::Rect local_face;
+                if(detectFaceHaar(gray_local, local_face))
+                {
+                    face = cv::Rect(
+                        predicted_roi.x + local_face.x,
+                        predicted_roi.y + local_face.y,
+                        local_face.width,
+                        local_face.height);
+                    found_face = true;
+                }
+            }
+        }
+
+        if(!found_face)
+        {
+            if(use_yunet_)
+                found_face = detectFaceYuNet(frame, face);
+
+            if(!found_face && use_haar_fallback_)
+                found_face = detectFaceHaar(gray, face);
+        }
+
+        if(found_face)
         {
             tracker_ = cv::TrackerKCF::create();
-            tracker_->init(frame,face);
+            tracker_->init(frame, face);
 
             tracked_face_ = face;
             previous_face_ = tracked_face_;
+
             smoothTrackedFaceSize(tracked_face_, frame.size());
-            previous_face_ = tracked_face_;
+
             missed_rechecks_ = 0;
-            tracking_state_ = TrackingState::TRACKING;
             tracker_confidence_ = std::min(1.0f, tracker_confidence_ + confidence_rise_);
+
+            resetKalmanToFace(tracked_face_);
         }
         else
         {
-            // KCF can keep drifting on background patterns: require periodic Haar confirmation.
+            // // KCF can keep drifting on background patterns: require periodic Haar confirmation.
             missed_rechecks_++;
-            tracker_confidence_ = std::max(0.0f, tracker_confidence_ - 0.5f * confidence_decay_);
             if(missed_rechecks_ >= max_missed_rechecks_)
             {
-                tracker_initialized_ = false;
-                missed_rechecks_ = 0;
-                tracking_state_ = TrackingState::SEARCH;
-                tracker_confidence_ = 0.0f;
+                resetTrackingState();
             }
         }
     }
@@ -383,11 +673,7 @@ void FaceTracker::imageCallback(
 
         if(!ok)
         {
-            tracker_initialized_ = false;
-            missed_rechecks_ = 0;
-            tracking_state_ = TrackingState::SEARCH;
-            smoothed_face_valid_ = false;
-            tracker_confidence_ = 0.0f;
+            resetTrackingState();
         }
 
         if(tracker_initialized_)
@@ -401,10 +687,7 @@ void FaceTracker::imageCallback(
                 if(scale_ratio > max_scale_jump_ ||
                    scale_ratio < (1.0f / max_scale_jump_))
                 {
-                    tracker_initialized_ = false;
-                    tracking_state_ = TrackingState::SEARCH;
-                    smoothed_face_valid_ = false;
-                    tracker_confidence_ = 0.0f;
+                    resetTrackingState();
                 }
             }
 
@@ -415,11 +698,7 @@ void FaceTracker::imageCallback(
                tracked_face_.x + tracked_face_.width > frame.cols ||
                tracked_face_.y + tracked_face_.height > frame.rows))
             {
-                tracker_initialized_ = false;
-                missed_rechecks_ = 0;
-                tracking_state_ = TrackingState::SEARCH;
-                smoothed_face_valid_ = false;
-                tracker_confidence_ = 0.0f;
+                resetTrackingState();
             }
 
             if(tracker_initialized_)
@@ -462,18 +741,11 @@ void FaceTracker::imageCallback(
         meas.at<float>(0)=cx;
         meas.at<float>(1)=cy;
 
-        // kalman_.predict();
-        // kalman_.correct(meas);
+        predictKalmanCenter();
+        cv::Point2f estimated = correctKalmanCenter({cx, cy});
 
-        // float px = kalman_.statePost.at<float>(0);
-        // float py = kalman_.statePost.at<float>(1);
-
-        cv::Mat prediction = kalman_.predict();
-
-        cv::Mat estimated = kalman_.correct(meas);
-
-        float px = estimated.at<float>(0);
-        float py = estimated.at<float>(1);
+        float px = estimated.x;
+        float py = estimated.y;
 
         u = px - image_width_/2;
         v = py - image_height_/2;
@@ -483,10 +755,7 @@ void FaceTracker::imageCallback(
         if(distance <= 0.0f || !std::isfinite(distance))
         {
             face_detected = false;
-            tracker_initialized_ = false;
-            missed_rechecks_ = 0;
-            smoothed_face_valid_ = false;
-            tracker_confidence_ = 0.0f;
+            resetTrackingState();
         }
 
         if(face_detected)
