@@ -1,0 +1,58 @@
+qbo_face_tracker:
+  ros__parameters:
+    # Debug image output
+    publish_debug_image: true
+    debug_image_topic: "/qbo_face_tracking/debug_image"
+
+    # Face shape filter (wider range for non-frontal faces)
+    face_ratio_min: 0.60
+    face_ratio_max: 2.20
+
+    # Border handling
+    edge_margin_px: 2
+
+    # Max motion jump accepted between detections
+    max_tracking_jump_px: 260
+
+    # Candidate validation before entering tracking
+    candidate_required_hits: 3
+
+    # Distance gate (meters)
+    min_face_distance_m: 0.35
+    max_face_distance_m: 2.00
+
+    # Reject abrupt scale changes from KCF
+    max_scale_jump: 1.6
+
+    # Temporal smoothing of face size (0=no smoothing, 1=raw size)
+    size_smoothing_alpha: 0.35
+
+    #  - Si tu veux un comportement plus “stable”
+    #     size_smoothing_alpha: 0.25
+    #  - Si tu veux un comportement plus “réactif”
+    #     size_smoothing_alpha: 0.5
+
+    # Tracker confidence tuning
+    confidence_rise: 0.08           # Confidence increase per valid detection
+    confidence_decay: 0.20          # Confidence decrease per invalid detection
+    candidate_confidence_max: 0.55  # Maximum confidence for a candidate
+
+    #  - Si tu veux un score plus nerveux:
+    #     augmente confidence_rise (ex: 0.12)
+    #     baisse confidence_decay (ex: 0.12)
+    #  - Si tu veux un score plus conservateur:
+    #     baisse confidence_rise (ex: 0.05)
+    #     monte confidence_decay (ex: 0.25)
+
+    # Haar cascade tuning
+    haar_scale_factor: 1.1
+    haar_min_neighbors: 4
+    haar_min_face_size_px: 50
+
+    use_yunet: true
+    use_haar_fallback: true
+
+    yunet_model_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/models/face_detection_yunet_2023mar.onnx"
+    yunet_score_threshold: 0.85
+    yunet_nms_threshold: 0.30
+    yunet_top_k: 10

@@ -2,7 +2,7 @@ qbo_face_following:
   ros__parameters:
     # Activation
     move_head: true
-    move_base: true
+    move_base: false
 
     # Filtre mesure (pixels)
     ema_alpha: 0.25

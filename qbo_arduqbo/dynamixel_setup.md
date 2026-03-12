@@ -102,6 +102,21 @@ ros2 topic echo /joint_states
 ros2 topic echo /diagnostics
 ```
 
+# Activer le torque automatique off
+```bash
+ros2 param set /qbo_dynamixel auto_torque_off true
+```
+
+# Désactiver le torque automatique off
+```bash
+ros2 param set /qbo_dynamixel auto_torque_off false
+```
+
+# Modifier le timeout (en secondes)
+```bash
+ros2 param set /qbo_dynamixel auto_torque_off_timeout 5.0
+```
+
 ---
 
 ### 🧩 Chagement des paramétres à la volé (rosparam)

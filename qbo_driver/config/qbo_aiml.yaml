@@ -1,0 +1,8 @@
+/qbo_aiml:
+  ros__parameters: {}
+
+# Parametres AIML a venir:
+# /qbo_aiml:
+#   ros__parameters:
+#     debug: false
+#     startup_greeting: ""

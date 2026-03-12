@@ -1,27 +1,69 @@
 /qbo_listen:
   ros__parameters:
-    audio_device_name: "XVF3800"  # partie du nom du device audio d'entrée (ex: "Jabra", "ALSA", "USB", etc.)
+    # --------------------
+    # Capture audio
+    # --------------------
+    # Frequence d'echantillonnage d'entree (Hz).
     sample_rate: 16000
-    audio_channels_opened: 2 # nombre de canaux effectivement ouverts sur le device (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
-    asr_channel_index: 1 # indice du canal à utiliser pour l'ASR (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
 
-    frame_ms: 20 # durée d'une frame audio en ms (10 ou 20ms conseillé)
-    vad_enabled: true # active ou désactive la détection de voix (VAD)
-    vad_mode: 2 # 0-3, plus c'est élevé, plus c'est strict (moins de faux positifs, mais plus de faux négatifs)
-    silence_frames_end: 20 # 400ms de silence pour considérer la fin d'une parole
-    min_utt_ms: 400 # durée minimale d'une parole (pour éviter les bruits courts)
+    # Nombre de canaux ouverts sur la carte son.
+    # Exemple: certains micros USB imposent 2 canaux meme si l'on traite en mono.
+    audio_channels_opened: 2
 
-    # anti tampon musique/bruit
-    max_utt_ms: 4000 # durée maximale d'une parole (pour éviter les bruits longs, comme la musique ou le bruit de fond)
-    min_speech_ratio: 0.50 # ratio minimum de frames de parole dans une utterance pour la valider (pour éviter les bruits longs avec peu de parole, comme la musique ou le bruit de fond)
+    # Canal utilise pour l'ASR (index base 0).
+    asr_channel_index: 1
 
-    # lien TTS
-    tts_ignore_ms: 500 # durée pendant laquelle on ignore les entrées audio après une sortie TTS (pour éviter de capter la propre voix du robot)
+    # --------------------
+    # VAD / segmentation parole
+    # --------------------
+    # Taille d'une frame audio (10 ou 20 ms recommande).
+    frame_ms: 20
 
-    # Whisper
-    system_lang: "fr" #langue principale du système, pour aider
-    whisper_model: "small" #taille du modèle Whisper à utiliser (tiny, base, small, medium, large)
-    whisper_device: "cuda" #device pour faire tourner Whisper (cpu ou cuda)
+    # Active la detection de voix (Voice Activity Detection).
+    vad_enabled: true
 
-    # confidence gating
-    min_confidence: 0.5 #seuil de confiance minimum pour accepter une transcription (entre 0 et 1)
+    # Sensibilite VAD (0 a 3): plus haut = plus strict.
+    vad_mode: 2
+
+    # Nombre de frames silencieuses pour cloturer une utterance.
+    # 20 frames a 20 ms = 400 ms.
+    silence_frames_end: 20
+
+    # Duree minimale d'une utterance valide (ms).
+    min_utt_ms: 400
+
+    # Duree maximale d'une utterance (evite les longues nappes de bruit/musique).
+    max_utt_ms: 4000
+
+    # Ratio minimum de frames "voix" dans l'utterance pour l'accepter.
+    min_speech_ratio: 0.50
+
+    # --------------------
+    # Interaction avec le TTS
+    # --------------------
+    # Fenetre d'ignore apres une sortie TTS pour eviter l'auto-ecoute (ms).
+    tts_ignore_ms: 500
+
+    # --------------------
+    # Whisper / inference
+    # --------------------
+    # Langue systeme attendue (aide le decodage).
+    system_lang: "fr"
+
+    # Taille du modele Whisper: tiny, base, small, medium, large.
+    whisper_model: "small"
+
+    # Device de calcul: "cpu" ou "cuda".
+    whisper_device: "cuda"
+
+    # Affiche les sources d'entree detectees au demarrage.
+    list_input_sources_on_start: false
+
+    # Active les logs detailles des metriques de segment.
+    debug_segment_metrics: false
+
+    # --------------------
+    # Validation transcription
+    # --------------------
+    # Seuil minimum de confiance pour accepter une transcription (0.0 a 1.0).
+    min_confidence: 0.5

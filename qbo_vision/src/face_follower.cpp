@@ -178,6 +178,9 @@ FaceFollower::FaceFollower()
     base_search_last_time_ = now;
     base_search_last_end_time_ = now;
 
+    if (!move_base_)
+        base_spin_test_done_ = true;
+
     have_time_ = false;
 }
 
@@ -705,7 +708,8 @@ void FaceFollower::controlLoop()
 
     FollowerState next_state = current_state_;
 
-    if (base_spin_test_mode_ && !base_spin_test_done_)
+    // Spin test is only meaningful when base motion is enabled.
+    if (move_base_ && base_spin_test_mode_ && !base_spin_test_done_)
     {
         next_state = FollowerState::SPIN_TEST;
     }

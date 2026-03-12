@@ -23,7 +23,7 @@ def generate_launch_description():
                 'image_height': 480,
                 'pixel_format': 'mjpeg2rgb',
                 'io_method': 'mmap',
-                'framerate': 30.0,
+                'framerate': 60.0,
                 'camera_name': 'left_camera',
                 'camera_info_url': f'file://{config_path}',
                 'queue_size': 1

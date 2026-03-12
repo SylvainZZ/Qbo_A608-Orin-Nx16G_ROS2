@@ -28,4 +28,7 @@ ros2 topic echo /qbo_face_tracking/face_pos_and_dist
 ros2 topic hz /camera_left/image_raw
 ros2 topic delay /camera_left/image_raw
 ros2 topic hz /qbo_face_tracking/face_pos_and_dist
+v4l2-ctl --list-formats-ext -d /dev/video0
+
+ros2 run qbo_vision face_tracker_node
 

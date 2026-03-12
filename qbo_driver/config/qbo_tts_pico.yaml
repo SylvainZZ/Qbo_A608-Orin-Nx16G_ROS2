@@ -1,21 +1,41 @@
-talk_pico:
+/**:
   ros__parameters:
-    service_name: /qbo_driver/say_to_TTS
-    tts_active_topic: /tts_active
+    # Nom du service ROS2 expose par le node TTS.
+    service_name: "/qbo_driver/say_to_TTS"
 
-    default_lang: fr-FR
+    # Topic booleen publie a true pendant la parole, puis false a la fin.
+    tts_active_topic: "/tts_active"
+
+    # Langue par defaut PicoTTS (ex: fr-FR, en-US).
+    default_lang: "fr-FR"
+
+    # Si le champ lang existe dans la requete, l'autoriser a surcharger default_lang.
     allow_dynamic_lang: true
 
-    audio_backend: pulse        # pulse recommandé si PulseAudio actif
-    pulse_device: ""            # vide => device par défaut
-    alsa_device: default        # fallback
+    # Backend audio de lecture: "pulse" (recommande) ou "alsa".
+    audio_backend: "pulse"
 
-    audio_playback_volume: 110
+    # Sink PulseAudio cible pour la sortie voix (ici: carte mere analogique).
+    pulse_device: "alsa_output.platform-sound.analog-stereo"
 
-    sample_rate_hz: 48000
+    # Force ce sink comme "Default Sink" au demarrage du node.
+    force_default_pulse_sink: true
+
+    # Device ALSA de secours si paplay n'est pas disponible.
+    alsa_device: "default"
+
+    # Volume de sortie applique au sink cible (0-150).
+    audio_playback_volume: 80
+
+    # Parametres declares dans le script (non utilises directement dans la conversion actuelle).
+    sample_rate_hz: 16000
     force_mono: true
 
-    block_on_call: True
+    # true: le service attend la fin de la lecture avant de repondre.
+    block_on_call: true
+
+    # Nombre max de requetes TTS en file d'attente.
     queue_size: 30
 
-    pronunciation_file: config/others/pronunciation_map.json
+    # Fichier JSON de substitutions de prononciation (chemin relatif au share du package).
+    pronunciation_file: "config/pronunciation_map.json"

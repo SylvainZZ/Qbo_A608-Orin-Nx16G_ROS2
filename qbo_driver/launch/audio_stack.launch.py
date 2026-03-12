@@ -20,6 +20,29 @@ def generate_launch_description():
             ],
             output="screen",
         ),
+        Node(
+            package="qbo_driver",
+            executable="qbo_tts_pico",
+            name="talk_pico",
+            parameters=[
+                PathJoinSubstitution([pkg_share, "config", "qbo_tts_pico.yaml"]),
+                {
+                    "pronunciation_file": PathJoinSubstitution([
+                        pkg_share, "config", "others", "pronunciation_map.json"
+                    ]),
+                },
+            ],
+            output="screen",
+        ),
+        Node(
+            package="qbo_driver",
+            executable="/home/qbo-v2/venvs/aiml/bin/python",
+            name="qbo_aiml",
+            arguments=[
+                "-m", "qbo_driver.aiml",
+            ],
+            output="screen",
+        ),
         # Node(
         #     package="qbo_driver",
         #     executable="/home/qbo-v2/venvs/tts/bin/python",

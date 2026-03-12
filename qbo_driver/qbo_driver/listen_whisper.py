@@ -15,12 +15,7 @@ from std_msgs.msg import Bool
 from qbo_msgs.msg import ListenResult
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
-FIXED_SR = 16000  # Jabra: 16k uniquement
-
-
-
-def clamp01(x: float) -> float:
-    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+FIXED_SR = 16000
 
 def clamp01(x: float) -> float:
     return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
@@ -39,7 +34,7 @@ def logprob_to_conf(avg_logprob: float) -> float:
     x0 = -1.0 # centre
     return clamp01(1.0 / (1.0 + math.exp(-k * (x - x0))))
 
-def segment_confidence(seg) -> float:
+def segment_confidence(seg, debug: bool = False, logger=None) -> float:
     """
     Combine plusieurs signaux si présents.
     """
@@ -62,7 +57,16 @@ def segment_confidence(seg) -> float:
             conf *= 0.5
         elif cr > 2.0:
             conf *= 0.8
-    print(f"Debug: seg avg_logprob={getattr(seg, 'avg_logprob', None)} no_speech_prob={getattr(seg, 'no_speech_prob', None)} compression_ratio={getattr(seg, 'compression_ratio', None)} => conf={conf}")
+    if debug and logger is not None:
+        logger.debug(
+            "seg avg_logprob=%s no_speech_prob=%s compression_ratio=%s => conf=%.3f"
+            % (
+                getattr(seg, "avg_logprob", None),
+                getattr(seg, "no_speech_prob", None),
+                getattr(seg, "compression_ratio", None),
+                conf,
+            )
+        )
 
     return clamp01(conf)
 
@@ -75,65 +79,34 @@ def aggregate_confidence(confs: list[float]) -> float:
         return 0.0
     return float(sum(confs) / len(confs))
 
-
-def list_devices(logger):
+def list_input_sources(logger):
     devs = sd.query_devices()
     hostapis = sd.query_hostapis()
-    logger.info("=== Audio devices (sounddevice) ===")
+    logger.info("=== Audio input sources (sounddevice) ===")
     for i, d in enumerate(devs):
+        if d.get("max_input_channels", 0) < 1:
+            continue
         api = hostapis[d["hostapi"]]["name"]
         logger.info(
-            f"{i:2d}: {d['name']} | api={api} | in={d.get('max_input_channels',0)} out={d.get('max_output_channels',0)} | default_sr={int(d.get('default_samplerate',0))}"
+            f"{i:2d}: {d['name']} | api={api} | in={d.get('max_input_channels',0)} | default_sr={int(d.get('default_samplerate',0))}"
         )
 
-
-def find_device_index(name_hint: str, want_input=True, want_output=False) -> int:
-    """
-    Retourne l'index du device dont le nom contient name_hint (case-insensitive).
-    Filtre aussi sur capacité input/output si demandé.
-    """
-    hint = (name_hint or "").lower()
-    devs = sd.query_devices()
-    hostapis = sd.query_hostapis()
-
-    candidates = []
-    for i, d in enumerate(devs):
-        if want_input and d.get("max_input_channels", 0) < 1:
-            continue
-        if want_output and d.get("max_output_channels", 0) < 1:
-            continue
-        if hint in d["name"].lower():
-            api = hostapis[d["hostapi"]]["name"]
-            candidates.append((api, i))
-
-    # préférence ALSA si plusieurs matches
-    for pref in ("ALSA", "JACK", "PulseAudio"):
-        for api, idx in candidates:
-            if api == pref:
-                return idx
-
-    if candidates:
-        return candidates[0][1]
-
-    # dernier fallback: device input par défaut
+def get_default_input_info():
     d = sd.query_devices(kind="input")
-    # sounddevice accepte aussi device=None (défaut), mais on garde une valeur explicite si possible
+    devs = sd.query_devices()
     for i, di in enumerate(devs):
         if di["name"] == d["name"] and di.get("max_input_channels", 0) > 0:
-            return i
-    return None
-
+            return i, di["name"]
+    return None, None
 
 class ListenNode(Node):
     def __init__(self):
         super().__init__("qbo_listen")
 
         # ---- Params (simplifiés) ----
-        self.declare_parameter("audio_device_name", "XVF3800")  # partie du nom du device audio d'entrée (ex: "Jabra", "ALSA", "USB", etc.)
         self.declare_parameter("asr_channel_index", 1)
         self.declare_parameter("audio_channels_opened", 2)  # nombre de canaux effectivement ouverts sur le device (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
         self.declare_parameter("sample_rate", FIXED_SR)  # immuable (on vérifie)
-        # self.declare_parameter("input_channels", 1)
         self.declare_parameter("frame_ms", 20)  # 10 ou 20ms conseillé
         self.declare_parameter("vad_enabled", True)
         self.declare_parameter("vad_mode", 2)  # 0..3 (3 = plus agressif)
@@ -145,22 +118,36 @@ class ListenNode(Node):
 
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "small")
+        self.declare_parameter("whisper_device", "cuda")
+        self.declare_parameter("list_input_sources_on_start", True)
+        self.declare_parameter("debug_segment_metrics", False)
         self.declare_parameter("min_confidence", 0.5)  # 0.0..1.0
 
-        self.device_name = self.get_parameter("audio_device_name").value
         sr = int(self.get_parameter("sample_rate").value)
-        # self.channels = int(self.get_parameter("input_channels").value)
         self.asr_channel_index = int(self.get_parameter("asr_channel_index").value)
         self.input_channels_opened = int(self.get_parameter("audio_channels_opened").value)
         self.frame_ms = int(self.get_parameter("frame_ms").value)
+
+        if self.input_channels_opened < 1:
+            self.get_logger().warning("audio_channels_opened < 1. Forçage à 1.")
+            self.input_channels_opened = 1
+
+        if self.asr_channel_index < 0 or self.asr_channel_index >= self.input_channels_opened:
+            self.get_logger().warning(
+                f"asr_channel_index={self.asr_channel_index} invalide pour {self.input_channels_opened} canaux. Forçage à 0."
+            )
+            self.asr_channel_index = 0
+
+        if self.frame_ms not in (10, 20, 30):
+            self.get_logger().warning(
+                f"frame_ms={self.frame_ms} non supporté par webrtcvad (10/20/30). Forçage à 20."
+            )
+            self.frame_ms = 20
 
         if sr != FIXED_SR:
             self.get_logger().warning(
                 f"sample_rate demandé={sr}, mais Jabra impose {FIXED_SR}. Forçage à {FIXED_SR}."
             )
-        # if self.channels != 1:
-        #     self.get_logger().warning("Jabra input mono attendu. Forçage channels=1.")
-        #     self.channels = 1
 
         self.vad_enabled = bool(self.get_parameter("vad_enabled").value)
         self.vad_mode = int(self.get_parameter("vad_mode").value)
@@ -172,6 +159,9 @@ class ListenNode(Node):
 
         self.lang = self.get_parameter("system_lang").value
         model_size = self.get_parameter("whisper_model").value
+        whisper_device = self.get_parameter("whisper_device").value
+        self.list_input_sources_on_start = bool(self.get_parameter("list_input_sources_on_start").value)
+        self.debug_segment_metrics = bool(self.get_parameter("debug_segment_metrics").value)
         self.min_confidence = float(self.get_parameter("min_confidence").value) # 0.0..1.0
 
         # ---- ROS I/O ----
@@ -184,17 +174,23 @@ class ListenNode(Node):
         self.tts_active = False
         self.ignore_until = 0.0  # timestamp jusqu'auquel on ignore (fin TTS + marge)
 
-        # ---- Debug devices ----
-        list_devices(self.get_logger())
+        # ---- Input sources ----
+        if self.list_input_sources_on_start:
+            list_input_sources(self.get_logger())
 
-        self.device_index = find_device_index(self.device_name, want_input=True)
-        self.get_logger().info(f"🎤 Using device: '{self.device_name}' index={self.device_index}")
+        self.device_index, self.device_name = get_default_input_info()
+        if self.device_index is None:
+            raise RuntimeError("Aucune source d'entree par defaut detectee par le systeme.")
+
+        self.get_logger().info(
+            f"🎤 Using default input source: '{self.device_name}' index={self.device_index}"
+        )
 
         # ---- Whisper ----
         self.get_logger().info("🔄 Chargement du modèle Whisper...")
         self.voice_model = WhisperModel(
             model_size,
-            device="cuda",
+            device=str(whisper_device),
             compute_type="int8_float16",
         )
         self.get_logger().info("✅ Modèle Whisper prêt.")
@@ -236,8 +232,6 @@ class ListenNode(Node):
             self.buffer_queue.put_nowait(mono.tobytes())
         except queue.Full:
             pass
-
-
 
     def _listen_loop(self):
         self.get_logger().info(
@@ -394,7 +388,13 @@ class ListenNode(Node):
                     t = (getattr(s, "text", "") or "").strip()
                     if t:
                         texts.append(t)
-                        confs.append(segment_confidence(s))
+                        confs.append(
+                            segment_confidence(
+                                s,
+                                debug=self.debug_segment_metrics,
+                                logger=self.get_logger(),
+                            )
+                        )
 
                 text = " ".join(texts).strip()
                 conf = aggregate_confidence(confs)
@@ -413,12 +413,9 @@ class ListenNode(Node):
                     f"📝 ({conf:.2f}) {text}  [speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
                 )
 
-
-
     def destroy_node(self):
         self.stop_evt.set()
         super().destroy_node()
-
 
 def main(args=None):
     rclpy.init(args=args)
@@ -432,7 +429,6 @@ def main(args=None):
         node.audio_thread.join(timeout=2.0)
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == "__main__":
     main()

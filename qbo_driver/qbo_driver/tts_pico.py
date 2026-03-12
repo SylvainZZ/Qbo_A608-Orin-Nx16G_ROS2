@@ -52,6 +52,7 @@ class PicoTTSNode(Node):
 
         self.declare_parameter("audio_backend", "pulse")     # "pulse" ou "alsa"
         self.declare_parameter("pulse_device", "")           # ex: "alsa_output.pci-0000_00_1f.3.analog-stereo"
+        self.declare_parameter("force_default_pulse_sink", True)  # force pactl set-default-sink au demarrage
         self.declare_parameter("alsa_device", "default")     # ex: "hw:0,0" ou "default"
 
         self.declare_parameter("audio_playback_volume", 80)
@@ -74,34 +75,33 @@ class PicoTTSNode(Node):
 
         if not file_param:
             self.get_logger().warn("Paramètre pronunciation_file non défini.")
-            return
-
-        # 3️⃣ Résolution chemin package si relatif
-        pkg_share = get_package_share_directory("qbo_driver")
-
-        if not os.path.isabs(file_param):
-            file_path = os.path.join(pkg_share, file_param)
         else:
-            file_path = file_param
+            # 3️⃣ Résolution chemin package si relatif
+            pkg_share = get_package_share_directory("qbo_driver")
 
-        # 4️⃣ Chargement JSON
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    self.pronunciation_map = json.load(f)
+            if not os.path.isabs(file_param):
+                file_path = os.path.join(pkg_share, file_param)
+            else:
+                file_path = file_param
 
-                self.get_logger().info(
-                    f"Pronunciation map chargé: {len(self.pronunciation_map)} entrées"
+            # 4️⃣ Chargement JSON
+            if os.path.exists(file_path):
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        self.pronunciation_map = json.load(f)
+
+                    self.get_logger().info(
+                        f"Pronunciation map chargé: {len(self.pronunciation_map)} entrées"
+                    )
+
+                except Exception as e:
+                    self.get_logger().error(
+                        f"Erreur chargement pronunciation map: {e}"
+                    )
+            else:
+                self.get_logger().warn(
+                    f"Fichier pronunciation_map introuvable: {file_path}"
                 )
-
-            except Exception as e:
-                self.get_logger().error(
-                    f"Erreur chargement pronunciation map: {e}"
-                )
-        else:
-            self.get_logger().warn(
-                f"Fichier pronunciation_map introuvable: {file_path}"
-            )
 
         # --------------------
         # Publisher /tts_active (latched)
@@ -127,6 +127,7 @@ class PicoTTSNode(Node):
         self._bin_sox = shutil.which("sox")
         self._bin_paplay = shutil.which("paplay")
         self._bin_aplay = shutil.which("aplay")
+        self._bin_pactl = shutil.which("pactl")
 
         if not self._bin_pico2wave:
             raise RuntimeError("pico2wave introuvable. Installez: sudo apt install libttspico-utils")
@@ -136,9 +137,28 @@ class PicoTTSNode(Node):
         # --------------------
 
         self.pulseaudio_sink = None
+        configured_pulse_device = str(self.get_parameter("pulse_device").value).strip()
+        force_default = bool(self.get_parameter("force_default_pulse_sink").value)
 
-        if shutil.which("pactl"):
+        if self._bin_pactl:
             try:
+                if configured_pulse_device and force_default:
+                    set_default = subprocess.run(
+                        ["pactl", "set-default-sink", configured_pulse_device],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                    if set_default.returncode == 0:
+                        self.get_logger().info(
+                            f"Default sink forcé sur : {configured_pulse_device}"
+                        )
+                    else:
+                        err = (set_default.stderr or set_default.stdout).strip()
+                        self.get_logger().warn(
+                            f"Impossible de forcer le default sink: {err}"
+                        )
+
                 result = subprocess.run(
                     ["pactl", "get-default-sink"],
                     stdout=subprocess.PIPE,
@@ -146,12 +166,23 @@ class PicoTTSNode(Node):
                     text=True
                 )
                 if result.returncode == 0:
-                    self.pulseaudio_sink = result.stdout.strip()
-                    self.get_logger().info(f"Sink Pulse détecté : {self.pulseaudio_sink}")
+                    default_sink = result.stdout.strip()
+                    # Si un sink est configure dans le YAML, on l'utilise pour le volume et la lecture.
+                    self.pulseaudio_sink = configured_pulse_device or default_sink
+
+                    self.get_logger().info(f"Default sink Pulse détecté : {default_sink}")
+                    if configured_pulse_device:
+                        self.get_logger().info(
+                            f"Sink Pulse configuré pour TTS : {configured_pulse_device}"
+                        )
                 else:
                     self.get_logger().warn("Impossible de détecter le sink Pulse.")
+                    self.pulseaudio_sink = configured_pulse_device or None
             except Exception as e:
                 self.get_logger().warn(f"Erreur détection sink : {e}")
+                self.pulseaudio_sink = configured_pulse_device or None
+        else:
+            self.pulseaudio_sink = configured_pulse_device or None
 
         self._apply_volume()
 

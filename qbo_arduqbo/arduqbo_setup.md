@@ -238,7 +238,7 @@ ros2 service call /qbo_arduqbo/mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 
 **Exemples**
 ```bash
-ros2 topic echo /qbo_arduqbo/sens_ctrl/srf10_state/front_left
+ros2 topic echo /qbo_arduqbo/sens_ctrl/distance_sensors_state/front_right_srf10
 ```
 
 ## 🚀 Lancement
