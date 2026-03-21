@@ -1,0 +1,17 @@
+qbo_face_recognition:
+  ros__parameters:
+    # Path to SFace recognition model
+    sface_model: "/home/qbo-v2/qbo_ws/src/qbo_vision/config/models/face_recognition_sface_2021dec.onnx"
+
+    # Time in seconds before re-processing the same face_id
+    recognition_cache_time: 3.0
+
+    # Directory where face database and embeddings are stored
+    faces_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/faces"
+
+    # Number of embedding samples to collect during enrollment
+    enroll_samples: 5
+
+    # Size of identity history window for majority vote (smoothing)
+    identity_window: 5
+

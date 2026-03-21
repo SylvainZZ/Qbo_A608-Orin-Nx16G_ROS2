@@ -1,5 +1,8 @@
 qbo_face_tracker:
   ros__parameters:
+    # Enable/disable tracking at startup (false = standby mode, low CPU)
+    start_enabled: false
+
     # Debug image output
     publish_debug_image: true
     debug_image_topic: "/qbo_face_tracking/debug_image"

@@ -17,10 +17,15 @@
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>image_transport</depend>
   <depend>qbo_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>diagnostic_updater</depend>
+  <depend>message_filters</depend>
 
   <build_depend>OpenCV</build_depend>
+  <build_depend>yaml-cpp</build_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>onnxruntime</exec_depend>
   <exec_depend>faiss</exec_depend>

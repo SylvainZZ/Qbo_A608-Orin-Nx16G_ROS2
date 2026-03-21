@@ -34,16 +34,31 @@ sudo nano /etc/udev/rules.d/99-usb-serial.rules
 
 ```udev
 # ttyQboard2 (USB0) par chemin physique
-SUBSYSTEM=="tty", KERNEL=="ttyUSB*", KERNELS=="1-2.2:1.0", SYMLINK+="ttyQboard2"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", KERNELS=="1-2.2:1.0", \
+  SYMLINK+="ttyQboard2", MODE="0666", GROUP="dialout", \
+  RUN+="/bin/sh -c 'echo 1 > /sys/bus/usb-serial/devices/%k/latency_timer'"
 
 # ttyDmx (USB1) par chemin physique
-SUBSYSTEM=="tty", KERNEL=="ttyUSB*", KERNELS=="1-2.2:1.1", SYMLINK+="ttyDmx"
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", KERNELS=="1-2.2:1.1", \
+  SYMLINK+="ttyDmx", MODE="0666", GROUP="dialout", \
+  RUN+="/bin/sh -c 'echo 1 > /sys/bus/usb-serial/devices/%k/latency_timer'"
 
 # ttyQboard1 (USB2) identifié par idProduct
-SUBSYSTEM=="tty", ATTRS{idProduct}=="6001", SYMLINK+="ttyQboard1"
+SUBSYSTEM=="tty", ATTRS{idProduct}=="6001", \
+  SYMLINK+="ttyQboard1", MODE="0666", GROUP="dialout", \
+  RUN+="/bin/sh -c 'echo 1 > /sys/bus/usb-serial/devices/%k/latency_timer'"
 
-# ttyLidar (optionnel) identifié par idProduct
-SUBSYSTEM=="tty", ATTRS{idProduct}=="ea60", SYMLINK+="ttyLidar"
+# ttyLidar
+SUBSYSTEM=="tty", ATTRS{idProduct}=="ea60", \
+  SYMLINK+="ttyLidar", MODE="0666", GROUP="dialout", \
+  RUN+="/bin/sh -c 'echo 1 > /sys/bus/usb-serial/devices/%k/latency_timer'"
+
+# cam_usb
+SUBSYSTEM=="video4linux", \
+  ATTRS{idVendor}=="32e4", ATTRS{idProduct}=="0577", \
+  ATTRS{serial}=="01.00.00", \
+  ATTR{index}=="0", \
+  SYMLINK+="cam_usb"
 ```
 
 ---

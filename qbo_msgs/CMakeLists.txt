@@ -20,6 +20,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Mouth.msg"
   "msg/MicReport.msg"
   "msg/FacePosAndDist.msg"
+  "msg/FaceObservation.msg"
+  "msg/FaceRecognitionResult.msg"
   "srv/Text2Speach.srv"
   "srv/TorqueEnable.srv"
   "srv/SetOdometry.srv"
@@ -30,6 +32,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetName.srv"
   "srv/Train.srv"
   "srv/LearnFaces.srv"
+  "srv/StartEnrollPerson.srv"
+  "srv/RemovePerson.srv"
+  "srv/ListPersons.srv"
   DEPENDENCIES std_msgs builtin_interfaces sensor_msgs
 )
 

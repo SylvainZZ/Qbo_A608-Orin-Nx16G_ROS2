@@ -241,6 +241,12 @@ ros2 service call /qbo_arduqbo/mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 ros2 topic echo /qbo_arduqbo/sens_ctrl/distance_sensors_state/front_right_srf10
 ```
 
+##  Compilation
+```bash
+colcon build --packages-select qbo_arduqbo   --cmake-clean-cache   --allow-overriding qbo_arduqbo
+source /home/qbo-v2/qbo_ws/install/setup.bash
+```
+
 ## 🚀 Lancement
 
 ```bash

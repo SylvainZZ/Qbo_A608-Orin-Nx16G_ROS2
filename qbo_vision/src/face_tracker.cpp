@@ -2,18 +2,24 @@
 
 #include <iomanip>
 #include <sstream>
+#include <std_srvs/srv/set_bool.hpp>
 
 #define REAL_FACE_HEIGHT 0.21
 
 FaceTracker::FaceTracker()
 : Node("qbo_face_tracker")
 {
+    enabled_ = false;
     tracker_initialized_ = false;
     frame_count_ = 0;
     fx_ = 0;
     recheck_period_ = 10;
     missed_rechecks_ = 0;
     max_missed_rechecks_ = 2;
+
+    video_stream_ok_ = false;
+    frames_received_ = 0;
+    last_image_time_ = this->now();
 
     tracking_state_ = TrackingState::SEARCH;
 
@@ -24,6 +30,13 @@ FaceTracker::FaceTracker()
     smoothed_face_width_ = 0.0f;
     smoothed_face_height_ = 0.0f;
 
+    current_face_id_ = 0;
+    current_track_id_ = 0;
+    last_detector_score_ = 0.0f;
+    total_faces_detected_ = 0;
+    last_landmarks_.resize(10, 0.0f);
+
+    this->declare_parameter("start_enabled", false);
     this->declare_parameter("publish_debug_image", true);
     this->declare_parameter("debug_image_topic", std::string("/qbo_face_tracking/debug_image"));
     this->declare_parameter("face_ratio_min", 0.65);
@@ -53,6 +66,8 @@ FaceTracker::FaceTracker()
     this->declare_parameter("yunet_nms_threshold", 0.30);
     this->declare_parameter("yunet_top_k", 10);
 
+    bool start_enabled = false;
+    this->get_parameter("start_enabled", start_enabled);
     this->get_parameter("publish_debug_image", publish_debug_image_);
     this->get_parameter("debug_image_topic", debug_image_topic_);
     this->get_parameter("face_ratio_min", face_ratio_min_);
@@ -83,13 +98,7 @@ FaceTracker::FaceTracker()
     confidence_decay_ = std::clamp(confidence_decay_, 0.0f, 1.0f);
     candidate_confidence_max_ = std::clamp(candidate_confidence_max_, 0.0f, 1.0f);
 
-    auto qos = rclcpp::SensorDataQoS().keep_last(1);
-
-    image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-        "camera_left/image_raw",
-        qos,
-        std::bind(&FaceTracker::imageCallback,this,std::placeholders::_1));
-
+    // Camera info subscription (always active for fx_ parameter)
     info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
         "camera_left/camera_info",
         1,
@@ -97,6 +106,29 @@ FaceTracker::FaceTracker()
 
     face_pub_ = this->create_publisher<qbo_msgs::msg::FacePosAndDist>(
         "/qbo_face_tracking/face_pos_and_dist",10);
+
+    face_observation_pub_ = this->create_publisher<qbo_msgs::msg::FaceObservation>(
+        "/qbo_face_tracking/face_observation",10);
+
+    // Diagnostic publisher
+    diagnostic_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+        "/diagnostics", 10);
+
+    // Enable/disable service
+    enable_service_ = this->create_service<std_srvs::srv::SetBool>(
+        "~/enable",
+        std::bind(&FaceTracker::enableCallback, this,
+                  std::placeholders::_1, std::placeholders::_2));
+
+    // Timer to publish DISABLED state when not enabled (1 Hz)
+    publish_timer_ = this->create_wall_timer(
+        std::chrono::seconds(1),
+        std::bind(&FaceTracker::publishDisabledState, this));
+
+    // Timer to publish diagnostics (1 Hz)
+    diagnostic_timer_ = this->create_wall_timer(
+        std::chrono::seconds(1),
+        std::bind(&FaceTracker::publishDiagnostics, this));
 
     if(publish_debug_image_)
     {
@@ -147,7 +179,17 @@ FaceTracker::FaceTracker()
 
     kalman_.errorCovPost = cv::Mat::eye(4,4,CV_32F);
 
-    RCLCPP_INFO(this->get_logger(),"Face tracker ready");
+    // Enable tracking if start_enabled is true
+    if(start_enabled)
+    {
+        subscribeToCamera();
+        enabled_ = true;
+        RCLCPP_INFO(this->get_logger(), "Face tracker ready (ENABLED)");
+    }
+    else
+    {
+        RCLCPP_INFO(this->get_logger(), "Face tracker ready (DISABLED - call ~/enable service to activate)");
+    }
 }
 
 void FaceTracker::cameraInfoCallback(
@@ -292,7 +334,7 @@ bool FaceTracker::detectFaceHaar(const cv::Mat &gray, cv::Rect &face)
     return true;
 }
 
-bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
+bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face, float *detector_score, std::vector<float> *landmarks)
 {
     if(!yunet_)
         return false;
@@ -309,6 +351,9 @@ bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
 
         float best_score = -1.0f;
         cv::Rect best_face;
+        float best_det_score = 0.0f;
+        std::vector<float> best_landmarks(10, 0.0f);
+        total_faces_detected_ = detections.rows;
 
         for(int i = 0; i < detections.rows; ++i)
         {
@@ -333,6 +378,13 @@ bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
             {
                 best_score = final_score;
                 best_face = f;
+                best_det_score = det_score;
+
+                // Extract landmarks (5 points = 10 values: x1,y1,x2,y2,...)
+                for(int j = 0; j < 10; ++j)
+                {
+                    best_landmarks[j] = detections.at<float>(i, 4 + j);
+                }
             }
         }
 
@@ -340,6 +392,11 @@ bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
             return false;
 
         face = best_face;
+        if(detector_score)
+            *detector_score = best_det_score;
+        if(landmarks)
+            *landmarks = best_landmarks;
+
         return true;
     }
     catch(const cv::Exception &e)
@@ -356,7 +413,7 @@ bool FaceTracker::detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face)
     }
 }
 
-bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect &roi, cv::Rect &face)
+bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect &roi, cv::Rect &face, float *detector_score, std::vector<float> *landmarks)
 {
     cv::Rect bounded_roi = roi & cv::Rect(0, 0, frame_bgr.cols, frame_bgr.rows);
     if(bounded_roi.width <= 0 || bounded_roi.height <= 0)
@@ -377,6 +434,9 @@ bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect 
 
     float best_score = -1.0f;
     cv::Rect best_face;
+    float best_det_score = 0.0f;
+    std::vector<float> best_landmarks(10, 0.0f);
+    total_faces_detected_ = detections.rows;
 
     for(int i = 0; i < detections.rows; ++i)
     {
@@ -401,6 +461,14 @@ bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect 
         {
             best_score = final_score;
             best_face = f;
+            best_det_score = det_score;
+
+            // Extract landmarks (adjusted for ROI offset)
+            for(int j = 0; j < 10; j += 2)
+            {
+                best_landmarks[j] = detections.at<float>(i, 4 + j) + bounded_roi.x;     // x coordinate
+                best_landmarks[j+1] = detections.at<float>(i, 4 + j + 1) + bounded_roi.y; // y coordinate
+            }
         }
     }
 
@@ -408,6 +476,11 @@ bool FaceTracker::detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect 
         return false;
 
     face = best_face;
+    if(detector_score)
+        *detector_score = best_det_score;
+    if(landmarks)
+        *landmarks = best_landmarks;
+
     return true;
 }
 
@@ -473,8 +546,184 @@ void FaceTracker::resetTrackingState()
     candidate_hits_ = 0;
     smoothed_face_valid_ = false;
     tracker_confidence_ = 0.0f;
-    tracking_state_ = TrackingState::SEARCH;
+    tracking_state_ = enabled_ ? TrackingState::SEARCH : TrackingState::DISABLED;
     local_roi_ = cv::Rect();
+}
+
+void FaceTracker::subscribeToCamera()
+{
+    if(image_sub_)
+        return; // Already subscribed
+
+    auto qos = rclcpp::SensorDataQoS().keep_last(1);
+    image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+        "camera_left/image_raw",
+        qos,
+        std::bind(&FaceTracker::imageCallback, this, std::placeholders::_1));
+
+    RCLCPP_INFO(this->get_logger(), "Subscribed to camera - tracking active");
+}
+
+void FaceTracker::unsubscribeFromCamera()
+{
+    if(image_sub_)
+    {
+        image_sub_.reset();
+        RCLCPP_INFO(this->get_logger(), "Unsubscribed from camera - tracking paused");
+    }
+}
+
+void FaceTracker::publishDisabledState()
+{
+    if(enabled_)
+        return; // Only publish when disabled
+
+    qbo_msgs::msg::FacePosAndDist msg_out;
+    msg_out.header.stamp = this->now();
+    msg_out.u = 0;
+    msg_out.v = 0;
+    msg_out.distance_to_head = 0;
+    msg_out.image_width = image_width_;
+    msg_out.image_height = image_height_;
+    msg_out.face_detected = false;
+    msg_out.name_signature = "";
+    msg_out.type_of_tracking = "DISABLED";
+
+    face_pub_->publish(msg_out);
+}
+
+void FaceTracker::enableCallback(
+    const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+    std::shared_ptr<std_srvs::srv::SetBool::Response> response)
+{
+    if(request->data && !enabled_)
+    {
+        // Enable tracking
+        enabled_ = true;
+        tracking_state_ = TrackingState::SEARCH;
+        subscribeToCamera();
+
+        response->success = true;
+        response->message = "Face tracking enabled";
+        RCLCPP_INFO(this->get_logger(), "Face tracking ENABLED via service");
+    }
+    else if(!request->data && enabled_)
+    {
+        // Disable tracking
+        enabled_ = false;
+        unsubscribeFromCamera();
+        resetTrackingState();
+
+        response->success = true;
+        response->message = "Face tracking disabled";
+        RCLCPP_INFO(this->get_logger(), "Face tracking DISABLED via service");
+    }
+    else
+    {
+        response->success = true;
+        response->message = enabled_ ? "Already enabled" : "Already disabled";
+    }
+}
+
+void FaceTracker::publishDiagnostics()
+{
+    diagnostic_msgs::msg::DiagnosticArray diag_array;
+    diag_array.header.stamp = this->now();
+
+    diagnostic_msgs::msg::DiagnosticStatus status;
+    status.name = "face_tracker";
+    status.hardware_id = "qbo_vision";
+
+    // Check video stream health (timeout after 2 seconds without frames)
+    auto time_since_last_frame = (this->now() - last_image_time_).seconds();
+    bool stream_timeout = enabled_ && (time_since_last_frame > 2.0);
+
+    // Determine overall status
+    if(!enabled_)
+    {
+        status.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
+        status.message = "Tracking disabled (standby mode)";
+    }
+    else if(stream_timeout || !video_stream_ok_)
+    {
+        status.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
+        status.message = "Video stream timeout or unavailable";
+    }
+    else
+    {
+        status.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
+        status.message = "Operating normally";
+    }
+
+    // Add detailed key-value pairs
+    diagnostic_msgs::msg::KeyValue kv;
+
+    // Tracking state (OFF when disabled, otherwise actual state)
+    kv.key = "tracking_state";
+    if(!enabled_)
+    {
+        kv.value = "OFF";
+    }
+    else
+    {
+        switch(tracking_state_)
+        {
+            case TrackingState::DISABLED:
+                kv.value = "OFF";
+                break;
+            case TrackingState::SEARCH:
+                kv.value = "SEARCH";
+                break;
+            case TrackingState::CANDIDATE:
+                kv.value = "CANDIDATE";
+                break;
+            case TrackingState::TRACKING:
+                kv.value = "TRACKING";
+                break;
+        }
+    }
+    status.values.push_back(kv);
+
+    // Tracker active state (more explicit than "enabled")
+    kv.key = "tracker_active";
+    kv.value = enabled_ ? "true" : "false";
+    status.values.push_back(kv);
+
+    // Video stream status
+    kv.key = "video_stream";
+    kv.value = (!enabled_ || video_stream_ok_) ? "OK" : "ERROR";
+    status.values.push_back(kv);
+
+    // Time since last frame
+    kv.key = "time_since_last_frame_s";
+    kv.value = std::to_string(time_since_last_frame);
+    status.values.push_back(kv);
+
+    // YuNet detector status
+    kv.key = "yunet_enabled";
+    kv.value = use_yunet_ ? "true" : "false";
+    status.values.push_back(kv);
+
+    // Haar cascade fallback status
+    kv.key = "use_haar_fallback";
+    kv.value = use_haar_fallback_ ? "true" : "false";
+    status.values.push_back(kv);
+
+    // Debug image publishing
+    kv.key = "publish_debug_image";
+    kv.value = publish_debug_image_ ? "true" : "false";
+    status.values.push_back(kv);
+
+    // Debug image topic (only if enabled)
+    if(publish_debug_image_)
+    {
+        kv.key = "debug_image_topic";
+        kv.value = debug_image_topic_;
+        status.values.push_back(kv);
+    }
+
+    diag_array.status.push_back(status);
+    diagnostic_pub_->publish(diag_array);
 }
 
 
@@ -482,6 +731,9 @@ void FaceTracker::imageCallback(
         const sensor_msgs::msg::Image::ConstSharedPtr msg)
 {
     frame_count_++;
+    frames_received_++;
+    last_image_time_ = this->now();
+    video_stream_ok_ = true;
 
     cv_bridge::CvImagePtr cv_ptr;
 
@@ -509,13 +761,15 @@ void FaceTracker::imageCallback(
     {
         cv::Rect face;
         bool found_face = false;
+        float det_score = 0.0f;
+        std::vector<float> landmarks;
 
         // 1) ROI locale prédite si on a une ancienne cible
         cv::Rect predicted_roi = buildLocalRoiFromPrediction(frame.size(), 3);
         if(predicted_roi.width > 0 && predicted_roi.height > 0)
         {
             if(use_yunet_)
-                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face);
+                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face, &det_score, &landmarks);
 
             if(!found_face && use_haar_fallback_)
             {
@@ -529,6 +783,7 @@ void FaceTracker::imageCallback(
                         local_face.width,
                         local_face.height);
                     found_face = true;
+                    det_score = 0.0f; // Haar doesn't provide score
                 }
             }
         }
@@ -537,7 +792,7 @@ void FaceTracker::imageCallback(
         if(!found_face)
         {
             if(use_yunet_)
-                found_face = detectFaceYuNet(frame, face);
+                found_face = detectFaceYuNet(frame, face, &det_score, &landmarks);
 
             if(!found_face && use_haar_fallback_)
                 found_face = detectFaceHaar(gray, face);
@@ -545,6 +800,11 @@ void FaceTracker::imageCallback(
 
         if(found_face)
         {
+            // Store detection metadata
+            last_detector_score_ = det_score;
+            if(!landmarks.empty())
+                last_landmarks_ = landmarks;
+
             if(!candidate_valid_)
             {
                 candidate_face_ = face;
@@ -594,6 +854,10 @@ void FaceTracker::imageCallback(
                 candidate_valid_ = false;
                 candidate_hits_ = 0;
 
+                // Assign new face ID when starting to track a new face
+                current_face_id_++;
+                current_track_id_++;
+
                 resetKalmanToFace(tracked_face_);
             }
         }
@@ -609,12 +873,14 @@ void FaceTracker::imageCallback(
     {
         cv::Rect face;
         bool found_face = false;
+        float det_score = 0.0f;
+        std::vector<float> landmarks;
 
         cv::Rect predicted_roi = buildLocalRoiFromPrediction(frame.size(), 3);
         if(predicted_roi.width > 0 && predicted_roi.height > 0)
         {
             if(use_yunet_)
-                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face);
+                found_face = detectFaceYuNetInRoi(frame, predicted_roi, face, &det_score, &landmarks);
 
             if(!found_face && use_haar_fallback_)
             {
@@ -628,6 +894,7 @@ void FaceTracker::imageCallback(
                         local_face.width,
                         local_face.height);
                     found_face = true;
+                    det_score = 0.0f; // Haar doesn't provide score
                 }
             }
         }
@@ -635,7 +902,7 @@ void FaceTracker::imageCallback(
         if(!found_face)
         {
             if(use_yunet_)
-                found_face = detectFaceYuNet(frame, face);
+                found_face = detectFaceYuNet(frame, face, &det_score, &landmarks);
 
             if(!found_face && use_haar_fallback_)
                 found_face = detectFaceHaar(gray, face);
@@ -643,6 +910,11 @@ void FaceTracker::imageCallback(
 
         if(found_face)
         {
+            // Store detection metadata
+            last_detector_score_ = det_score;
+            if(!landmarks.empty())
+                last_landmarks_ = landmarks;
+
             tracker_ = cv::TrackerKCF::create();
             tracker_->init(frame, face);
 
@@ -653,6 +925,9 @@ void FaceTracker::imageCallback(
 
             missed_rechecks_ = 0;
             tracker_confidence_ = std::min(1.0f, tracker_confidence_ + confidence_rise_);
+
+            // New tracking session (reacquisition)
+            current_track_id_++;
 
             resetKalmanToFace(tracked_face_);
         }
@@ -783,6 +1058,9 @@ void FaceTracker::imageCallback(
     std::string state_str;
     switch(tracking_state_)
     {
+    case TrackingState::DISABLED:
+        state_str = "DISABLED";
+        break;
     case TrackingState::SEARCH:
         state_str = "SEARCH";
         break;
@@ -796,6 +1074,70 @@ void FaceTracker::imageCallback(
     msg_out.type_of_tracking = state_str;
 
     face_pub_->publish(msg_out);
+
+    // Publish FaceObservation message
+    qbo_msgs::msg::FaceObservation face_obs;
+    face_obs.header.stamp = this->now();
+
+    face_obs.face_id = current_face_id_;
+    face_obs.track_id = current_track_id_;
+
+    // tracking_state: 0=DISABLED, 1=SEARCH, 2=CANDIDATE, 3=TRACKING
+    switch(tracking_state_)
+    {
+    case TrackingState::DISABLED:
+        face_obs.tracking_state = 0;
+        break;
+    case TrackingState::SEARCH:
+        face_obs.tracking_state = 1;
+        break;
+    case TrackingState::CANDIDATE:
+        face_obs.tracking_state = 2;
+        break;
+    case TrackingState::TRACKING:
+        face_obs.tracking_state = 3;
+        break;
+    }
+
+    if(tracker_initialized_)
+    {
+        face_obs.x = tracked_face_.x;
+        face_obs.y = tracked_face_.y;
+        face_obs.width = tracked_face_.width;
+        face_obs.height = tracked_face_.height;
+
+        face_obs.center_x = tracked_face_.x + tracked_face_.width / 2.0f;
+        face_obs.center_y = tracked_face_.y + tracked_face_.height / 2.0f;
+
+        face_obs.face_size = std::max(tracked_face_.width, tracked_face_.height);
+        face_obs.distance = distance;
+
+        // Copy landmarks
+        if(last_landmarks_.size() == 10)
+        {
+            std::copy(last_landmarks_.begin(), last_landmarks_.end(), face_obs.landmarks.begin());
+        }
+    }
+    else
+    {
+        face_obs.x = 0;
+        face_obs.y = 0;
+        face_obs.width = 0;
+        face_obs.height = 0;
+        face_obs.center_x = 0;
+        face_obs.center_y = 0;
+        face_obs.face_size = 0;
+        face_obs.distance = 0;
+        std::fill(face_obs.landmarks.begin(), face_obs.landmarks.end(), 0.0f);
+    }
+
+    face_obs.detector_score = last_detector_score_;
+    face_obs.quality = last_detector_score_;
+    face_obs.faces_detected = total_faces_detected_;
+    face_obs.image_width = image_width_;
+    face_obs.image_height = image_height_;
+
+    face_observation_pub_->publish(face_obs);
 
     if(publish_debug_image_ && viewer_image_pub_)
     {

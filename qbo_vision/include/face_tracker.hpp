@@ -6,7 +6,12 @@
 #include <sensor_msgs/msg/camera_info.hpp>
 
 #include <qbo_msgs/msg/face_pos_and_dist.hpp>
+#include <qbo_msgs/msg/face_observation.hpp>
 #include <qbo_msgs/msg/nose.hpp>
+#include <std_srvs/srv/set_bool.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
+#include <diagnostic_msgs/msg/key_value.hpp>
 
 #include <cv_bridge/cv_bridge.h>
 
@@ -25,11 +30,19 @@ public:
 private:
     void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr msg);
     void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg);
+    void enableCallback(
+        const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+        std::shared_ptr<std_srvs::srv::SetBool::Response> response);
+
+    void subscribeToCamera();
+    void unsubscribeFromCamera();
+    void publishDisabledState();
+    void publishDiagnostics();
 
     // Detection
     bool detectFaceHaar(const cv::Mat &gray, cv::Rect &face);
-    bool detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face);
-    bool detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect &roi, cv::Rect &face);
+    bool detectFaceYuNet(const cv::Mat &frame_bgr, cv::Rect &face, float *detector_score = nullptr, std::vector<float> *landmarks = nullptr);
+    bool detectFaceYuNetInRoi(const cv::Mat &frame_bgr, const cv::Rect &roi, cv::Rect &face, float *detector_score = nullptr, std::vector<float> *landmarks = nullptr);
 
     // Validation / scoring
     bool validateFaceRect(const cv::Rect &face, const cv::Size &image_size, float *score = nullptr) const;
@@ -49,7 +62,12 @@ private:
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr info_sub_;
     rclcpp::Publisher<qbo_msgs::msg::FacePosAndDist>::SharedPtr face_pub_;
+    rclcpp::Publisher<qbo_msgs::msg::FaceObservation>::SharedPtr face_observation_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr viewer_image_pub_;
+    rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_service_;
+    rclcpp::TimerBase::SharedPtr publish_timer_;
+    rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostic_pub_;
+    rclcpp::TimerBase::SharedPtr diagnostic_timer_;
 
     bool publish_debug_image_;
     std::string debug_image_topic_;
@@ -83,6 +101,11 @@ private:
     int image_height_;
     int frame_count_;
 
+    // Diagnostic monitoring
+    rclcpp::Time last_image_time_;
+    bool video_stream_ok_;
+    int frames_received_;
+
     // Periodic re-check
     int recheck_period_;
     int missed_rechecks_;
@@ -91,12 +114,14 @@ private:
     // Tracking state machine
     enum class TrackingState
     {
+        DISABLED,
         SEARCH,
         CANDIDATE,
         TRACKING
     };
 
     TrackingState tracking_state_;
+    bool enabled_;
 
     // Candidate validation
     cv::Rect candidate_face_;
@@ -129,6 +154,13 @@ private:
     float confidence_rise_;
     float confidence_decay_;
     float candidate_confidence_max_;
+
+    // Face detection metadata
+    uint32_t current_face_id_;
+    uint32_t current_track_id_;
+    float last_detector_score_;
+    std::vector<float> last_landmarks_;
+    int total_faces_detected_;
 };
 
 #endif

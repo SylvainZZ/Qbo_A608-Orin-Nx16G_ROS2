@@ -121,7 +121,10 @@ void BaseController::twistCallback(const geometry_msgs::msg::Twist::SharedPtr ms
 void BaseController::timerCallback() {
     rclcpp::Time now = this->now();
     double elapsed = (now - last_time_).seconds();
-    last_time_ = now;
+    if (elapsed <= 0.0) {
+        last_time_ = now;
+        return;
+    }
 
     float x, y, th;
     int code = driver_->getOdometry(x, y, th);
@@ -129,29 +132,42 @@ void BaseController::timerCallback() {
         last_odometry_ok_ = false;
         RCLCPP_ERROR(get_logger(), "Unable to get odometry from the base controller board, code: %d", code);
         return;
-    } else {
-        last_odometry_ok_ = true;
-        RCLCPP_DEBUG(get_logger(), "Odometry message from base controller board: x=%.2f, y=%.2f, th=%.2f", x, y, th);
     }
 
-    float dx = (std::hypot(x - x_, y - y_)) / elapsed;
-    float dth = (th - th_) / elapsed;
+    last_odometry_ok_ = true;
 
-    x_ = x; y_ = y; th_ = th;
+    double prev_x = x_;
+    double prev_y = y_;
+    double prev_th = th_;
 
-    geometry_msgs::msg::Quaternion q;
+    x_ = x;
+    y_ = y;
+    th_ = th;
+
+    double delta_x = x_ - prev_x;
+    double delta_y = y_ - prev_y;
+    double delta_th = th_ - prev_th;
+
+    while (delta_th > M_PI) delta_th -= 2.0 * M_PI;
+    while (delta_th < -M_PI) delta_th += 2.0 * M_PI;
+
+    double vx_world = delta_x / elapsed;
+    double vy_world = delta_y / elapsed;
+
+    double dx_signed = std::cos(th_) * vx_world + std::sin(th_) * vy_world;
+    double dth = delta_th / elapsed;
+
     tf2::Quaternion q_tf;
     q_tf.setRPY(0, 0, th_);
-    q = tf2::toMsg(q_tf);
+    geometry_msgs::msg::Quaternion q = tf2::toMsg(q_tf);
 
-    // nav_msgs::msg::Odometry odom;
     odom_.header.stamp = now;
     odom_.header.frame_id = "odom";
     odom_.child_frame_id = "base_footprint";
     odom_.pose.pose.position.x = x_;
     odom_.pose.pose.position.y = y_;
     odom_.pose.pose.orientation = q;
-    odom_.twist.twist.linear.x = dx;
+    odom_.twist.twist.linear.x = dx_signed;
     odom_.twist.twist.angular.z = dth;
     odom_pub_->publish(odom_);
 
@@ -176,10 +192,8 @@ void BaseController::timerCallback() {
         }
         v_dirty_ = false;
     }
-    // Demande d'estimation puissance
-    double motor_power = estimateMotorsPowerFromOdometry(dx, dth);
-    last_estimated_motor_power_ = motor_power;
 
+    last_estimated_motor_power_ = estimateMotorsPowerFromOdometry(dx_signed, dth);
 }
 
 void BaseController::publishStaticTF() {

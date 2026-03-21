@@ -4,7 +4,12 @@
 
 
 FaceFollower::FaceFollower(const rclcpp::NodeOptions & options)
-: rclcpp::Node("qbo_face_following", options)
+: rclcpp::Node("qbo_face_following", options),
+  last_scan_move_(this->get_clock()->now()),
+  scan_interval_(rclcpp::Duration::from_seconds(1.0)),
+  pause_duration_(rclcpp::Duration::from_seconds(3.0)),
+  auto_disable_timeout_(rclcpp::Duration::from_seconds(10.0)),
+  last_active_tracking_time_(this->get_clock()->now())
 {
     RCLCPP_INFO(this->get_logger(), "Initializing Qbo face follower node");
     onInit();
@@ -51,6 +56,10 @@ void FaceFollower::declare_and_get_parameters()
     // Base control configuration
     this->declare_parameter("base_cmd_vel_topic", std::string("/qbo_arduqbo/base_ctrl/cmd_vel"));
     this->declare_parameter("invert_linear_vel", false);
+    this->declare_parameter("camera_info_topic", std::string("camera_left/camera_info"));
+
+    // Auto-disable timeout when tracker is disabled
+    this->declare_parameter("auto_disable_timeout", 10.0);
 
     this->get_parameter("move_base", move_base_bool_);
     this->get_parameter("move_head", move_head_bool_);
@@ -92,9 +101,16 @@ void FaceFollower::declare_and_get_parameters()
 
     this->get_parameter("base_cmd_vel_topic", base_cmd_vel_topic_);
     this->get_parameter("invert_linear_vel", invert_linear_vel_);
+    this->get_parameter("camera_info_topic", camera_info_topic_);
+
+    double auto_disable_timeout;
+    this->get_parameter("auto_disable_timeout", auto_disable_timeout);
+    auto_disable_timeout_ = rclcpp::Duration::from_seconds(auto_disable_timeout);
 
     RCLCPP_INFO(this->get_logger(), "Base control topic: %s, invert_linear: %s",
                base_cmd_vel_topic_.c_str(), invert_linear_vel_ ? "true" : "false");
+    RCLCPP_INFO(this->get_logger(), "Camera info topic: %s", camera_info_topic_.c_str());
+    RCLCPP_INFO(this->get_logger(), "Auto-disable timeout: %.1fs", auto_disable_timeout);
 }
 
 
@@ -103,7 +119,7 @@ void FaceFollower::onInit()
     declare_and_get_parameters();
 
     camera_info_sub_ = create_subscription<sensor_msgs::msg::CameraInfo>(
-        "camera_left/camera_info", 10,
+        camera_info_topic_, 10,
         std::bind(&FaceFollower::cameraInfoCallback, this, std::placeholders::_1));
 
     joint_pub_ = create_publisher<sensor_msgs::msg::JointState>("/cmd_joints", 1);
@@ -120,6 +136,7 @@ void FaceFollower::onInit()
     kp_u_ = 0.005f;
     ki_u_ = 0.0003f;
     kd_u_ = 0.001f;
+
 
     // For head's tilt movement
     v_act_ = v_prev_ = diff_v_ = 0.0f;
@@ -144,6 +161,11 @@ void FaceFollower::onInit()
     image_width_ = 640;
     image_height_ = 480;
     last_scan_move_ = this->get_clock()->now();
+
+    // Initialize auto-disable tracking
+    last_active_tracking_time_ = this->get_clock()->now();
+    tracking_was_active_ = false;
+    movements_auto_disabled_ = false;
 }
 
 
@@ -204,6 +226,64 @@ void FaceFollower::facePositionCallback(const qbo_msgs::msg::FacePosAndDist::Sha
 {
     image_width_ = msg->image_width;
     image_height_ = msg->image_height;
+
+    auto now = this->get_clock()->now();
+
+    // Check if tracking is disabled and handle auto-disable
+    if (msg->type_of_tracking == "DISABLED")
+    {
+        if (tracking_was_active_)
+        {
+            // Just became disabled, start the timeout
+            last_active_tracking_time_ = now;
+            tracking_was_active_ = false;
+            RCLCPP_INFO(this->get_logger(), "Tracking became DISABLED, starting auto-disable timer");
+        }
+        
+        auto elapsed = now - last_active_tracking_time_;
+        if (elapsed >= auto_disable_timeout_ && !movements_auto_disabled_)
+        {
+            // Timeout reached, disable movements
+            RCLCPP_WARN(this->get_logger(), 
+                "⏱️ Tracking DISABLED for %.1fs - auto-disabling head and base movements",
+                elapsed.seconds());
+            
+            // Stop base
+            if (move_base_bool_)
+            {
+                sendVelocityBase(0.0f, 0.0f);
+            }
+            
+            movements_auto_disabled_ = true;
+            
+            // Don't process further
+            return;
+        }
+        else if (!movements_auto_disabled_)
+        {
+            RCLCPP_DEBUG(this->get_logger(), 
+                "Tracking DISABLED for %.1fs / %.1fs before auto-disable",
+                elapsed.seconds(), auto_disable_timeout_.seconds());
+        }
+        
+        // If movements are auto-disabled, don't do anything
+        if (movements_auto_disabled_)
+        {
+            return;
+        }
+    }
+    else
+    {
+        // Tracking is active (SEARCH, CANDIDATE, or TRACKING)
+        if (!tracking_was_active_ || movements_auto_disabled_)
+        {
+            RCLCPP_INFO(this->get_logger(), "✅ Tracking reactivated (%s) - resuming movements",
+                msg->type_of_tracking.c_str());
+            movements_auto_disabled_ = false;
+        }
+        tracking_was_active_ = true;
+        last_active_tracking_time_ = now;
+    }
 
     // Rafraîchir les paramètres dynamiques
     this->get_parameter("move_base", move_base_bool_);

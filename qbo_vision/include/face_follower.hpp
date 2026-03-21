@@ -35,9 +35,8 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr base_control_pub_;
 
     rclcpp::Time last_scan_move_;     // horodatage du dernier mouvement aléatoire
-    rclcpp::Time pause_start_time_;
-    rclcpp::Duration scan_interval_ = rclcpp::Duration::from_seconds(1.0);
-    rclcpp::Duration pause_duration_ = rclcpp::Duration::from_seconds(3.0);
+    rclcpp::Duration scan_interval_;
+    rclcpp::Duration pause_duration_;
 
     // Paramètres ROS
     void declare_and_get_parameters();
@@ -87,6 +86,15 @@ private:
     bool sens_aller_ = true;
     float last_sent_pan_ = 999.0f;
     float last_sent_tilt_ = 999.0f;
+    std::string base_cmd_vel_topic_;
+    bool invert_linear_vel_;
+    std::string camera_info_topic_;
+
+
+    rclcpp::Duration auto_disable_timeout_;
+    rclcpp::Time last_active_tracking_time_;
+    bool tracking_was_active_;
+    bool movements_auto_disabled_;
 
     // Callbacks
     void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);

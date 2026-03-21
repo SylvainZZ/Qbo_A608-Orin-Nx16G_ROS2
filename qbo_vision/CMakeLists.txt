@@ -19,6 +19,13 @@ find_package(image_transport REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(qbo_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 # OpenCV
 find_package(OpenCV REQUIRED)
@@ -26,6 +33,8 @@ find_package(OpenCV REQUIRED)
 # Include dirs
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 
+
+# add_executable(face_follower_node src/face_follower_node.cpp)
 add_executable(face_follower_node
   src/face_follower.cpp
 )
@@ -36,33 +45,14 @@ ament_target_dependencies(face_follower_node
   qbo_msgs
   cv_bridge
   OpenCV
+  diagnostic_updater
 )
 install(TARGETS face_follower_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
 
-add_executable(face_detector_node src/face_detector.cpp)
-
-ament_target_dependencies(face_detector_node
-  rclcpp
-  std_msgs
-  sensor_msgs
-  cv_bridge
-  image_transport
-  OpenCV
-  qbo_msgs
-)
-
-target_include_directories(face_detector_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-
-install(TARGETS face_detector_node
-  DESTINATION lib/${PROJECT_NAME}
-)
-
+# add_executable(face_tracker_node src/face_tracker_node.cpp)
 add_executable(face_tracker_node
   src/face_tracker.cpp
 )
@@ -70,10 +60,13 @@ add_executable(face_tracker_node
 ament_target_dependencies(face_tracker_node
   rclcpp
   std_msgs
+  std_srvs
   sensor_msgs
   cv_bridge
   image_transport
   qbo_msgs
+  diagnostic_msgs
+  diagnostic_updater
 )
 
 target_include_directories(face_tracker_node PUBLIC
@@ -89,26 +82,35 @@ install(TARGETS face_tracker_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
-
-add_executable(qbo_face_recognizer
-  src/face_recognizer.cpp
+#add_executable(face_recognition_node src/face_recognition_node.cpp)
+add_executable(face_recognition_node
+  src/face_recognition.cpp
+  src/face_database.cpp
 )
 
-ament_target_dependencies(qbo_face_recognizer
+ament_target_dependencies(face_recognition_node
   rclcpp
   sensor_msgs
   cv_bridge
+  image_transport
   qbo_msgs
-  OpenCV
-  ament_index_cpp
+  message_filters
+  diagnostic_msgs
+  diagnostic_updater
 )
 
-target_link_libraries(qbo_face_recognizer
+target_include_directories(face_recognition_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(face_recognition_node
   ${OpenCV_LIBRARIES}
+  yaml-cpp
 )
 
 install(TARGETS
-  qbo_face_recognizer
+  face_recognition_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
