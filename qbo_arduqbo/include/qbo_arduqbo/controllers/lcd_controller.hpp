@@ -40,6 +40,8 @@ private:
   std::string hostname_ = "";
   std::string ip_address_ = "";
   std::string cpu_temp_ = "--";
+  std::string battery_info_ = "--";
+  std::string charge_mode_info_ = "";
   std::string fan_pct_ = "--";
   std::string vdd_in_ = "--";
   std::string soc_ = "--";
@@ -64,6 +66,7 @@ private:
   double rate_;
   std::string topic_ = "cmd_lcd";
   bool show_hostname_ = true;  // alterne toutes les 5 sec
+  bool show_battery_ = true;  // Pour alterner entre batterie et température
   bool i2c_status_checked_ = false;
   bool has_lcd_ = false;
 };

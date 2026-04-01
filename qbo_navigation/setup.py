@@ -6,7 +6,7 @@ package_name = 'qbo_navigation'
 
 setup(
     name=package_name,
-    version='0.0.1',
+    version='0.1.1',
     packages=[package_name],
 
     data_files=[
@@ -27,13 +27,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
 
-    maintainer='qbo-v2',
-    maintainer_email='your@email.com',
+    maintainer='zwolinski',
+    maintainer_email='sylvain-zwolinski@orange.fr',
 
     description='Qbo navigation package with Nav2 and D435',
     license='Apache License 2.0',
 
-    tests_require=['pytest'],
+    # tests_require=['pytest'],
 
     entry_points={
         'console_scripts': [

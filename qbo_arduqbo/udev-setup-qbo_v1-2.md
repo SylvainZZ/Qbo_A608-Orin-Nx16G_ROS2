@@ -334,6 +334,56 @@ journalctl -xe | grep tty
 
 ---
 
+## Vérifier vitesse USB caméra
+
+```bash
+udevadm info -a -n /dev/video6 | grep speed
+```
+
+👉 Affiche la vitesse USB de la caméra :
+
+* `speed="480"` → USB 2.0 (High Speed)
+* `speed="5000"` → USB 3.0 (Super Speed)
+* `speed="10000"` → USB 3.1/3.2 (Super Speed+)
+
+💡 Utile pour :
+
+* vérifier si la caméra est bien en USB 3.0
+* diagnostiquer problèmes de bande passante
+* valider performances RealSense / webcam
+
+---
+
+## Logs kernel ports série
+
+```bash
+sudo dmesg | grep tty
+```
+
+👉 Affiche l'historique kernel des périphériques série :
+
+* détection initiale des devices
+* attribution des `/dev/ttyUSBx`
+* erreurs de connexion/déconnexion
+* identifie le driver utilisé (ftdi_sio, cp210x...)
+
+⚠️ Très utile pour :
+
+* comprendre pourquoi un device n'apparaît pas
+* voir les erreurs de communication USB
+* vérifier l'ordre de détection au boot
+* déboguer conflits de drivers
+
+💡 Astuce :
+
+```bash
+sudo dmesg | grep -E 'tty|usb|serial'
+```
+
+pour une vue complète USB + série
+
+---
+
 # 🚀 Intégration ROS2
 
 Dans tes nodes :

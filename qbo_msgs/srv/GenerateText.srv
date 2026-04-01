@@ -1,0 +1,6 @@
+string type          # "conversation" | "diagnostic"
+string text          # phrase utilisateur (optionnel)
+string context_json  # payload (diagnostic etc)
+---
+bool success
+string response_text

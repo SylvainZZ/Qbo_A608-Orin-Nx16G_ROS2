@@ -1,0 +1,129 @@
+# =============================================================================
+# QBO SOCIAL BEHAVIOR ENGINE - Configuration centralisée
+# =============================================================================
+# Ce fichier regroupe tous les paramètres des nœuds du package qbo_social
+# pour faciliter l'ajustement du comportement social du robot QBO.
+# =============================================================================
+
+# =============================================================================
+# EVENT ADAPTER - Détection et conversion des événements
+# =============================================================================
+qbo_social_event_adapter:
+  ros__parameters:
+    # Temps avant de considérer un visage comme "stable"
+    # (présent de manière continue sans interruption)
+    # Augmenté à 3s pour éviter les faux positifs et permettre
+    # au behavior engine de prendre des décisions plus stables
+    face_stable_time: 3.0  # secondes
+
+    # Temps avant de considérer un visage comme "perdu"
+    # (absent après avoir été détecté)
+    face_lost_timeout: 2.0  # secondes
+
+    # Confidence minimum pour accepter une reconnaissance faciale
+    # Valeurs typiques: 0.6 = bon compromis, 0.8 = très strict
+    min_confidence: 0.6  # 0.0 - 1.0
+
+
+# =============================================================================
+# BEHAVIOR ENGINE - Logique décisionnelle et stratégies sociales
+# =============================================================================
+qbo_social_behavior_engine:
+  ros__parameters:
+    # -------------------------------------------------------------------------
+    # SOCIAL INTERACTION TIMINGS
+    # -------------------------------------------------------------------------
+
+    # Cooldown entre deux salutations pour la même personne
+    # Évite le spam et rend l'interaction plus naturelle
+    greet_cooldown: 10.0  # secondes
+
+    # Cooldown entre deux annonces de diagnostic système
+    # Évite de surcharger l'utilisateur avec trop d'informations
+    diag_cooldown: 5.0  # secondes
+
+    # -------------------------------------------------------------------------
+    # FACE TRACKING BEHAVIOR - État machine intelligente
+    # -------------------------------------------------------------------------
+
+    # Temps d'attente avant d'arrêter le mouvement de tête
+    # quand une personne est stable à la même position.
+    # But: économiser l'énergie et laisser la personne tranquille
+    # une fois qu'elle est bien centrée dans le champ de vision.
+    stable_head_stop_delay: 5.0  # secondes
+
+    # Timeout de recherche: si une personne disparaît,
+    # le robot cherche activement (rotation base + tête) pendant ce temps.
+    # Après ce délai, il arrête complètement la recherche et passe en IDLE.
+    # Compromis: 30s permet de retrouver une personne qui s'est déplacée
+    # sans gaspiller trop d'énergie si la personne est vraiment partie.
+    search_timeout: 30.0  # secondes
+
+
+# =============================================================================
+# WORLD MODEL - Modèle de l'état du monde
+# =============================================================================
+qbo_social_world_model:
+  ros__parameters: {}
+    # Le world_model n'a actuellement pas de paramètres configurables
+    # Il maintient l'état du monde basé sur les événements reçus
+    # (face_present, face_stable, conversation_active, mode, etc.)
+
+
+# =============================================================================
+# ACTION EXECUTOR - Exécution des actions décidées par le behavior engine
+# =============================================================================
+qbo_social_action_executor:
+  ros__parameters: {}
+    # Le action_executor n'a actuellement pas de paramètres configurables
+    # Il exécute les intents reçus du behavior engine:
+    #   - TRACK_FACE_HEAD_ONLY
+    #   - TRACK_FACE_FULL
+    #   - STOP_FACE_TRACKING
+    #   - START_PERSON_SEARCH
+    #   - STOP_PERSON_SEARCH
+    #   - GREET_PERSON
+    #   - SPEAK
+
+
+# =============================================================================
+# SYSTEM MODE MANAGER - Gestion des modes système
+# =============================================================================
+qbo_system_mode_manager:
+  ros__parameters: {}
+    # Le system_mode_manager n'a actuellement pas de paramètres configurables
+    # Il gère les transitions entre différents modes système du robot
+
+
+# =============================================================================
+# NOTES D'UTILISATION
+# =============================================================================
+# 
+# Pour lancer les nœuds avec ces paramètres:
+#   ros2 launch qbo_social social.launch.py
+#   ros2 launch qbo_social social.launch.py params_file:=/chemin/custom_params.yaml
+#
+# Pour ajuster un paramètre en ligne de commande:
+#   ros2 run qbo_social behavior_engine --ros-args -p stable_head_stop_delay:=10.0
+#
+# Pour surveiller le behavior engine (DEBUG):
+#   ros2 run qbo_social debug_behavior_state              (affichage standard)
+#   ros2 run qbo_social debug_behavior_state --verbose    (avec WorldState)
+#
+# Scénarios typiques:
+#
+# 1. Robot de surveillance (peu d'interaction):
+#    - stable_head_stop_delay: 2.0  (arrête rapidement la tête)
+#    - search_timeout: 15.0          (recherche courte)
+#    - greet_cooldown: 30.0          (salue rarement)
+#
+# 2. Robot d'accueil (interaction maximale):
+#    - stable_head_stop_delay: 10.0 (continue à suivre longtemps)
+#    - search_timeout: 60.0          (recherche longue)
+#    - greet_cooldown: 5.0           (salue fréquemment)
+#
+# 3. Mode économie d'énergie:
+#    - stable_head_stop_delay: 3.0  (arrête vite)
+#    - search_timeout: 10.0          (recherche très courte)
+#
+# =============================================================================

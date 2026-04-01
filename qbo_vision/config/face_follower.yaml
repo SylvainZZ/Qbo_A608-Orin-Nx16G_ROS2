@@ -1,51 +1,74 @@
 qbo_face_following:
   ros__parameters:
-    move_base: true
-    move_head: true
-    send_stop: false
+    # ============================================================================
+    # CONTRÔLE SBE (Social Behavior Engine)
+    # ============================================================================
+    # Ces paramètres contrôlent l'activation des mouvements du follower
+    # Modifiables dynamiquement via le service: /qbo_face_following/set_follower_status
+    # - head_movement_enabled: Contrôle de la tête (pan/tilt)
+    # - base_rotation_enabled: Rotation de la base pour centrage
+
+    head_movement_enabled: true  # Activer le contrôle de la tête
+    base_rotation_enabled: true  # Activer le contrôle de la rotation base
+    send_stop: false  # Envoyer cmd_vel=0 quand pas de visage détecté
 
     # Auto-disable movements when tracker is DISABLED for this duration (seconds)
     auto_disable_timeout: 10.0
 
-    search_pan_vel: 0.6
-    search_pan_step: 0.2
-    search_min_pan: -1.0
-    search_max_pan: 1.0
+    # ============================================================================
+    # RECHERCHE DE VISAGE (scan mode)
+    # ============================================================================
+    search_pan_vel: 0.6       # Vitesse de rotation horizontale pendant la recherche (rad/s)
+    search_pan_step: 0.2      # Pas de rotation horizontal
+    search_min_pan: -1.0      # Limite min pan pour la recherche (rad)
+    search_max_pan: 1.0       # Limite max pan pour la recherche (rad)
 
-    search_tilt_vel: 0.6
-    search_tilt_levels: [-0.5, 0.0, 0.3]
-    search_min_tilt: -0.5
-    search_max_tilt: 0.3
+    search_tilt_vel: 0.6      # Vitesse de rotation verticale pendant la recherche (rad/s)
+    search_tilt_levels: [-0.5, 0.0, 0.3]  # Niveaux de tilt pour le balayage
+    search_min_tilt: -0.5     # Limite min tilt pour la recherche (rad)
+    search_max_tilt: 0.3      # Limite max tilt pour la recherche (rad)
 
-    scan_interval: 2.0
-    search_pause_duration: 1.0
+    scan_interval: 2.0        # Intervalle entre deux mouvements de scan (secondes)
+    search_pause_duration: 1.0  # Durée de pause pendant le scan
 
-    desired_distance: 1.2
-
-    # PID gains for head control (higher values = faster/more reactive tracking)
-    # Pan (horizontal) control
+    # ============================================================================
+    # PID GAINS - CONTRÔLE DE LA TÊTE
+    # ============================================================================
+    # Pan (horizontal) control - Centering face horizontally
     head_pan_kp: 0.005    # Proportional gain (responsiveness)
     head_pan_ki: 0.0003   # Integral gain (steady-state error)
     head_pan_kd: 0.001    # Derivative gain (damping/smoothness)
 
-    # Tilt (vertical) control
+    # Tilt (vertical) control - Centering face vertically
     head_tilt_kp: 0.005   # Proportional gain (responsiveness)
     head_tilt_ki: 0.0003  # Integral gain (steady-state error)
     head_tilt_kd: 0.001   # Derivative gain (damping/smoothness)
 
-    # PID gains for base control (higher values = faster/more reactive movement)
-    # Distance control (forward/backward)
-    base_distance_kp: 0.35   # Proportional gain (approach speed)
-    base_distance_ki: 0.02   # Integral gain (maintains target distance)
-    base_distance_kd: 0.15   # Derivative gain (smooth deceleration)
+    # ============================================================================
+    # PID GAINS - ROTATION DE LA BASE MOBILE
+    # ============================================================================
+    # Note: Le contrôle linéaire (avance/recul) est délégué au SBE + move_base
+    # Le follower gère uniquement la rotation pour centrer le visage
 
-    # Yaw control (rotation left/right)
-    base_yaw_kp: 0.35        # Proportional gain (synchronized with head movement)
+    # Yaw control (rotation left/right) - Synchronized with head pan
+    base_yaw_kp: 0.35        # Proportional gain (rotation speed)
     base_yaw_ki: 0.01        # Integral gain (eliminates drift)
     base_yaw_kd: 0.05        # Derivative gain (smooth rotation)
 
-    # Base control configuration
+    # ============================================================================
+    # CONFIGURATION SYSTÈME
+    # ============================================================================
     base_cmd_vel_topic: "/qbo_arduqbo/base_ctrl/cmd_vel"  # Topic for base velocity commands
     invert_linear_vel: false  # Set to true if forward command makes base go backward
     camera_info_topic: "camera_left/camera_info"  # Topic for camera calibration info
+
+    # ============================================================================
+    # NOTES IMPORTANTES
+    # ============================================================================
+    # - Le follower publie la position 3D du visage via /qbo_face_following/status
+    # - Le SBE utilise face_x, face_y, face_z et face_distance pour planifier la navigation
+    # - Le contrôle avance/recul est géré par le SBE via move_base (pas par ce node)
+    # - Utilisez le service /qbo_face_following/set_follower_status pour activer/désactiver:
+    #   * enable_head_movement: Contrôle de la tête (pan/tilt)
+    #   * enable_base_rotation: Rotation de la base pour centrage
 

@@ -1,0 +1,11 @@
+# Service pour contrôler les capacités du face follower
+# Appelé par le SBE (Social Behavior Engine) pour activer/désactiver les mouvements
+
+# Request
+bool enable_head_movement      # Autoriser les mouvements de tête (pan/tilt)
+bool enable_base_rotation      # Autoriser la rotation de la base mobile
+
+---
+# Response
+bool success                   # True si la commande a été acceptée
+string message                 # "OK" ou raison du refus/warning

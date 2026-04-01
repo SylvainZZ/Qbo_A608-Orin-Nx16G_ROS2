@@ -58,7 +58,11 @@ def generate_launch_description():
             package='qbo_vision',
             executable='face_tracker_node',
             name='qbo_face_tracker',
-            parameters=[face_tracker_config],
+            parameters=[
+                face_tracker_config,
+                {'publish_debug_image': False}, # Enable debug image for visualization
+                {'start_enabled': True} # Start the node enabled
+                ],
             output='screen'
         ),
 
@@ -78,7 +82,7 @@ def generate_launch_description():
             name='qbo_face_following',
             parameters=[
                 face_follower_config,
-                {'move_base': False}  # Override parameter to disable base movement
+                {'base_rotation_enabled': False, 'head_movement_enabled': False}  # Override parameter to disable base and head movement
             ],
             output='screen'
         )

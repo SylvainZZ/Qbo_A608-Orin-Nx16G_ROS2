@@ -3,22 +3,22 @@ import random
 from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
 
-# from transformers import BitsAndBytesConfig
-
 from qbo_msgs.msg import ListenResult
 from qbo_msgs.srv import Text2Speach
+from qbo_msgs.srv import GenerateText
 from std_srvs.srv import Trigger
 
 import os
 import time
 from collections import deque
+import json
 
 # 🔽 Imports internes
 from qbo_driver.qbo_aiml.qa_loader import QALoader
 from qbo_driver.qbo_aiml.intent_engine import IntentEngine
-from qbo_driver.qbo_aiml.parameter_extractors import ParameterExtractor
-from qbo_driver.qbo_aiml.diagnostics_parser import DiagnosticsParser
-from qbo_driver.qbo_aiml.event_manager import EventManager
+# from qbo_driver.qbo_aiml.parameter_extractors import ParameterExtractor
+# from qbo_driver.qbo_aiml.diagnostics_parser import DiagnosticsParser
+# from qbo_driver.qbo_aiml.event_manager import EventManager
 from qbo_driver.qbo_aiml.llm_engine import LLMEngine
 from qbo_driver.qbo_aiml.constants import COLOR_MAP
 
@@ -73,17 +73,17 @@ class AIMLNode(Node):
         # ==============================
 
         self.intent_engine = IntentEngine(self)
-        self.parameter_extractor = ParameterExtractor()
-        self.diagnostics_parser = DiagnosticsParser(
-            node=self,
-            watchers_dir=WATCHERS_DIRS
-        )
-        self.event_manager = EventManager(
-            cooldown_default=30,
-            logger=self.get_logger()
-        )
+        # self.parameter_extractor = ParameterExtractor()
+        # self.diagnostics_parser = DiagnosticsParser(
+        #     node=self,
+        #     watchers_dir=WATCHERS_DIRS
+        # )
+        # self.event_manager = EventManager(
+        #     cooldown_default=30,
+        #     logger=self.get_logger()
+        # )
 
-        self.event_timer = self.create_timer(10.0, self.process_events)
+        # self.event_timer = self.create_timer(10.0, self.process_events)
         self.pending_confirmation = None
 
         # Option CLI pour tests rapides
@@ -115,22 +115,23 @@ class AIMLNode(Node):
         # 🔹 5️⃣ ROS interfaces
         # ==============================
 
-        self.subscription = self.create_subscription(
-            ListenResult,
-            '/listen',
-            self.listen_callback,
-            10
-        )
+        # self.subscription = self.create_subscription(
+        #     ListenResult,
+        #     '/listen',
+        #     self.listen_callback,
+        #     10
+        # )
+
         # ==============================
         # 🔹 6️⃣ TTS Queue
         # ==============================
         self.speech_queue = deque()
         self.speaking = False
 
-        self.speaker_client = self.create_client(
-            Text2Speach,
-            '/qbo_driver/say_to_TTS'
-        )
+        # self.speaker_client = self.create_client(
+        #     Text2Speach,
+        #     '/qbo_driver/say_to_TTS'
+        # )
         # self.create_timer(2.0, self._process_speech_queue)
 
         # ==============================
@@ -139,8 +140,18 @@ class AIMLNode(Node):
 
         self.vector_service = self.create_service(
             Trigger,
-            '/vectorize_index',
+            '/aiml/vectorize_index',
             self.vectorize_callback
+        )
+
+        # ==============================
+        # 🔹 8️⃣ Service de génération de texte
+        # ==============================
+
+        self.generate_service = self.create_service(
+            GenerateText,
+            '/aiml/generate_text',
+            self.generate_text_callback
         )
 
         self._history_last_len = 0
@@ -169,142 +180,154 @@ class AIMLNode(Node):
     # ==============================
     # CALLBACK LISTEN OU CLI
     # ==============================
-    def listen_callback(self, msg: ListenResult):
+    def generate_text_callback(self, request, response):
 
-        sentence = msg.sentence.lower().strip()
-        whisper_conf = msg.confidence
+        try:
 
-        self.get_logger().info(f"🗣️ Reçu : {sentence} (conf: {whisper_conf:.2f})")
+            # =========================
+            # CAS 1 : CONVERSATION
+            # =========================
+            if request.type == "conversation":
 
-        # 1️⃣ Extraction paramètres
-        self.last_detected_params = self.parameter_extractor.extract(sentence)
-        self.get_logger().info(f"🧪 extract() -> {self.last_detected_params}")
+                sentence = request.text.lower().strip()
 
-        # if self.pending_confirmation:
+                # self.last_detected_params = self.parameter_extractor.extract(sentence)
 
-        #     confirm = self.last_detected_params.get("confirm")
-        #     self.get_logger().info(
-        #         f"🔎 En attente de confirmation... détecté : {confirm}"
-        #     )
+                candidates = self.qa_loader.search_topk(sentence, k=5)
 
-        #     intent_result = None
-        #     event_key = self.pending_confirmation["key"]
+                best_item, confidence = self.select_best_candidate(
+                    candidates,
+                    sentence,
+                    self.last_detected_params
+                )
 
-        #     if confirm == "yes":
+                if not best_item:
+                    response.success = True
+                    response.response_text = "Je ne suis pas sûr de comprendre."
+                    return response
 
-        #         self.get_logger().info("✅ Confirmation reçue")
+                if "intent" in best_item:
+                    threshold = self.THRESHOLDS["listen"]
+                else:
+                    threshold = self.THRESHOLDS["dialog"]
 
-        #         self.event_manager.mark_executing(event_key)
+                if confidence < threshold:
+                    response.success = True
+                    response.response_text = "Je ne sais pas répondre à ça."
+                    return response
 
-        #         intent_result = self.intent_engine.execute(
-        #             self.pending_confirmation["intent"],
-        #             self.robot_state,
-        #             self.last_detected_params
-        #         )
+                intent_result = None
+                if "intent" in best_item:
+                    intent_result = self.intent_engine.execute(
+                        best_item["intent"],
+                        self.robot_state,
+                        self.last_detected_params
+                    )
 
-        #         self.pending_confirmation = None
+                base_answer = self.generate_answer(
+                    best_item,
+                    intent_result,
+                    self.last_detected_params
+                )
 
-        #         if intent_result and intent_result.get("status") == "success":
+                response.success = True
+                response.response_text = base_answer
+                return response
 
-        #             self.enqueue_speech("Calibration lancée avec succès.", priority="info")
-        #             self.event_manager.resolve_event(event_key)
+            # =========================
+            # CAS 2 : DIAGNOSTIC
+            # =========================
+            elif request.type == "diagnostic":
 
-        #         else:
-        #             self.enqueue_speech("La calibration a échoué.", priority="info")
+                data = json.loads(request.context_json)
 
-        #         return
+                key = data.get("key", "")
+                severity = data.get("severity", "")
+                message = data.get("message", "")
 
-        #     if confirm == "no":
+                query = self.build_diagnostic_query(data)
 
-        #         self.enqueue_speech("D'accord, j'annule.", priority="info")
+                candidates = self.qa_diag.search_topk(query, k=20)
+                route = self._route_from_event(key, message)
 
-        #         # on snooze pour éviter répétition immédiate
-        #         self.event_manager.snooze_event(event_key)
+                best_item, confidence = self._select_diag_candidate(
+                    candidates,
+                    route,
+                    threshold=self.THRESHOLDS["diagnostic"],
+                    margin=0.0
+                )
 
-        #         self.pending_confirmation = None
-        #         return
+                if not best_item:
+                    response.success = False
+                    response.response_text = ""
+                    return response
 
-        #     # réponse ambiguë
-        #     self.enqueue_speech("Tu veux que je le fasse ? Réponds par oui ou non.", priority="info")
-        #     return
+                final_text = self.generate_answer(best_item, None, {})
 
+                response.success = True
+                response.response_text = final_text
+                return response
 
-        # 2️⃣ Recherche QA
-        candidates = self.qa_loader.search_topk(sentence, k=5)
+            else:
+                response.success = False
+                response.response_text = "Type inconnu"
+                return response
 
-        best_item, confidence = self.select_best_candidate(
-            candidates,
-            sentence,
-            self.last_detected_params
-        )
-
-        if not best_item:
-            self.enqueue_speech("Je ne suis pas sûr de comprendre ta question.", priority="info")
-            self.get_logger().warn("❌ Aucun match.")
-            return
-
-        if "intent" in best_item:
-            threshold = self.THRESHOLDS["listen"]
-        else:
-            threshold = self.THRESHOLDS["dialog"]
-
-        if confidence < threshold:
-            self.enqueue_speech("Je ne sais pas répondre à ça pour le moment.", priority="info")
-            self.get_logger().warn(f"❌ Score trop faible ({confidence:.2f})")
-            return
-
-        self.get_logger().info(f"🔎 Score FAISS : {confidence:.2f}")
-
-        # 3️⃣ Exécution intent si présent
-        intent_result = None
-        if "intent" in best_item:
-            intent_result = self.intent_engine.execute(
-                best_item["intent"],
-                self.robot_state,
-                self.last_detected_params
-            )
-
-        # 4️⃣ Génération réponse de base
-        base_answer = self.generate_answer(
-            best_item,
-            intent_result,
-            self.last_detected_params
-        )
-
-        meta = best_item.get("meta", {})
-        intent_kind = meta.get("intent_kind", "")
-        risk = meta.get("risk", "low")
-
-        # 🔹 Reformulation uniquement pour conversation / explain
-        if (
-            self.enable_style_rewrite
-            and risk == "low"
-            and intent_kind in ["conversation", "explain"]
-        ):
-            self.get_logger().info(f"🧠 Réponse avant reformulation: {base_answer}")
-            final_text = self.llm_engine.rewrite(base_answer)
-        else:
-            final_text = base_answer
-
-        # 5️⃣ TTS
-        self.enqueue_speech(final_text, priority="info")
+        except Exception as e:
+            self.get_logger().error(f"AIML error: {e}")
+            response.success = False
+            response.response_text = ""
+            return response
 
     def cli_loop(self):
+
+        client = self.create_client(GenerateText, '/aiml/generate_text')
+
+        while not client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info("Waiting for AIML service...")
+
         while rclpy.ok():
             try:
                 s = input("⌨️  CLI> ").strip()
                 if not s:
                     continue
-                # on simule un message listen
-                class Dummy:
-                    sentence = s
-                    confidence = 1.0
-                self.listen_callback(Dummy())
-            except EOFError:
-                return
+
+                req = GenerateText.Request()
+                req.type = "conversation"
+                req.text = s
+                req.context_json = ""
+
+                future = client.call_async(req)
+
+                while not future.done():
+                    time.sleep(0.05)
+
+                if future.result():
+                    print(f"🤖 {future.result().response_text}")
+
             except Exception as e:
                 self.get_logger().error(f"CLI error: {e}")
 
+    def build_diagnostic_query(self, data):
+
+        key = data.get("key", "")
+        severity = data.get("severity", "")
+        message = data.get("message", "")
+
+        # split intelligent
+        parts = key.split("|")
+        hardware = parts[0] if len(parts) > 0 else ""
+        component = parts[1] if len(parts) > 1 else ""
+
+        query = f"""
+        diagnostic {severity}
+        robot qbo
+        hardware {hardware}
+        component {component}
+        issue {message}
+        """
+
+        return query.strip()
     # ==============================
     # GÉNÉRATION RÉPONSE
     # ==============================

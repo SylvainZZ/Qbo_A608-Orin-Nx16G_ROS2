@@ -13,12 +13,12 @@ class DiagnosticsParser:
     def __init__(self, node, watchers_dir):
         self.node = node
         self.watchers_dir = watchers_dir
-        self.node.create_subscription(
-            DiagnosticArray,
-            '/diagnostics',
-            self.callback,
-            10
-        )
+        # self.node.create_subscription(
+        #     DiagnosticArray,
+        #     '/diagnostics',
+        #     self.callback,
+        #     10
+        # )
         self.initialized = False
         self._level_memory = {}   # {event_key: {"level": int, "since": timestamp}}
         self._stability_delay = 3.0  # secondes de stabilité requise

@@ -1,6 +1,7 @@
 # qbo_arduqbo
 
-**Version :** 0.1.4
+**Version :** 0.1.5
+**Date :** 22/03/26
 
 ## 📦 Résumé
 
@@ -19,9 +20,9 @@ qbo_arduqbo:
   ros__parameters:
     port1: "/dev/ttyQboard1"
     port2: "/dev/ttyQboard2"
-    baud1: 115200
+    baud1: 500000
     baud2: 115200
-    timeout1: 3.0
+    timeout1: 10.0
     timeout2: 3.0
 
     enable_qboard1: true
@@ -93,6 +94,31 @@ ros2 service call /qbo_arduqbo/base_ctrl/unlock_motors_stall std_srvs/srv/Empty 
 
 **Services**
 - `<topic>/calibrate` (`qbo_msgs/srv/CalibrateIMU`).
+
+## Protocole calibration non-bloquante
+
+```
+ROS2 calibrateService()
+  │
+  ├─ timer_->cancel()
+  │
+  ├─ calibrateIMU() ──► Arduino calibrateRequest()
+  │                       └─ IDLE → RUNNING, répond 0xFF
+  │
+  ├─ while (result == 0xFF) [poll toutes les 500ms]
+  │    └─ calibrateIMU() ──► calibrateRequest()
+  │                            ├─ RUNNING → 0xFF (spinOnce collecte 1 sample)
+  │                            └─ DONE    → 1/0, reset état
+  │
+  └─ timer_->reset()
+
+Pendant la calibration (~2.5s) :
+  ✅ loop() tourne normalement
+  ✅ spinOnce() → PID moteurs à jour
+  ✅ processSerial() → autres commandes traitées
+```
+
+---
 
 **Diagnostics** (IMU Status)
 - Criticité : `ERROR` si IMU incomplète, `WARN` si non calibrée, `OK` sinon.

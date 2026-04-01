@@ -104,9 +104,6 @@ FaceTracker::FaceTracker()
         1,
         std::bind(&FaceTracker::cameraInfoCallback,this,std::placeholders::_1));
 
-    face_pub_ = this->create_publisher<qbo_msgs::msg::FacePosAndDist>(
-        "/qbo_face_tracking/face_pos_and_dist",10);
-
     face_observation_pub_ = this->create_publisher<qbo_msgs::msg::FaceObservation>(
         "/qbo_face_tracking/face_observation",10);
 
@@ -119,11 +116,6 @@ FaceTracker::FaceTracker()
         "~/enable",
         std::bind(&FaceTracker::enableCallback, this,
                   std::placeholders::_1, std::placeholders::_2));
-
-    // Timer to publish DISABLED state when not enabled (1 Hz)
-    publish_timer_ = this->create_wall_timer(
-        std::chrono::seconds(1),
-        std::bind(&FaceTracker::publishDisabledState, this));
 
     // Timer to publish diagnostics (1 Hz)
     diagnostic_timer_ = this->create_wall_timer(
@@ -573,25 +565,6 @@ void FaceTracker::unsubscribeFromCamera()
     }
 }
 
-void FaceTracker::publishDisabledState()
-{
-    if(enabled_)
-        return; // Only publish when disabled
-
-    qbo_msgs::msg::FacePosAndDist msg_out;
-    msg_out.header.stamp = this->now();
-    msg_out.u = 0;
-    msg_out.v = 0;
-    msg_out.distance_to_head = 0;
-    msg_out.image_width = image_width_;
-    msg_out.image_height = image_height_;
-    msg_out.face_detected = false;
-    msg_out.name_signature = "";
-    msg_out.type_of_tracking = "DISABLED";
-
-    face_pub_->publish(msg_out);
-}
-
 void FaceTracker::enableCallback(
     const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
     std::shared_ptr<std_srvs::srv::SetBool::Response> response)
@@ -1001,8 +974,8 @@ void FaceTracker::imageCallback(
 
     bool face_detected=false;
 
-    float u=0;
-    float v=0;
+    // float u=0;
+    // float v=0;
     float distance=0;
 
     if(tracker_initialized_)
@@ -1022,8 +995,8 @@ void FaceTracker::imageCallback(
         float px = estimated.x;
         float py = estimated.y;
 
-        u = px - image_width_/2;
-        v = py - image_height_/2;
+        // u = px - image_width_/2;
+        // v = py - image_height_/2;
 
         distance = computeDistance(tracked_face_);
 
@@ -1039,41 +1012,6 @@ void FaceTracker::imageCallback(
             cv::circle(frame,{(int)px,(int)py},4,{0,0,255},2);
         }
     }
-
-    qbo_msgs::msg::FacePosAndDist msg_out;
-
-    msg_out.header.stamp = this->now();
-
-    msg_out.u = u;
-    msg_out.v = v;
-    msg_out.distance_to_head = distance;
-
-    msg_out.image_width = image_width_;
-    msg_out.image_height = image_height_;
-
-    msg_out.face_detected = face_detected;
-
-    msg_out.name_signature = "";
-
-    std::string state_str;
-    switch(tracking_state_)
-    {
-    case TrackingState::DISABLED:
-        state_str = "DISABLED";
-        break;
-    case TrackingState::SEARCH:
-        state_str = "SEARCH";
-        break;
-    case TrackingState::CANDIDATE:
-        state_str = "CANDIDATE";
-        break;
-    case TrackingState::TRACKING:
-        state_str = "TRACKING";
-        break;
-    }
-    msg_out.type_of_tracking = state_str;
-
-    face_pub_->publish(msg_out);
 
     // Publish FaceObservation message
     qbo_msgs::msg::FaceObservation face_obs;
@@ -1141,6 +1079,11 @@ void FaceTracker::imageCallback(
 
     if(publish_debug_image_ && viewer_image_pub_)
     {
+        // Convert tracking state to string for debug display
+        const char* state_names[] = {"DISABLED", "SEARCH", "CANDIDATE", "TRACKING"};
+        std::string tracking_state_str = (face_obs.tracking_state < 4) ? 
+            state_names[face_obs.tracking_state] : "UNKNOWN";
+
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(2);
         if(face_detected && std::isfinite(distance) && distance > 0.0f)
@@ -1150,7 +1093,7 @@ void FaceTracker::imageCallback(
 
         cv::putText(frame, oss.str(), cv::Point(20, 35),
                     cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 255, 255), 2);
-        cv::putText(frame, "tracking: " + msg_out.type_of_tracking, cv::Point(20, 70),
+        cv::putText(frame, "tracking: " + tracking_state_str, cv::Point(20, 70),
                     cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 0), 2);
 
         std::ostringstream conf_stream;
@@ -1159,7 +1102,7 @@ void FaceTracker::imageCallback(
         cv::putText(frame, conf_stream.str(), cv::Point(20, 105),
                 cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 200, 255), 2);
 
-        auto debug_msg = cv_bridge::CvImage(msg_out.header, "bgr8", frame);
+        auto debug_msg = cv_bridge::CvImage(face_obs.header, "bgr8", frame);
         viewer_image_pub_->publish(*debug_msg.toImageMsg());
     }
 }

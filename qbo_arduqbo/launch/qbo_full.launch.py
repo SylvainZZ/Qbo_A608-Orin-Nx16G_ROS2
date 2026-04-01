@@ -28,21 +28,18 @@ def generate_launch_description():
         Node(
             package='qbo_arduqbo',
             executable='qbo_arduqbo',
-            # name='qbo_arduqbo_node',
             parameters=[qboards_config]
         ),
         # Qbo Dynamixel Node
         Node(
             package='qbo_arduqbo',
             executable='qbo_dynamixel',
-            # name='qbo_dynamixel_node',
             parameters=[dynamixel_config]
         ),
         # Diagnostic Aggregator Node
-        Node(
-            package='diagnostic_aggregator',
-            executable='aggregator_node',
-            # name='qbo_dynamixel_node',
-            parameters=[aggregator_config]
-        )
+        # Node(
+        #     package='diagnostic_aggregator',
+        #     executable='aggregator_node',
+        #     parameters=[aggregator_config]
+        # )
     ])

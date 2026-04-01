@@ -112,8 +112,8 @@ class OrinA608Diagnostics(Node):
         s = self.jetson.stats
         cpu = s.get(JTOP_MAP["TempCPU"])
         gpu = s.get(JTOP_MAP["TempGPU"])
-        stat.add("CPU °C", f"{cpu:.1f} °c" if cpu is not None else "n/a")
-        stat.add("GPU °C", f"{gpu:.1f} °c" if gpu is not None else "n/a")
+        stat.add("CPU °C", f"{cpu:.1f}" if cpu is not None else "n/a")
+        stat.add("GPU °C", f"{gpu:.1f}" if gpu is not None else "n/a")
 
         # Déterminer le niveau de diagnostic
 
@@ -163,7 +163,7 @@ class OrinA608Diagnostics(Node):
         elif fan < self.fan_min_threshold:
             if level < DiagnosticStatus.WARN:
                 level = DiagnosticStatus.WARN
-            messages.append(f"Fan speed low ({fan:.0f}%)")
+            messages.append(f"Fan speed low ({fan:.0f})")
             stat.add("FAN %", str(int(fan)))
         else:
             stat.add("FAN %", str(int(fan)))

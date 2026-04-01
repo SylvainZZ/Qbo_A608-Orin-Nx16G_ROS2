@@ -346,16 +346,16 @@ DynamixelController::DynamixelController(const std::shared_ptr<rclcpp::Node> & n
             // Severity level with clear priority: ERROR > WARN > OK
             if (!read_ok) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Register read failed");
+            } else if (!servo->isTorqueEnabled()) {
+                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Torque disabled (idle)");
             } else if (temp > temp_warn) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High temperature");
             } else if (volt < volt_min || volt > volt_max) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Voltage out of range");
-            } else if (std::abs(error) > error_thresh && servo->isTorqueEnabled()) {
+            } else if (std::abs(error) > error_thresh) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High position error");
             } else if (power_watts > 10.0f) {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "High power consumption");
-            } else if (!servo->isTorqueEnabled()) {
-                stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Torque disabled (idle)");
             } else {
                 stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "OK");
             }

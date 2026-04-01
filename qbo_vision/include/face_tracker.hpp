@@ -36,7 +36,6 @@ private:
 
     void subscribeToCamera();
     void unsubscribeFromCamera();
-    void publishDisabledState();
     void publishDiagnostics();
 
     // Detection
@@ -61,11 +60,9 @@ private:
     // ROS
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
     rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr info_sub_;
-    rclcpp::Publisher<qbo_msgs::msg::FacePosAndDist>::SharedPtr face_pub_;
     rclcpp::Publisher<qbo_msgs::msg::FaceObservation>::SharedPtr face_observation_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr viewer_image_pub_;
     rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_service_;
-    rclcpp::TimerBase::SharedPtr publish_timer_;
     rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostic_pub_;
     rclcpp::TimerBase::SharedPtr diagnostic_timer_;
 

@@ -13,21 +13,33 @@ find_package(sensor_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+
+# Messages
+  # qbo_arduqbo
   "msg/ListenResult.msg"
   "msg/BatteryLevel.msg"
   "msg/LCD.msg"
   "msg/Nose.msg"
   "msg/Mouth.msg"
   "msg/MicReport.msg"
-  "msg/FacePosAndDist.msg"
+  # qbo_vision
   "msg/FaceObservation.msg"
   "msg/FaceRecognitionResult.msg"
-  "srv/Text2Speach.srv"
+  "msg/FollowerStatus.msg"
+  # qbo_social
+  "msg/SocialEvent.msg"
+  "msg/WorldState.msg"
+  "msg/DecisionTrace.msg"
+  "msg/BehaviorIntent.msg"
+
+# Services
+  # qbo_arduqbo
   "srv/TorqueEnable.srv"
   "srv/SetOdometry.srv"
   "srv/CalibrateIMU.srv"
   "srv/TestLeds.srv"
   "srv/SetMouthAnimation.srv"
+  # qbo_vision
   "srv/RecognizeFace.srv"
   "srv/GetName.srv"
   "srv/Train.srv"
@@ -35,6 +47,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/StartEnrollPerson.srv"
   "srv/RemovePerson.srv"
   "srv/ListPersons.srv"
+  "srv/SetFollowerStatus.srv"
+  # qbo_driver
+  "srv/GenerateText.srv"
+  "srv/Text2Speach.srv"
   DEPENDENCIES std_msgs builtin_interfaces sensor_msgs
 )
 

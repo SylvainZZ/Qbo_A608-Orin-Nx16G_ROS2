@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>qbo_navigation</name>
-  <version>0.0.1</version>
+  <version>0.1.1</version>
   <description>Navigation stack for Qbo robot using Nav2 and RealSense D435</description>
 
-  <maintainer email="your@email.com">qbo-v2</maintainer>
+  <maintainer email="sylvain-zwolinski@orange.fr">zwolinski</maintainer>
+  <author email="sylvain-zwolinski@orange.fr">zwolinski</author>
   <license>Apache-2.0</license>
 
   <!-- Build tool -->

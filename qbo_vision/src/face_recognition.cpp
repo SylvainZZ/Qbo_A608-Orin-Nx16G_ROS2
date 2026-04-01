@@ -152,7 +152,7 @@ void FaceRecognitionNode::synchronizedCallback(
     if(face->face_size < 80)
     {
         RCLCPP_DEBUG(this->get_logger(),
-            "Skipping face_id=%u (face_size=%u < 80)",
+            "Skipping face_id=%u (face_size=%.0f < 80)",
             face->face_id, face->face_size);
         return;
     }
@@ -302,7 +302,7 @@ void FaceRecognitionNode::synchronizedCallback(
         result.known = true;
         result.name = majorityVote(history);
         result.similarity = similarity;
-        
+
         // Track last positive recognition
         successful_recognitions_++;
         last_positive_recognition_[result.name] = now;
@@ -389,7 +389,7 @@ void FaceRecognitionNode::diagnosticCallback(diagnostic_updater::DiagnosticStatu
     {
         const auto & name = person_names[i];
         persons_list += name;
-        
+
         auto it = last_positive_recognition_.find(name);
         if(it != last_positive_recognition_.end())
         {
@@ -405,7 +405,7 @@ void FaceRecognitionNode::diagnosticCallback(diagnostic_updater::DiagnosticStatu
         {
             persons_list += " (never recognized)";
         }
-        
+
         if(i < person_names.size() - 1)
             persons_list += ", ";
     }
