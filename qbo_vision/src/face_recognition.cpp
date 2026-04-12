@@ -16,8 +16,9 @@ FaceRecognitionNode::FaceRecognitionNode()
   total_recognitions_(0),
   successful_recognitions_(0)
 {
+    // Augmentation de la queue pour éviter les pertes de synchronisation au démarrage
     sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(
-        SyncPolicy(10),
+        SyncPolicy(50),  // Augmenté de 10 à 50
         image_sub_,
         face_sub_);
 
@@ -28,7 +29,7 @@ FaceRecognitionNode::FaceRecognitionNode()
                   std::placeholders::_2));
 
     RCLCPP_INFO(this->get_logger(),
-        "Message filters policy: ApproximateTime with queue size 10");
+        "Message filters policy: ApproximateTime with queue size 50");
 
     result_pub_ = this->create_publisher<qbo_msgs::msg::FaceRecognitionResult>(
         "/qbo_face_recognition/result",
@@ -123,9 +124,20 @@ void FaceRecognitionNode::synchronizedCallback(
 {
     auto now = this->now();
 
-    RCLCPP_DEBUG(this->get_logger(),
-        "Synced callback received: face_id=%u, track_id=%u",
-        face->face_id, face->track_id);
+    // Log de diagnostic au démarrage pour vérifier que la callback est bien appelée
+    static int callback_count = 0;
+    if(callback_count < 5)
+    {
+        RCLCPP_INFO(this->get_logger(),
+            "✅ Synchronized callback #%d: face_id=%u, track_id=%u, tracking_state=%u",
+            ++callback_count, face->face_id, face->track_id, face->tracking_state);
+    }
+    else
+    {
+        RCLCPP_DEBUG(this->get_logger(),
+            "Synced callback received: face_id=%u, track_id=%u",
+            face->face_id, face->track_id);
+    }
 
     // Update diagnostics
     last_face_seen_ = now;
@@ -143,6 +155,16 @@ void FaceRecognitionNode::synchronizedCallback(
     // Check basic conditions first (before updating timers)
     if(face->tracking_state != 3)
     {
+        // Log plus visible pour comprendre pourquoi la reconnaissance ne se fait pas
+        static uint8_t last_logged_state = 255;
+        if(face->tracking_state != last_logged_state)
+        {
+            const char* state_names[] = {"DISABLED", "SEARCH", "CANDIDATE", "TRACKING"};
+            RCLCPP_INFO(this->get_logger(),
+                "⏸️  Recognition paused: tracker is in %s mode (need TRACKING for recognition)",
+                face->tracking_state < 4 ? state_names[face->tracking_state] : "UNKNOWN");
+            last_logged_state = face->tracking_state;
+        }
         RCLCPP_DEBUG(this->get_logger(),
             "Skipping face_id=%u (tracking_state=%u)",
             face->face_id, face->tracking_state);
@@ -151,6 +173,14 @@ void FaceRecognitionNode::synchronizedCallback(
 
     if(face->face_size < 80)
     {
+        static int small_face_count = 0;
+        if(small_face_count < 3)
+        {
+            RCLCPP_WARN(this->get_logger(),
+                "⚠️  Face too small for recognition: %.0f pixels (minimum: 80)",
+                face->face_size);
+            small_face_count++;
+        }
         RCLCPP_DEBUG(this->get_logger(),
             "Skipping face_id=%u (face_size=%.0f < 80)",
             face->face_id, face->face_size);

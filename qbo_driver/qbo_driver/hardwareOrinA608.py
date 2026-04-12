@@ -1,5 +1,5 @@
 """hardwareOrinA608.py
-Diagnostic publisher for the Seeed A608 carrier board + Jetson Orin NX 16 GB.
+Diagnostic publisher for the Seeed A608 carrier board + Jetson Orin NX16GB.
 Publie les métriques récupérées en une seule passe avec **jtop**.
 """
 

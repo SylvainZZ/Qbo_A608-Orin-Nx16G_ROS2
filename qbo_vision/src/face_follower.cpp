@@ -267,9 +267,9 @@ void FaceFollower::facePositionCallback(const qbo_msgs::msg::FaceObservation::Sh
         current_tracking_state_ = 2;  // TRACKING
     }
 
-    RCLCPP_DEBUG(this->get_logger(), 
+    RCLCPP_DEBUG(this->get_logger(),
         "FaceObservation received: tracker_state=%d (mapped to follower_state=%d), "
-        "faces=%d, distance=%.2f, center=(%d,%d)",
+        "faces=%d, distance=%.2f, center=(%.0f,%.0f)",
         received_state, current_tracking_state_,
         msg->faces_detected, msg->distance,
         msg->center_x, msg->center_y);

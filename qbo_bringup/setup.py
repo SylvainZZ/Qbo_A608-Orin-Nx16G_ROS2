@@ -11,6 +11,13 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
             'launch/qbo_startup.launch.py',
+            'launch/profile_minimal.launch.py',
+            'launch/profile_vision.launch.py',
+            'launch/profile_navigation.launch.py',
+            'launch/voice_output.launch.py',
+            'launch/voice_input.launch.py',
+            'launch/conversation_engine.launch.py',
+            'launch/qbo_system.launch.py',
         ]),
     ],
     install_requires=[
@@ -26,7 +33,7 @@ setup(
     # tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'smach.py = qbo_bringup.smach:main',
+            'qbo_bringup_manager = qbo_bringup.qbo_bringup_manager:main',
         ],
     },
 )

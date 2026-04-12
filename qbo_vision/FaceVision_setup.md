@@ -138,7 +138,7 @@ Le follower expose un service pour activer/désactiver les mouvements indépenda
 #### Activer tête + rotation base
 
 ```bash
-ros2 service call /qbo_face_following/set_status qbo_msgs/srv/SetFollowerStatus \
+ros2 service call /qbo_face_following/set_follower_status qbo_msgs/srv/SetFollowerStatus \
   "{enable_head_movement: true, enable_base_rotation: true}"
 ```
 

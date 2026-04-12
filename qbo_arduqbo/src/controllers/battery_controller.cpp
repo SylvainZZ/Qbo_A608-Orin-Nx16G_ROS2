@@ -19,13 +19,8 @@ CBatteryController::CBatteryController(
           1.0),
       driver_(driver),
       level_(0),
-      stat_(0),
-      last_estimated_runtime_minutes_(0.0)
+      stat_(0)
 {
-
-    diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
-        "/diagnostics", 10, std::bind(&CBatteryController::diagCallback, this, std::placeholders::_1));
-
     // Reading parameters
     get_parameter("error_battery_level", error_battery_level_);
     get_parameter("warn_battery_level", warn_battery_level_);
@@ -65,39 +60,6 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
 
     double voltage = level_ / 10.0;
 
-    voltage_history_.push_back(voltage);
-    if (voltage_history_.size() > 10)
-        voltage_history_.pop_front();
-
-    // Estimation runtime
-    static int runtime_publish_counter = 0;
-    runtime_publish_counter++;
-    if (runtime_publish_counter >= 20) {
-        runtime_publish_counter = 0;
-
-        // Assumption: we received a valid value
-        if (A608_power_w_ > 0.0) {
-            fixed_extra_power_w = 4; // ← to adjust according to your measurements
-
-            total_power_w = A608_power_w_ + fixed_extra_power_w;
-
-            // We assume the average voltage = voltage measured via voltage_history_
-            double smoothed_voltage = std::accumulate(voltage_history_.begin(), voltage_history_.end(), 0.0) / voltage_history_.size();
-
-            double estimated_current_draw = total_power_w / smoothed_voltage;
-
-            double estimated_runtime_minutes = (capacity_ah_ / estimated_current_draw) * 60.0;
-
-            if (std::isfinite(estimated_runtime_minutes)) {
-                if (last_estimated_runtime_minutes_ < 0.0 ||
-                    std::abs(estimated_runtime_minutes - last_estimated_runtime_minutes_) > 10.0) {
-                    last_estimated_runtime_minutes_ = estimated_runtime_minutes;
-                    // RCLCPP_INFO(this->get_logger(), "Updated runtime to %.1f minutes", estimated_runtime_minutes);
-                }
-            }
-        }
-    }
-
     status.add("Voltage", formatDouble(voltage)); // in volts
     status.add("Type", battery_type_); // e.g. "Li-ion", "NiMH", or other
     status.add("Nominal Voltage", formatDouble(nominal_voltage_)); // in volts
@@ -134,12 +96,6 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     }
     status.add("Charge Mode Description", charge_desc);
 
-    if (last_estimated_runtime_minutes_ > 0.0) {
-        status.add("Estimated Runtime", formatDouble(last_estimated_runtime_minutes_)); // in minutes
-        status.add("Estimated Power", formatDouble(total_power_w)); // in watts
-    }
-    status.add("Estimated Extras", formatDouble(fixed_extra_power_w));
-
     // Niveau batterie
     if (!pc_on) {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Battery Controller: Power PC Off");
@@ -149,18 +105,5 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Battery Controller: Low battery");
     } else {
         status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Battery Controller: Battery OK");
-    }
-}
-
-void CBatteryController::diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg) {
-    for (const auto& status : msg->status) {
-        if (status.name.find("A608 Power") != std::string::npos) {
-            for (const auto& value : status.values) {
-                if (value.key == "VDD_IN W") {
-                    A608_power_w_ = std::stod(value.value);
-                    return;
-                }
-            }
-        }
     }
 }

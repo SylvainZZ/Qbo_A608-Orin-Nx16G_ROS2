@@ -6,7 +6,7 @@ package_name = 'qbo_social'
 
 setup(
     name=package_name,
-    version='0.1.1',
+    version='0.1.2',
     packages=find_packages(include=['qbo_social', 'qbo_social.*']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -37,6 +37,8 @@ setup(
             'system_mode_manager = qbo_social.system_mode_manager:main',
             'sbe_follower_client_example = qbo_social.sbe_follower_client_example:main',
             'debug_behavior_state = qbo_social.debug_behavior_state:main',
+            'time_event_publisher = qbo_social.utils.time_event_publisher:main',
+            'network_event_publisher = qbo_social.utils.network_event_publisher:main',
         ],
     },
 )

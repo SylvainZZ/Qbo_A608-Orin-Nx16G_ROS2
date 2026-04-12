@@ -5,13 +5,13 @@ import json
 
 class DiagnosticsAdapter:
 
-    def __init__(self, node):
+    def __init__(self, node, stability_delay: float = 3.0):
 
         self.node = node
 
         self.robot_state = {}
         self._level_memory = {}
-        self._stability_delay = 3.0
+        self._stability_delay = stability_delay
         self.active_events = {}  # key → level
 
         self.node.create_subscription(
@@ -41,6 +41,15 @@ class DiagnosticsAdapter:
             category = status.name
             level = self.safe_level(status.level)
             message = status.message
+            values = {kv.key: kv.value for kv in status.values}
+
+            # ── Stockage complet dans robot_state (toujours, sans délai) ──
+            self.robot_state.setdefault(hardware, {})[category] = {
+                "level": level,
+                "message": message,
+                "values": values,
+                "last_seen": now,
+            }
 
             key = f"{hardware}|{category.split(':')[-1].strip()}"
 

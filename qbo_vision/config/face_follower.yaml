@@ -9,7 +9,7 @@ qbo_face_following:
     # - base_rotation_enabled: Rotation de la base pour centrage
 
     head_movement_enabled: true  # Activer le contrôle de la tête
-    base_rotation_enabled: true  # Activer le contrôle de la rotation base
+    base_rotation_enabled: false  # Activer le contrôle de la rotation base
     send_stop: false  # Envoyer cmd_vel=0 quand pas de visage détecté
 
     # Auto-disable movements when tracker is DISABLED for this duration (seconds)

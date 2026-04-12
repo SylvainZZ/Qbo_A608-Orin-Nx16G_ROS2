@@ -10,6 +10,10 @@
 # =============================================================================
 qbo_social_event_adapter:
   ros__parameters:
+    # -------------------------------------------------------------------------
+    # FACE TRACKING PARAMETERS
+    # -------------------------------------------------------------------------
+
     # Temps avant de considérer un visage comme "stable"
     # (présent de manière continue sans interruption)
     # Augmenté à 3s pour éviter les faux positifs et permettre
@@ -23,6 +27,23 @@ qbo_social_event_adapter:
     # Confidence minimum pour accepter une reconnaissance faciale
     # Valeurs typiques: 0.6 = bon compromis, 0.8 = très strict
     min_confidence: 0.6  # 0.0 - 1.0
+
+    # -------------------------------------------------------------------------
+    # DIAGNOSTICS PARAMETERS
+    # -------------------------------------------------------------------------
+
+    # Délai de stabilité avant publication d'un diagnostic
+    # Évite les faux positifs en attendant que l'état se stabilise
+    diagnostics_stability_delay: 3.0  # secondes
+
+    # Timeout avant considérer un nœud comme manquant
+    # Un nœud qui ne publie pas de diagnostics pendant ce temps
+    # déclenche un événement NODE_MISSING
+    diagnostics_node_timeout: 10.0  # secondes
+
+    # Fréquence de vérification du watchdog
+    # Contrôle à quelle fréquence le système vérifie la présence des nœuds
+    diagnostics_check_frequency: 2.0  # Hz (fois par seconde)
 
 
 # =============================================================================
@@ -98,7 +119,7 @@ qbo_system_mode_manager:
 # =============================================================================
 # NOTES D'UTILISATION
 # =============================================================================
-# 
+#
 # Pour lancer les nœuds avec ces paramètres:
 #   ros2 launch qbo_social social.launch.py
 #   ros2 launch qbo_social social.launch.py params_file:=/chemin/custom_params.yaml
@@ -113,17 +134,25 @@ qbo_system_mode_manager:
 # Scénarios typiques:
 #
 # 1. Robot de surveillance (peu d'interaction):
-#    - stable_head_stop_delay: 2.0  (arrête rapidement la tête)
-#    - search_timeout: 15.0          (recherche courte)
-#    - greet_cooldown: 30.0          (salue rarement)
+#    - stable_head_stop_delay: 2.0          (arrête rapidement la tête)
+#    - search_timeout: 15.0                 (recherche courte)
+#    - greet_cooldown: 30.0                 (salue rarement)
+#    - diagnostics_node_timeout: 5.0        (détection rapide des pannes)
 #
 # 2. Robot d'accueil (interaction maximale):
-#    - stable_head_stop_delay: 10.0 (continue à suivre longtemps)
-#    - search_timeout: 60.0          (recherche longue)
-#    - greet_cooldown: 5.0           (salue fréquemment)
+#    - stable_head_stop_delay: 10.0         (continue à suivre longtemps)
+#    - search_timeout: 60.0                 (recherche longue)
+#    - greet_cooldown: 5.0                  (salue fréquemment)
+#    - diagnostics_stability_delay: 5.0     (tolère plus d'instabilité)
 #
 # 3. Mode économie d'énergie:
-#    - stable_head_stop_delay: 3.0  (arrête vite)
-#    - search_timeout: 10.0          (recherche très courte)
+#    - stable_head_stop_delay: 3.0          (arrête vite)
+#    - search_timeout: 10.0                 (recherche très courte)
+#    - diagnostics_check_frequency: 1.0     (vérifie moins souvent)
+#
+# 4. Mode debug/développement:
+#    - diagnostics_stability_delay: 1.0     (réagit rapidement)
+#    - diagnostics_check_frequency: 5.0     (vérifie très souvent)
+#    - diagnostics_node_timeout: 3.0        (détecte immédiatement les crashes)
 #
 # =============================================================================

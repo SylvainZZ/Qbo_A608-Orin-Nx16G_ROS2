@@ -51,6 +51,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   # qbo_driver
   "srv/GenerateText.srv"
   "srv/Text2Speach.srv"
+  # qbo_bringup
+  "srv/ManageProfile.srv"
   DEPENDENCIES std_msgs builtin_interfaces sensor_msgs
 )
 

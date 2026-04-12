@@ -76,11 +76,11 @@ class FaceAdapter:
         )
 
         if not valid:
-            if msg.tracking_state != 2 and msg.faces_detected > 0:
-                self.node.get_logger().warn(
-                    f"⚠️  Face detected but tracking_state={msg.tracking_state} (expected 2=TRACKING). "
-                    f"faces_detected={msg.faces_detected}, distance={msg.face_distance:.2f}m"
-                )
+            # if msg.tracking_state != 2 and msg.faces_detected > 0:
+            #     self.node.get_logger().warn(
+            #         f"⚠️  Face detected but tracking_state={msg.tracking_state} (expected 2=TRACKING). "
+            #         f"faces_detected={msg.faces_detected}, distance={msg.face_distance:.2f}m"
+            #     )
             return
 
         # Sauvegarder la position 3D du visage
@@ -133,6 +133,17 @@ class FaceAdapter:
 
     def _publish_recognition_event(self, rec_msg):
         """Publie un événement de reconnaissance de personne."""
+
+        # Filtrer les reconnaissances invalides:
+        # 1. Ignorer les inconnus (unknown)
+        # 2. Ignorer les confiances < 0.6 (trop faible)
+        if not rec_msg.known or rec_msg.name == "unknown" or rec_msg.similarity < 0.6:
+            self.node.get_logger().debug(
+                f"Recognition ignored: name={rec_msg.name}, known={rec_msg.known}, "
+                f"conf={rec_msg.similarity:.2f} (threshold=0.6)"
+            )
+            return
+
         msg = self.node._create_event_msg(
             event_type="PERSON_RECOGNIZED",
             source="face_recognition",

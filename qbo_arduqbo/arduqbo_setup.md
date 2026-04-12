@@ -135,7 +135,7 @@ ros2 service call /qbo_arduqbo/imu_ctrl/imu_state/calibrate qbo_msgs/srv/Calibra
 
 ### BatteryController (battery_ctrl)
 
-**Rôle** : mesure tension et état batterie, estimation autonomie/puissance.
+**Rôle** : mesure tension et état batterie via QBoard3.
 
 **Paramètres**
 - `error_battery_level` (double) : seuil batterie vide.
@@ -146,14 +146,13 @@ ros2 service call /qbo_arduqbo/imu_ctrl/imu_state/calibrate qbo_msgs/srv/Calibra
 
 **Topics**
 - Aucun topic applicatif dédié (diagnostics uniquement).
-- Abonné à `/diagnostics` pour récupérer la puissance A608.
 
 **Services**
 - Aucun.
 
 **Diagnostics** (Battery Status)
-- Criticité : `STALE` si pas de communication QBoard3, `WARN`/`ERROR` selon seuils, `OK` sinon.
-- Champs : `Voltage`, `Type`, `Nominal Voltage`, `Capacity`, `Status`, `Charge Mode`, `External Power`, `PC On`, `Boards On`, `Charge Mode Description`, `Estimated Runtime`, `Estimated Power`, `Estimated Extras`.
+- Criticité : `STALE` si pas de communication QBoard3, `ERROR` si PC éteint ou batterie vide, `WARN` si batterie faible, `OK` sinon.
+- Champs : `Voltage`, `Type`, `Nominal Voltage`, `Capacity`, `Status`, `Charge Mode`, `External Power`, `Power PC`, `Power Qboard`, `Charge Mode Description`.
 
 **Exemples**
 ```bash
@@ -164,15 +163,13 @@ ros2 topic echo /diagnostics
 
 ### LcdController (lcd_ctrl)
 
-**Rôle** : affichage LCD (ligne commandée + infos diagnostics).
+**Rôle** : affichage LCD via commandes.
 
 **Paramètres**
-- `rate` (double) : fréquence d'update.
 - `topic` (string) : topic d'affichage LCD.
 
 **Topics**
 - Abonne : `<topic>` (`qbo_msgs/msg/LCD`).
-- Abonne : `/diagnostics` (pour afficher réseau, batterie, temperature CPU).
 
 **Services**
 - Aucun.
@@ -180,6 +177,11 @@ ros2 topic echo /diagnostics
 **Diagnostics** (LCD Status)
 - Criticité : `OK` si LCD présent, `ERROR` sinon.
 - Champs : `LCD Present`, `LCD Model`, `I2C Address`.
+
+**Comportement**
+- Affiche "Qbo Ready" au démarrage.
+- Écoute les messages sur le topic `cmd_lcd` pour mettre à jour l'affichage.
+- Message limité à 20 caractères par ligne.
 
 **Exemples**
 ```bash

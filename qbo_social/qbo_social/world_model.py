@@ -35,6 +35,16 @@ class SocialWorldModel(Node):
         self.mode = 'IDLE'
         self.health_state = 'OK'
 
+        # Temporal context
+        self.time_of_day = ''  # MORNING, AFTERNOON, EVENING, NIGHT
+        self.day_type = ''     # WEEKDAY, WEEKEND
+
+        # Network context
+        self.network_connected = False
+        self.wifi_ssid = ''
+        self.wifi_status = ''  # KNOWN, UNKNOWN
+        self.ip_address = ''
+
         # Timer pour publier le WorldState périodiquement (permet au behavior engine de rester à jour)
         self.create_timer(0.5, self._publish_world_state)
 
@@ -83,6 +93,72 @@ class SocialWorldModel(Node):
             self.focus_person_name = event.person_name
             self.engagement_level = 0.8
 
+        elif event.event_type == "SYSTEM_MODE_CHANGED":
+            try:
+                import json
+                payload = json.loads(event.payload_json)
+                self.health_state = payload.get("mode", "NORMAL")
+            except Exception:
+                pass
+
+        # Événements temporels (TIME_*)
+        elif event.event_type == 'TIME_MORNING':
+            self.time_of_day = 'MORNING'
+
+        elif event.event_type == 'TIME_AFTERNOON':
+            self.time_of_day = 'AFTERNOON'
+
+        elif event.event_type == 'TIME_EVENING':
+            self.time_of_day = 'EVENING'
+
+        elif event.event_type == 'TIME_NIGHT':
+            self.time_of_day = 'NIGHT'
+
+        # Événements de type de jour (DAY_*)
+        elif event.event_type == 'DAY_WEEKDAY':
+            self.day_type = 'WEEKDAY'
+
+        elif event.event_type == 'DAY_WEEKEND':
+            self.day_type = 'WEEKEND'
+        
+        # Événements réseau (NETWORK_*)
+        elif event.event_type == 'NETWORK_CONNECTED':
+            self.network_connected = True
+            # Extraire l'IP du payload si disponible
+            try:
+                import json
+                payload = json.loads(event.payload_json)
+                self.ip_address = payload.get('ip_address', '')
+            except Exception:
+                pass
+        
+        elif event.event_type == 'NETWORK_DISCONNECTED':
+            self.network_connected = False
+            self.wifi_ssid = ''  # Réinitialiser le WiFi si déconnecté
+            self.wifi_status = ''
+            self.ip_address = ''
+        
+        # Événements WiFi (WIFI_*)
+        elif event.event_type == 'WIFI_KNOWN':
+            self.wifi_status = 'KNOWN'
+            # Extraire le SSID du payload si disponible
+            try:
+                import json
+                payload = json.loads(event.payload_json)
+                self.wifi_ssid = payload.get('ssid', '')
+            except Exception:
+                pass
+        
+        elif event.event_type == 'WIFI_UNKNOWN':
+            self.wifi_status = 'UNKNOWN'
+            # Extraire le SSID du payload si disponible
+            try:
+                import json
+                payload = json.loads(event.payload_json)
+                self.wifi_ssid = payload.get('ssid', '')
+            except Exception:
+                pass
+
         self._publish_world_state()
 
     def _publish_world_state(self):
@@ -104,6 +180,12 @@ class SocialWorldModel(Node):
         msg.engagement_level = self.engagement_level
         msg.mode = self.mode
         msg.health_state = self.health_state
+        msg.time_of_day = self.time_of_day
+        msg.day_type = self.day_type
+        msg.network_connected = self.network_connected
+        msg.wifi_ssid = self.wifi_ssid
+        msg.wifi_status = self.wifi_status
+        msg.ip_address = self.ip_address
 
         self.pub_state.publish(msg)
 

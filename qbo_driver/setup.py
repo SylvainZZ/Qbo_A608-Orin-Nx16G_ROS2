@@ -11,7 +11,7 @@ setup(
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
-            'launch/qbo_diag.launch.py',
+            'launch/orin_diagnostics.launch.py',
             'launch/qbo_audio.launch.py',
             'launch/gscam_imx219_launch.py',
             'launch/dual_camera_v412_launch.py',
@@ -29,7 +29,7 @@ setup(
             glob.glob('config/others/*.json')),
         # Fichiers de configuration pour TTS et ASR
         ('share/' + package_name + '/config', [
-            'config/talk_tts.yaml',
+            'config/qbo_tts_pico.yaml',
             'config/listen_whisper.yaml',
         ]),
     ],

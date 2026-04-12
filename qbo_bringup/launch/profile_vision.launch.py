@@ -1,13 +1,33 @@
+#!/usr/bin/env python3
+"""
+QBO Profile: VISION
+
+Profil MINIMAL + capacités visuelles :
+  - usb_cam (caméra USB avec calibration)
+  - qbo_face_tracker (détection visages)
+  - qbo_face_recognition (reconnaissance visages)
+  - qbo_face_following (suivi visuel)
+
+Ce profil permet :
+  ✓ Tout MINIMAL
+  ✓ Détection et reconnaissance de visages
+  ✓ Suivi visuel (tête + base)
+"""
+
 from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.actions import TimerAction, RegisterEventHandler
-from launch.event_handlers import OnProcessStart
 from ament_index_python.packages import get_package_share_directory
 import os
 
-def generate_launch_description():
 
-    config_path = os.path.join(
+def generate_launch_description():
+    # ===== Inclure le profil MINIMAL =====
+    bringup_dir = get_package_share_directory('qbo_bringup')
+
+    # ===== Configs YAML pour la vision =====
+    camera_config = os.path.join(
         get_package_share_directory('qbo_vision'),
         'config',
         'calibration',
@@ -33,11 +53,15 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # USB Camera Node with calibration (démarre en premier)
+
+        # =====================================================================
+        # USB CAMERA — Caméra avec calibration
+        # =====================================================================
         Node(
             package='usb_cam',
             executable='usb_cam_node_exe',
             name='usb_cam',
+            output='screen',
             parameters=[{
                 'video_device': '/dev/cam_usb',
                 'image_width': 640,
@@ -46,7 +70,7 @@ def generate_launch_description():
                 'io_method': 'mmap',
                 'framerate': 30.0,
                 'camera_name': 'left_camera',
-                'camera_info_url': f'file://{config_path}',
+                'camera_info_url': f'file://{camera_config}',
                 'queue_size': 1
             }],
             remappings=[
@@ -55,7 +79,9 @@ def generate_launch_description():
             ]
         ),
 
-        # Face Tracker Node (démarre 2 secondes après la caméra)
+        # =====================================================================
+        # QBO FACE TRACKER — Détection de visages (démarre 2s après la caméra)
+        # =====================================================================
         TimerAction(
             period=2.0,
             actions=[
@@ -63,17 +89,19 @@ def generate_launch_description():
                     package='qbo_vision',
                     executable='face_tracker_node',
                     name='qbo_face_tracker',
+                    output='screen',
                     parameters=[
                         face_tracker_config,
-                        {'publish_debug_image': True}, # Enable debug image for visualization
-                        {'start_enabled': True} # Start the node enabled
-                        ],
-                    output='screen'
+                        {'publish_debug_image': False},
+                        {'start_enabled': True}
+                    ]
                 )
             ]
         ),
 
-        # Face Recognition Node (démarre 3 secondes après, une fois le tracker initialisé)
+        # =====================================================================
+        # QBO FACE RECOGNITION — Reconnaissance de visages (démarre 3s après)
+        # =====================================================================
         TimerAction(
             period=3.0,
             actions=[
@@ -81,25 +109,28 @@ def generate_launch_description():
                     package='qbo_vision',
                     executable='face_recognition_node',
                     name='qbo_face_recognition',
-                    parameters=[face_recognition_config],
-                    output='screen'
+                    output='screen',
+                    parameters=[face_recognition_config]
                 )
             ]
         ),
 
-        # Face Follower Node
+        # =====================================================================
+        # QBO FACE FOLLOWING — Suivi visuel (démarre 4s après)
+        # =====================================================================
         TimerAction(
-            period=4.0,  # Démarre 4s après (après tracker et recognition)
+            period=4.0,
             actions=[
                 Node(
                     package='qbo_vision',
                     executable='face_follower_node',
                     name='qbo_face_following',
+                    output='screen',
                     parameters=[
-                        face_follower_config  # Utilise UNIQUEMENT les valeurs du YAML (pas d'override)
-                    ],
-                    output='screen'
+                        face_follower_config  # Utilise UNIQUEMENT les valeurs du YAML
+                    ]
                 )
             ]
-        )
+        ),
+
     ])

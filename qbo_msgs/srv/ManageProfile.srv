@@ -1,0 +1,16 @@
+# Service pour gérer les profils de nœuds (démarrage/arrêt)
+# Reproduit le comportement des Lifecycle Nodes
+
+# REQUEST
+string profile_name          # Nom du profil : MINIMAL, VISION, NAVIGATION, FULL
+string action                # START | STOP | RESTART | STATUS
+string[] target_nodes        # (optionnel) Liste spécifique de nœuds à gérer, vide = tout le profil
+
+---
+
+# RESPONSE
+bool success                 # true si l'opération a réussi
+string message               # Message descriptif (succès ou erreur)
+string[] active_nodes        # Liste des nœuds actuellement actifs
+string[] failed_nodes        # Liste des nœuds qui ont échoué (si applicable)
+int32 profile_state          # 0=STOPPED, 1=STARTING, 2=RUNNING, 3=STOPPING, 4=ERROR

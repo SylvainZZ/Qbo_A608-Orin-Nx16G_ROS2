@@ -19,10 +19,8 @@ public:
 
 private:
     void diagnosticCallback(diagnostic_updater::DiagnosticStatusWrapper &status);
-    void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg);
 
     // ROS2
-    rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
     diagnostic_updater::Updater updater_;
 
     // Driver série vers la base Q.bo
@@ -32,13 +30,7 @@ private:
     // std::string name_;
     float level_;
     uint8_t stat_;
-    double A608_power_w_ = -1.0;
-    double fixed_extra_power_w = -1.0;
-    double total_power_w = -1.0;
 
-    // Estimation runtime
-    std::deque<double> voltage_history_;
-    double last_estimated_runtime_minutes_;
     double error_battery_level_ = 12.0;
     double warn_battery_level_= 12.0;
     double capacity_ah_= 12.0;
