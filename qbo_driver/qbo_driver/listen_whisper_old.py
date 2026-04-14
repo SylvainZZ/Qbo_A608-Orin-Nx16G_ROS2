@@ -1,210 +1,635 @@
-import os
 import queue
+import subprocess
 import threading
 import time
 from collections import deque
+
 import numpy as np
+import math
 import sounddevice as sd
 import webrtcvad
-from scipy.io.wavfile import write
-from scipy.signal import resample_poly
 from faster_whisper.transcribe import WhisperModel
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import Bool
 from qbo_msgs.msg import ListenResult
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
-VAD_RATES = (16000, 48000, 32000, 8000)
+FIXED_SR = 16000
 
-def _resample_to(src: np.ndarray, fs_in: int, fs_out: int) -> np.ndarray:
-    if fs_in == fs_out:
-        return src
-    return resample_poly(src, fs_out, fs_in)
+def clamp01(x: float) -> float:
+    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
 
-def list_input_devices(logger):
+def logprob_to_conf(avg_logprob: float) -> float:
+    """
+    avg_logprob ~ [-2.0 .. -0.1]
+    Sigmoid centrée autour de -1.0.
+    -1.0 => ~0.5
+    -0.5 => ~0.82
+    -0.2 => ~0.93
+    -1.5 => ~0.18
+    """
+    x = float(avg_logprob)
+    k = 3.0   # pente (plus grand = plus tranché)
+    x0 = -1.0 # centre
+    return clamp01(1.0 / (1.0 + math.exp(-k * (x - x0))))
+
+def segment_confidence(seg, debug: bool = False, logger=None) -> float:
+    """
+    Combine plusieurs signaux si présents.
+    """
+    conf = 0.6
+    # base : avg_logprob
+    if hasattr(seg, "avg_logprob") and seg.avg_logprob is not None:
+        conf = logprob_to_conf(float(seg.avg_logprob))
+
+    # pénalise si "no_speech_prob" est élevé (si dispo)
+    if hasattr(seg, "no_speech_prob") and seg.no_speech_prob is not None:
+        ns = float(seg.no_speech_prob)  # 0..1
+        # pénalité douce (pas trop violente)
+        conf *= (1.0 - 0.7 * clamp01(ns))
+
+    # pénalise si compression_ratio trop haut (hallucination possible)
+    if hasattr(seg, "compression_ratio") and seg.compression_ratio is not None:
+        cr = float(seg.compression_ratio)
+        # Whisper recommande souvent de se méfier quand cr > ~2.4
+        if cr > 2.4:
+            conf *= 0.5
+        elif cr > 2.0:
+            conf *= 0.8
+    if debug and logger is not None:
+        logger.debug(
+            "seg avg_logprob=%s no_speech_prob=%s compression_ratio=%s => conf=%.3f"
+            % (
+                getattr(seg, "avg_logprob", None),
+                getattr(seg, "no_speech_prob", None),
+                getattr(seg, "compression_ratio", None),
+                conf,
+            )
+        )
+
+    return clamp01(conf)
+
+def aggregate_confidence(confs: list[float]) -> float:
+    """
+    Agrégation simple : moyenne pondérée (ici moyenne).
+    Tu peux aussi prendre min(confs) si tu veux être conservateur.
+    """
+    if not confs:
+        return 0.0
+    return float(sum(confs) / len(confs))
+
+def get_default_input_info():
+    """Récupère l'index et le nom du device par défaut du système."""
+    d = sd.query_devices(kind="input")
     devs = sd.query_devices()
-    logger.info("=== Input devices ===")
-    for i, d in enumerate(devs):
-        if d["max_input_channels"] > 0:
-            logger.info(f"{i:2d}: {d['name']}  api={sd.query_hostapis()[d['hostapi']]['name']}  rate={int(d.get('default_samplerate',0))}")
+    for i, di in enumerate(devs):
+        if di["name"] == d["name"] and di.get("max_input_channels", 0) > 0:
+            return i, di["name"]
+    return None, None
 
-def find_device(name_hint: str):
-    """Préfère ALSA et retourne (index, samplerate par défaut du device)."""
-    name_hint = name_hint.lower()
+def get_alsa_default_device():
+    """
+    Trouve le device ALSA "default".
+    Ce device est automatiquement routé par PulseAudio vers la source configurée.
+    Retourne (index, nom) ou (None, None) si introuvable.
+    """
     devs = sd.query_devices()
     hostapis = sd.query_hostapis()
-    candidates = []
+
+    # Trouver l'index de l'API ALSA
+    alsa_api_idx = None
+    for idx, api in enumerate(hostapis):
+        if api["name"].upper() == "ALSA":
+            alsa_api_idx = idx
+            break
+
+    if alsa_api_idx is None:
+        return None, None
+
+    # Chercher le device "default" de l'API ALSA
     for i, d in enumerate(devs):
-        if d["max_input_channels"] < 1:
-            continue
-        api = hostapis[d["hostapi"]]["name"]
-        if name_hint in d["name"].lower():
-            candidates.append((api, i, int(d.get("default_samplerate", 16000))))
-    # ordre de préférence: ALSA > JACK > PulseAudio > le reste
-    for pref in ("ALSA", "JACK", "PulseAudio"):
-        for api, idx, rate in candidates:
-            if api == pref:
-                return idx, rate
-    # fallback: premier input
-    d = sd.query_devices(kind="input")
-    return None, int(d.get("default_samplerate", 16000))
+        if d["hostapi"] == alsa_api_idx:
+            if d.get("max_input_channels", 0) > 0:
+                if d["name"].lower() == "default":
+                    return i, d["name"]
+
+    return None, None
+
+def configure_pulseaudio_source(pattern: str, logger=None, required=False):
+    """
+    Configure une source audio PulseAudio comme source par défaut.
+
+    Args:
+        pattern: Pattern à chercher dans le nom de la source (ex: "reSpeaker_XVF3800", "Seeed")
+        logger: Logger pour les messages
+        required: Si True, lève une exception si la source n'est pas trouvée
+
+    Returns:
+        Le nom complet de la source PulseAudio si succès, None sinon.
+
+    Raises:
+        RuntimeError: Si required=True et la source n'est pas trouvée
+    """
+    try:
+        # Lister les sources
+        result = subprocess.run(
+            ["pactl", "list", "short", "sources"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+
+        if logger:
+            logger.info(f"🔍 Recherche d'une source contenant: '{pattern}'")
+
+        # Chercher la source avec le pattern
+        matching_source = None
+        pattern_lower = pattern.lower()
+
+        for line in result.stdout.splitlines():
+            # Format: INDEX NAME MODULE FORMAT CHANNELS SAMPLE_RATE STATE
+            parts = line.split()
+            if len(parts) >= 2:
+                source_name = parts[1]
+                source_name_lower = source_name.lower()
+
+                # Filtrer les sources qui ne sont PAS des inputs
+                # Exclure les .monitor (sorties) et privilégier alsa_input
+                if ".monitor" in source_name_lower:
+                    continue  # Skip les monitors (outputs)
+
+                # Chercher le pattern dans le nom (case-insensitive)
+                if pattern_lower in source_name_lower:
+                    matching_source = source_name
+                    if logger:
+                        logger.info(f"  ✓ Source trouvée: {source_name}")
+                    break
+
+        if not matching_source:
+            error_msg = f"Source audio contenant '{pattern}' non trouvée dans PulseAudio"
+            if logger:
+                logger.error(f"❌ {error_msg}")
+                logger.info("Sources disponibles:")
+                for line in result.stdout.splitlines():
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        logger.info(f"  - {parts[1]}")
+
+            if required:
+                raise RuntimeError(error_msg)
+            return None
+
+        # Configurer comme source par défaut
+        if logger:
+            logger.info(f"⚙️  Configuration de la source par défaut...")
+
+        subprocess.run(
+            ["pactl", "set-default-source", matching_source],
+            check=True,
+            timeout=5,
+            capture_output=True
+        )
+
+        # Vérifier
+        result_info = subprocess.run(
+            ["pactl", "info"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+
+        for line in result_info.stdout.splitlines():
+            if "Default Source" in line:
+                current_source = line.split(":")[-1].strip()
+                if current_source == matching_source:
+                    if logger:
+                        logger.info(f"✅ Source configurée: {matching_source}")
+                    return matching_source
+                else:
+                    error_msg = f"Échec de configuration. Source actuelle: {current_source}"
+                    if logger:
+                        logger.error(f"❌ {error_msg}")
+                    if required:
+                        raise RuntimeError(error_msg)
+                    return None
+
+        return matching_source
+
+    except subprocess.TimeoutExpired:
+        error_msg = "Timeout lors de l'exécution de pactl"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except subprocess.CalledProcessError as e:
+        error_msg = f"Erreur pactl: {e}"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except FileNotFoundError:
+        error_msg = "pactl non disponible (PulseAudio non installé?)"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except Exception as e:
+        error_msg = f"Erreur inattendue: {e}"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
 
 class ListenNode(Node):
-    CHANNELS = 1
-    TARGET_RATE = 16_000
-    FRAME_MS = 10
-    VAD_SENSITIVITY = 2          # ← défini ici
-    SILENCE_THRESHOLD = 10
-
     def __init__(self):
         super().__init__("qbo_listen")
 
-        self.declare_parameter("audio_in_device_name", "hw:0,0")
-        # Paramètre pour volume micro
-        self.declare_parameter("mic_volume_percent", 50)
-        mic_volume = self.get_parameter("mic_volume_percent").get_parameter_value().integer_value
+        # ---- Params (simplifiés) ----
+        self.declare_parameter("pulseaudio_source_pattern", "reSpeaker_XVF3800")  # pattern pour trouver la source dans pactl (ex: "reSpeaker", "XVF3800", "Seeed") - laissez vide pour utiliser le device par défaut du système
+        self.declare_parameter("asr_channel_index", 1)
+        self.declare_parameter("audio_channels_opened", 2)  # nombre de canaux effectivement ouverts sur le device (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
+        self.declare_parameter("sample_rate", FIXED_SR)  # immuable (on vérifie)
+        self.declare_parameter("frame_ms", 20)  # 10 ou 20ms conseillé
+        self.declare_parameter("vad_enabled", True)
+        self.declare_parameter("vad_mode", 2)  # 0..3 (3 = plus agressif)
+        self.declare_parameter("silence_frames_end", 20)  # 12*20ms=240ms
+        self.declare_parameter("pre_roll_frames", 15)  # contexte avant détection (frames)
+        self.declare_parameter("min_utt_ms", 300)  # durée minimale (réduit pour phrases courtes)
+        self.declare_parameter("tts_ignore_ms", 250)  # ignore window après fin TTS
+        self.declare_parameter("max_utt_ms", 4000)
+        self.declare_parameter("min_speech_ratio", 0.25)
 
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "small")
+        self.declare_parameter("whisper_device", "cuda")
+        self.declare_parameter("debug_segment_metrics", False)
+        self.declare_parameter("min_confidence", 0.5)  # 0.0..1.0
 
-        self.lang = self.get_parameter("system_lang").get_parameter_value().string_value
-        device_hint = self.get_parameter("audio_in_device_name").get_parameter_value().string_value
-        model_size = self.get_parameter("whisper_model").get_parameter_value().string_value
+        sr = int(self.get_parameter("sample_rate").value)
+        self.asr_channel_index = int(self.get_parameter("asr_channel_index").value)
+        self.input_channels_opened = int(self.get_parameter("audio_channels_opened").value)
+        self.frame_ms = int(self.get_parameter("frame_ms").value)
 
+        if self.input_channels_opened < 1:
+            self.get_logger().warning("audio_channels_opened < 1. Forçage à 1.")
+            self.input_channels_opened = 1
+
+        if self.asr_channel_index < 0 or self.asr_channel_index >= self.input_channels_opened:
+            self.get_logger().warning(
+                f"asr_channel_index={self.asr_channel_index} invalide pour {self.input_channels_opened} canaux. Forçage à 0."
+            )
+            self.asr_channel_index = 0
+
+        if self.frame_ms not in (10, 20, 30):
+            self.get_logger().warning(
+                f"frame_ms={self.frame_ms} non supporté par webrtcvad (10/20/30). Forçage à 20."
+            )
+            self.frame_ms = 20
+
+        if sr != FIXED_SR:
+            self.get_logger().warning(
+                f"sample_rate demandé={sr}, mais Jabra impose {FIXED_SR}. Forçage à {FIXED_SR}."
+            )
+
+        self.vad_enabled = bool(self.get_parameter("vad_enabled").value)
+        self.vad_mode = int(self.get_parameter("vad_mode").value)
+        self.silence_frames_end = int(self.get_parameter("silence_frames_end").value)
+        self.pre_roll_frames = int(self.get_parameter("pre_roll_frames").value)
+        self.min_utt_ms = int(self.get_parameter("min_utt_ms").value)
+        self.tts_ignore_ms = int(self.get_parameter("tts_ignore_ms").value)
+        self.max_utt_ms = int(self.get_parameter("max_utt_ms").value)
+        self.min_speech_ratio = float(self.get_parameter("min_speech_ratio").value)
+
+        self.lang = self.get_parameter("system_lang").value
+        model_size = self.get_parameter("whisper_model").value
+        whisper_device = self.get_parameter("whisper_device").value
+        self.debug_segment_metrics = bool(self.get_parameter("debug_segment_metrics").value)
+        self.min_confidence = float(self.get_parameter("min_confidence").value) # 0.0..1.0
+
+        # ---- Blacklist des hallucinations Whisper courantes ----
+        self.whisper_hallucinations = {
+            "sous-titres réalisés par la communauté d'amara.org",
+            "sous-titres réalisés par la communauté d'amara",
+            "merci d'avoir regardé cette vidéo",
+            "merci de vous être abonné",
+            "n'oubliez pas de vous abonner",
+            "likez et abonnez-vous",
+        }
+
+        # ---- ROS I/O ----
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
+        qos = QoSProfile(depth=1)
+        qos.reliability = ReliabilityPolicy.RELIABLE
+        qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+        self.create_subscription(Bool, "/tts_active", self._on_tts_active, qos)
 
-        # lister les devices pour t'assurer du bon nom à donner (ex: "APE", "wm8960", "analog", etc.)
-        list_input_devices(self.get_logger())
+        self.tts_active = False
+        self.ignore_until = 0.0  # timestamp jusqu'auquel on ignore (fin TTS + marge)
 
-        self.device_index, self.input_rate = find_device(device_hint)
-        self.get_logger().info(f"🎤 Device index={self.device_index}, native_rate={self.input_rate} Hz")
+        # ---- Recherche du device audio ----
+        pulseaudio_source_pattern = self.get_parameter("pulseaudio_source_pattern").value
+        self.device_index = None
+        self.device_name = None
+        self.pulse_source_name = None
 
-        # choisir un taux compatible VAD (essaie 16k, sinon 48k, sinon 32k, sinon 8k)
-        self.stream_rate = None
-        for r in VAD_RATES:
-            try:
-                with sd.RawInputStream(samplerate=r, channels=1, dtype="int16",
-                                    device=self.device_index, blocksize=int(r*0.01)):
-                    self.stream_rate = r
-                    break
-            except Exception:
-                continue
-        if self.stream_rate is None:
-            # dernier recours: on essaie la fréquence native (mais VAD pourrait râler)
-            self.stream_rate = self.input_rate
-        self.blocksize = int(self.stream_rate * self.FRAME_MS / 1000)
-        self.get_logger().info(f"🎚️  Stream samplerate={self.stream_rate} Hz (VAD-compatible)")
+        # Si pattern défini → configuration PulseAudio + ALSA "default"
+        if pulseaudio_source_pattern:
+            self.get_logger().info("🔧 Configuration PulseAudio...")
 
-        self.vad = webrtcvad.Vad(self.VAD_SENSITIVITY)
-        self.buffer_queue = queue.Queue()
+            # Configure la source PulseAudio (arrêt si échec car required=True)
+            self.pulse_source_name = configure_pulseaudio_source(
+                pulseaudio_source_pattern,
+                logger=self.get_logger(),
+                required=True  # Arrête le node si la source n'est pas trouvée
+            )
 
-        # Ajuster le volume du micro via pactl
-        try:
-            import subprocess
-            source_name = "alsa_input.platform-sound.analog-stereo"
-            subprocess.run(["pactl", "set-source-volume", source_name, f"{mic_volume}%"], check=True)
-            self.get_logger().info(f"🔊 Volume micro réglé à {mic_volume}% via PulseAudio")
-        except Exception as e:
-            self.get_logger().warning(f"⚠️ Impossible de régler le volume du micro : {e}")
+            # Utiliser le device ALSA "default" qui sera automatiquement routé par PulseAudio
+            self.device_index, self.device_name = get_alsa_default_device()
 
+            if self.device_index is None:
+                raise RuntimeError(
+                    f"PulseAudio configuré mais device ALSA 'default' introuvable. "
+                    f"Vérifiez votre configuration ALSA/PulseAudio."
+                )
+
+            self.get_logger().info(
+                f"✅ Configuration réussie: '{self.device_name}' → {self.pulse_source_name}"
+            )
+        else:
+            # Pas de pattern → utiliser le device par défaut du système
+            self.device_index, self.device_name = get_default_input_info()
+            if self.device_index is None:
+                raise RuntimeError("Aucune source d'entree detectee par le systeme.")
+            self.get_logger().info(
+                f"🎤 Utilisation du device par défaut: '{self.device_name}' (index={self.device_index})"
+            )
+
+        # ---- Résumé de la configuration audio ----
+        self.get_logger().info("")
+        self.get_logger().info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.get_logger().info(f"🎤 Device sélectionné: [{self.device_index}] {self.device_name}")
+        if self.pulse_source_name:
+            self.get_logger().info(f"🔊 Source PulseAudio: {self.pulse_source_name}")
+        self.get_logger().info(f"📊 Canaux: {self.input_channels_opened} (ASR sur canal {self.asr_channel_index})")
+        self.get_logger().info(f"🎼 Sample rate: {FIXED_SR} Hz | Frame: {self.frame_ms} ms")
+        self.get_logger().info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.get_logger().info("")
+
+        # ---- Whisper ----
         self.get_logger().info("🔄 Chargement du modèle Whisper...")
-        # self.voice_model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
         self.voice_model = WhisperModel(
             model_size,
-            device="cuda",
-            compute_type="int8_float16",   # + rapide / - VRAM
+            device=str(whisper_device),
+            compute_type="int8_float16",
         )
         self.get_logger().info("✅ Modèle Whisper prêt.")
+
+        # ---- Audio stream config ----
+        self.blocksize = int(FIXED_SR * self.frame_ms / 1000)  # ex: 320 pour 20ms
+        self.frame_bytes_expected = self.blocksize * 2  # int16 mono
+
+        self.vad = webrtcvad.Vad(self.vad_mode)
+        self.buffer_queue: "queue.Queue[bytes]" = queue.Queue(maxsize=300)
 
         self.stop_evt = threading.Event()
         self.audio_thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.audio_thread.start()
 
-    def _callback(self, indata, frames, t, status):
+    def _on_tts_active(self, msg: Bool):
+        now = time.monotonic()
+        if msg.data:
+            self.tts_active = True
+        else:
+            self.tts_active = False
+            self.ignore_until = now + (self.tts_ignore_ms / 1000.0)
+
+    def _audio_cb(self, indata, frames, t, status):
         if status:
             self.get_logger().warning(f"Audio status: {status}")
-        # indata est int16 mono → bytes() direct
-        self.buffer_queue.put(bytes(indata))
+
+        pcm = np.frombuffer(indata, dtype=np.int16)
+
+        # frames * channels doit matcher
+        exp = frames * self.input_channels_opened
+        if pcm.size != exp:
+            return
+
+        pcm = pcm.reshape(frames, self.input_channels_opened)
+        mono = pcm[:, self.asr_channel_index]
+
+        try:
+            self.buffer_queue.put_nowait(mono.tobytes())
+        except queue.Full:
+            pass
 
     def _listen_loop(self):
-        self.get_logger().info("🎹 En écoute avec VAD temps-réel...")
+        self.get_logger().info(
+            f"Ecoute active sur: {self.device_name}"
+        )
 
-        vad = webrtcvad.Vad(2)
-        buffer_queue = queue.Queue()
+        pre_roll = deque(maxlen=self.pre_roll_frames)  # contexte avant détection
+        grace_after_noise = 0
 
-        def audio_callback(indata, frames, time, status):
-            if status:
-                self.get_logger().warning(f"Audio status: {status}")
-            buffer_queue.put(indata.copy())
+        self.get_logger().info(
+            f"⚙️  Pre-roll: {self.pre_roll_frames * self.frame_ms}ms | "
+            f"Min utterance: {self.min_utt_ms}ms | "
+            f"Min confidence: {self.min_confidence}"
+        )
 
-        # with sd.InputStream(samplerate=self.TARGET_RATE,
-        #                     blocksize=self.BLOCKSIZE,
-        #                     dtype='float32',
-        #                     channels=self.CHANNELS,
-        #                     callback=audio_callback,
-        #                     device=self.device_index):
+        def drain_queue(max_items=5000):
+            """Vide la queue rapidement pour éviter de traiter du backlog."""
+            drained = 0
+            while drained < max_items:
+                try:
+                    self.buffer_queue.get_nowait()
+                    drained += 1
+                except queue.Empty:
+                    break
+            return drained
+
         with sd.RawInputStream(
-            samplerate=self.stream_rate,
+            samplerate=FIXED_SR,
             blocksize=self.blocksize,
             device=self.device_index,
             dtype="int16",
-            channels=self.CHANNELS,
-            callback=self._callback,
+            channels=self.input_channels_opened,
+            latency="high",
+            callback=self._audio_cb,
         ):
-
             while not self.stop_evt.is_set():
-                audio_frames = deque()
-                silent_chunks = 0
-                speaking = False
 
+                # ---------- Ignore TTS / ignore window (drain + reset) ----------
+                now = time.monotonic()
+                if self.tts_active or now < self.ignore_until:
+                    drained = drain_queue()
+                    pre_roll.clear()
+                    # petite pause pour ne pas boucler à vide
+                    if drained:
+                        self.get_logger().debug(
+                            f"⏭️ Ignoring audio (TTS/ignore). Drained {drained} frames"
+                        )
+                    time.sleep(0.02)
+                    continue
+
+                audio_frames = deque()
+                pre_roll.clear()
+                silent = 0
+                speaking = False
+                start_t = None
+                speech_frames = 0
+                total_frames = 0
+                seg_start = time.monotonic()
+
+                # ----------------- CAPTURE SEGMENT -----------------
                 while not self.stop_evt.is_set():
+
+                    # Re-check TTS inside capture loop too (important!)
+                    now = time.monotonic()
+                    if self.tts_active or now < self.ignore_until:
+                        drained = drain_queue()
+                        audio_frames.clear()
+                        pre_roll.clear()
+                        silent = 0
+                        speaking = False
+                        if drained:
+                            self.get_logger().debug(
+                                f"⏭️ TTS started mid-segment. Drained {drained} frames, abort segment"
+                            )
+                        break  # abandonner ce segment et revenir au while externe
+
                     try:
-                        frame = self.buffer_queue.get(timeout=1.0)  # ← bytes int16, 10ms
+                        frame = self.buffer_queue.get(timeout=1.0)
                     except queue.Empty:
                         continue
 
-                    if len(frame) < self.blocksize * 2:   # 2 bytes/sample
+                    if len(frame) < self.frame_bytes_expected:
                         continue
 
-                    # VAD au TAUX DU FLUX
-                    try:
-                        is_speech = self.vad.is_speech(frame, self.input_rate)
-                    except Exception as e:
-                        self.get_logger().warning(f"VAD error: {e}")
-                        continue
+                    total_frames += 1
+                    pre_roll.append(frame)
+
+                    if self.vad_enabled:
+                        try:
+                            is_speech = self.vad.is_speech(frame, FIXED_SR)  # OK car stream FIXED_SR
+                        except Exception:
+                            continue
+                    else:
+                        is_speech = True
 
                     if is_speech:
+                        speech_frames += 1
+                        if not speaking:
+                            speaking = True
+                            start_t = time.monotonic()
+                            audio_frames.extend(pre_roll)  # pré-roll
                         audio_frames.append(frame)
-                        silent_chunks = 0
-                        speaking = True
+                        silent = 0
                     elif speaking:
-                        silent_chunks += 1
-                        if silent_chunks > self.SILENCE_THRESHOLD:
+                        silent += 1
+                        if silent >= self.silence_frames_end:
                             break
+
+                    # ---- hard cap anti musique continue ----
+                    elapsed_ms = int((time.monotonic() - seg_start) * 1000)
+                    if elapsed_ms >= self.max_utt_ms:
+                        break
+
+                # si on a abort parce que TTS, recommencer direct
+                if self.tts_active or time.monotonic() < self.ignore_until:
+                    continue
 
                 if not audio_frames:
                     continue
-                raw = b"".join(audio_frames)  # bytes int16 @ self.stream_rate
+
+                utt_ms = int((time.monotonic() - (start_t or time.monotonic())) * 1000)
+                if utt_ms < self.min_utt_ms:
+                    continue
+
+                # ----------------- FILTRAGE BRUIT -----------------
+                speech_ratio = speech_frames / max(1, total_frames)
+
+                # segments courts => toujours tenter
+                if utt_ms < 1200:
+                    speech_ratio = 1.0
+
+                if speech_ratio < self.min_speech_ratio and grace_after_noise <= 0:
+                    self.get_logger().info(
+                        f"🔇 Skipped (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
+                    )
+                    grace_after_noise = 2
+                    continue
+
+                grace_after_noise = max(0, grace_after_noise - 1)
+
+                # ----------------- TRANSCRIPTION -----------------
+                raw = b"".join(audio_frames)
                 pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-                pcm = _resample_to(pcm, self.stream_rate, self.TARGET_RATE)
 
-                # audio_data = np.concatenate(audio_frames)
-                # write("debug_float32.wav", self.TARGET_RATE, audio_data)
+                try:
+                    segments_iter, _ = self.voice_model.transcribe(
+                        pcm,
+                        language=self.lang,
+                        beam_size=1,
+                        vad_filter=False,  # IMPORTANT: on a déjà VAD webrtcvad
+                        condition_on_previous_text=False,
+                    )
+                    segments = list(segments_iter)  # éviter que le générateur se consume
+                except Exception as e:
+                    self.get_logger().error(f"Whisper error: {e}")
+                    continue
 
-                # segments, _ = self.voice_model.transcribe(audio_data, language=self.lang, beam_size=1, vad_filter=True)
-                segments, _ = self.voice_model.transcribe(
-                    pcm,
-                    language=self.lang,
-                    beam_size=1,
-                    vad_filter=False,   # ← webrtcvad déjà fait
+                texts, confs = [], []
+                for s in segments:
+                    t = (getattr(s, "text", "") or "").strip()
+                    if t:
+                        texts.append(t)
+                        confs.append(
+                            segment_confidence(
+                                s,
+                                debug=self.debug_segment_metrics,
+                                logger=self.get_logger(),
+                            )
+                        )
+
+                text = " ".join(texts).strip()
+                conf = aggregate_confidence(confs)
+
+                if not text or len(text) < 2 or text in {".", "..", "...", "…"}:
+                    continue
+
+                # Filtrer les hallucinations Whisper courantes
+                text_lower = text.lower()
+                if text_lower in self.whisper_hallucinations:
+                    self.get_logger().info(f"🚫 Hallucination filtrée: {text}")
+                    continue
+
+                # Filtrer les phrases trop courtes avec confiance faible
+                word_count = len(text.split())
+                if word_count <= 2 and conf < 0.65:
+                    self.get_logger().info(f"❌ Phrase courte + low conf ({conf:.2f}): {text}")
+                    continue
+
+                if conf < self.min_confidence:
+                    self.get_logger().info(f"❌ Low confidence ({conf:.2f}): {text}")
+                    continue
+
+                self.result_pub.publish(
+                    ListenResult(sentence=text, confidence=float(conf))
                 )
-                text = " ".join([s.text for s in segments]).strip()
-
-                if text:
-                    msg = ListenResult(sentence=text, confidence=0.0)
-                    self.result_pub.publish(msg)
-                    self.get_logger().info(f"📝 {text}")
+                self.get_logger().info(
+                    f"📝 ({conf:.2f}) {text}  [speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms}]"
+                )
 
     def destroy_node(self):
         self.stop_evt.set()
@@ -219,7 +644,7 @@ def main(args=None):
         node.get_logger().info("⏹️ Arrêt demandé...")
     finally:
         node.stop_evt.set()
-        node.audio_thread.join()
+        node.audio_thread.join(timeout=2.0)
         node.destroy_node()
         rclpy.shutdown()
 

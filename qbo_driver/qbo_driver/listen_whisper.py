@@ -1,4 +1,6 @@
 import queue
+import re
+import subprocess
 import threading
 import time
 from collections import deque
@@ -13,6 +15,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
 from qbo_msgs.msg import ListenResult
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 FIXED_SR = 16000
@@ -79,19 +82,8 @@ def aggregate_confidence(confs: list[float]) -> float:
         return 0.0
     return float(sum(confs) / len(confs))
 
-def list_input_sources(logger):
-    devs = sd.query_devices()
-    hostapis = sd.query_hostapis()
-    logger.info("=== Audio input sources (sounddevice) ===")
-    for i, d in enumerate(devs):
-        if d.get("max_input_channels", 0) < 1:
-            continue
-        api = hostapis[d["hostapi"]]["name"]
-        logger.info(
-            f"{i:2d}: {d['name']} | api={api} | in={d.get('max_input_channels',0)} | default_sr={int(d.get('default_samplerate',0))}"
-        )
-
 def get_default_input_info():
+    """Récupère l'index et le nom du device par défaut du système."""
     d = sd.query_devices(kind="input")
     devs = sd.query_devices()
     for i, di in enumerate(devs):
@@ -99,27 +91,191 @@ def get_default_input_info():
             return i, di["name"]
     return None, None
 
+def get_alsa_default_device():
+    """
+    Trouve le device ALSA "default".
+    Ce device est automatiquement routé par PulseAudio vers la source configurée.
+    Retourne (index, nom) ou (None, None) si introuvable.
+    """
+    devs = sd.query_devices()
+    hostapis = sd.query_hostapis()
+
+    # Trouver l'index de l'API ALSA
+    alsa_api_idx = None
+    for idx, api in enumerate(hostapis):
+        if api["name"].upper() == "ALSA":
+            alsa_api_idx = idx
+            break
+
+    if alsa_api_idx is None:
+        return None, None
+
+    # Chercher le device "default" de l'API ALSA
+    for i, d in enumerate(devs):
+        if d["hostapi"] == alsa_api_idx:
+            if d.get("max_input_channels", 0) > 0:
+                if d["name"].lower() == "default":
+                    return i, d["name"]
+
+    return None, None
+
+def configure_pulseaudio_source(pattern: str, logger=None, required=False):
+    """
+    Configure une source audio PulseAudio comme source par défaut.
+
+    Args:
+        pattern: Pattern à chercher dans le nom de la source (ex: "reSpeaker_XVF3800", "Seeed")
+        logger: Logger pour les messages
+        required: Si True, lève une exception si la source n'est pas trouvée
+
+    Returns:
+        Le nom complet de la source PulseAudio si succès, None sinon.
+
+    Raises:
+        RuntimeError: Si required=True et la source n'est pas trouvée
+    """
+    try:
+        # Lister les sources
+        result = subprocess.run(
+            ["pactl", "list", "short", "sources"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+
+        if logger:
+            logger.info(f"🔍 Recherche d'une source contenant: '{pattern}'")
+
+        # Chercher la source avec le pattern
+        matching_source = None
+        pattern_lower = pattern.lower()
+
+        for line in result.stdout.splitlines():
+            # Format: INDEX NAME MODULE FORMAT CHANNELS SAMPLE_RATE STATE
+            parts = line.split()
+            if len(parts) >= 2:
+                source_name = parts[1]
+                source_name_lower = source_name.lower()
+
+                # Filtrer les sources qui ne sont PAS des inputs
+                # Exclure les .monitor (sorties) et privilégier alsa_input
+                if ".monitor" in source_name_lower:
+                    continue  # Skip les monitors (outputs)
+
+                # Chercher le pattern dans le nom (case-insensitive)
+                if pattern_lower in source_name_lower:
+                    matching_source = source_name
+                    if logger:
+                        logger.info(f"  ✓ Source trouvée: {source_name}")
+                    break
+
+        if not matching_source:
+            error_msg = f"Source audio contenant '{pattern}' non trouvée dans PulseAudio"
+            if logger:
+                logger.error(f"❌ {error_msg}")
+                logger.info("Sources disponibles:")
+                for line in result.stdout.splitlines():
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        logger.info(f"  - {parts[1]}")
+
+            if required:
+                raise RuntimeError(error_msg)
+            return None
+
+        # Configurer comme source par défaut
+        if logger:
+            logger.info(f"⚙️  Configuration de la source par défaut...")
+
+        subprocess.run(
+            ["pactl", "set-default-source", matching_source],
+            check=True,
+            timeout=5,
+            capture_output=True
+        )
+
+        # Vérifier
+        result_info = subprocess.run(
+            ["pactl", "info"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+
+        for line in result_info.stdout.splitlines():
+            if "Default Source" in line:
+                current_source = line.split(":")[-1].strip()
+                if current_source == matching_source:
+                    if logger:
+                        logger.info(f"✅ Source configurée: {matching_source}")
+                    return matching_source
+                else:
+                    error_msg = f"Échec de configuration. Source actuelle: {current_source}"
+                    if logger:
+                        logger.error(f"❌ {error_msg}")
+                    if required:
+                        raise RuntimeError(error_msg)
+                    return None
+
+        return matching_source
+
+    except subprocess.TimeoutExpired:
+        error_msg = "Timeout lors de l'exécution de pactl"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except subprocess.CalledProcessError as e:
+        error_msg = f"Erreur pactl: {e}"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except FileNotFoundError:
+        error_msg = "pactl non disponible (PulseAudio non installé?)"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
+    except Exception as e:
+        error_msg = f"Erreur inattendue: {e}"
+        if logger:
+            logger.error(f"❌ {error_msg}")
+        if required:
+            raise RuntimeError(error_msg)
+        return None
+
 class ListenNode(Node):
     def __init__(self):
         super().__init__("qbo_listen")
 
         # ---- Params (simplifiés) ----
+        self.declare_parameter("pulseaudio_source_pattern", "reSpeaker_XVF3800")  # pattern pour trouver la source dans pactl (ex: "reSpeaker", "XVF3800", "Seeed") - laissez vide pour utiliser le device par défaut du système
         self.declare_parameter("asr_channel_index", 1)
         self.declare_parameter("audio_channels_opened", 2)  # nombre de canaux effectivement ouverts sur le device (ex: Jabra envoie du stéréo même si on veut du mono, donc on ouvre 2 canaux et on sélectionne ensuite)
         self.declare_parameter("sample_rate", FIXED_SR)  # immuable (on vérifie)
         self.declare_parameter("frame_ms", 20)  # 10 ou 20ms conseillé
         self.declare_parameter("vad_enabled", True)
         self.declare_parameter("vad_mode", 2)  # 0..3 (3 = plus agressif)
-        self.declare_parameter("silence_frames_end", 20)  # 12*20ms=240ms
-        self.declare_parameter("min_utt_ms", 400)
+        self.declare_parameter("silence_frames_end", 20)  # silence pour clore une utterance (20*20ms=400ms)
+        self.declare_parameter("hard_stop_frames", 40)  # silence OBLIGATOIRE après timeout (40*20ms=800ms)
+        self.declare_parameter("pre_roll_frames", 15)  # contexte avant détection (frames)
+        self.declare_parameter("min_utt_ms", 300)  # durée minimale (réduit pour phrases courtes)
         self.declare_parameter("tts_ignore_ms", 250)  # ignore window après fin TTS
-        self.declare_parameter("max_utt_ms", 4000)
+        self.declare_parameter("max_utt_ms", 10000)  # timeout souple (attendra hard_stop si parole continue)
         self.declare_parameter("min_speech_ratio", 0.25)
 
         self.declare_parameter("system_lang", "fr")
         self.declare_parameter("whisper_model", "small")
         self.declare_parameter("whisper_device", "cuda")
-        self.declare_parameter("list_input_sources_on_start", True)
         self.declare_parameter("debug_segment_metrics", False)
         self.declare_parameter("min_confidence", 0.5)  # 0.0..1.0
 
@@ -152,6 +308,8 @@ class ListenNode(Node):
         self.vad_enabled = bool(self.get_parameter("vad_enabled").value)
         self.vad_mode = int(self.get_parameter("vad_mode").value)
         self.silence_frames_end = int(self.get_parameter("silence_frames_end").value)
+        self.hard_stop_frames = int(self.get_parameter("hard_stop_frames").value)
+        self.pre_roll_frames = int(self.get_parameter("pre_roll_frames").value)
         self.min_utt_ms = int(self.get_parameter("min_utt_ms").value)
         self.tts_ignore_ms = int(self.get_parameter("tts_ignore_ms").value)
         self.max_utt_ms = int(self.get_parameter("max_utt_ms").value)
@@ -160,12 +318,22 @@ class ListenNode(Node):
         self.lang = self.get_parameter("system_lang").value
         model_size = self.get_parameter("whisper_model").value
         whisper_device = self.get_parameter("whisper_device").value
-        self.list_input_sources_on_start = bool(self.get_parameter("list_input_sources_on_start").value)
         self.debug_segment_metrics = bool(self.get_parameter("debug_segment_metrics").value)
         self.min_confidence = float(self.get_parameter("min_confidence").value) # 0.0..1.0
 
+        # ---- Blacklist des hallucinations Whisper courantes ----
+        self.whisper_hallucinations = {
+            "sous-titres réalisés par la communauté d'amara.org",
+            "sous-titres réalisés par la communauté d'amara",
+            "merci d'avoir regardé cette vidéo",
+            "merci de vous être abonné",
+            "n'oubliez pas de vous abonner",
+            "likez et abonnez-vous",
+        }
+
         # ---- ROS I/O ----
         self.result_pub = self.create_publisher(ListenResult, "/listen", 10)
+        self.diagnostic_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
         qos = QoSProfile(depth=1)
         qos.reliability = ReliabilityPolicy.RELIABLE
         qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
@@ -174,17 +342,54 @@ class ListenNode(Node):
         self.tts_active = False
         self.ignore_until = 0.0  # timestamp jusqu'auquel on ignore (fin TTS + marge)
 
-        # ---- Input sources ----
-        if self.list_input_sources_on_start:
-            list_input_sources(self.get_logger())
+        # ---- Recherche du device audio ----
+        pulseaudio_source_pattern = self.get_parameter("pulseaudio_source_pattern").value
+        self.device_index = None
+        self.device_name = None
+        self.pulse_source_name = None
 
-        self.device_index, self.device_name = get_default_input_info()
-        if self.device_index is None:
-            raise RuntimeError("Aucune source d'entree par defaut detectee par le systeme.")
+        # Si pattern défini → configuration PulseAudio + ALSA "default"
+        if pulseaudio_source_pattern:
+            self.get_logger().info("🔧 Configuration PulseAudio...")
 
-        self.get_logger().info(
-            f"🎤 Using default input source: '{self.device_name}' index={self.device_index}"
-        )
+            # Configure la source PulseAudio (arrêt si échec car required=True)
+            self.pulse_source_name = configure_pulseaudio_source(
+                pulseaudio_source_pattern,
+                logger=self.get_logger(),
+                required=True  # Arrête le node si la source n'est pas trouvée
+            )
+
+            # Utiliser le device ALSA "default" qui sera automatiquement routé par PulseAudio
+            self.device_index, self.device_name = get_alsa_default_device()
+
+            if self.device_index is None:
+                raise RuntimeError(
+                    f"PulseAudio configuré mais device ALSA 'default' introuvable. "
+                    f"Vérifiez votre configuration ALSA/PulseAudio."
+                )
+
+            self.get_logger().info(
+                f"✅ Configuration réussie: '{self.device_name}' → {self.pulse_source_name}"
+            )
+        else:
+            # Pas de pattern → utiliser le device par défaut du système
+            self.device_index, self.device_name = get_default_input_info()
+            if self.device_index is None:
+                raise RuntimeError("Aucune source d'entree detectee par le systeme.")
+            self.get_logger().info(
+                f"🎤 Utilisation du device par défaut: '{self.device_name}' (index={self.device_index})"
+            )
+
+        # ---- Résumé de la configuration audio ----
+        self.get_logger().info("")
+        self.get_logger().info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.get_logger().info(f"🎤 Device sélectionné: [{self.device_index}] {self.device_name}")
+        if self.pulse_source_name:
+            self.get_logger().info(f"🔊 Source PulseAudio: {self.pulse_source_name}")
+        self.get_logger().info(f"📊 Canaux: {self.input_channels_opened} (ASR sur canal {self.asr_channel_index})")
+        self.get_logger().info(f"🎼 Sample rate: {FIXED_SR} Hz | Frame: {self.frame_ms} ms")
+        self.get_logger().info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.get_logger().info("")
 
         # ---- Whisper ----
         self.get_logger().info("🔄 Chargement du modèle Whisper...")
@@ -205,6 +410,60 @@ class ListenNode(Node):
         self.stop_evt = threading.Event()
         self.audio_thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.audio_thread.start()
+
+        # ---- Diagnostic minimal : hardware_id + OK ----
+        self._publish_diagnostic_minimal()
+
+        # ---- Timer pour heartbeat diagnostic (toutes les 10 secondes) ----
+        self.diagnostic_timer = self.create_timer(10.0, self._publish_diagnostic_minimal)
+
+    def _publish_diagnostic_minimal(self):
+        """Publie un diagnostic minimal : hardware_id depuis YAML, OK si actif, ERROR sinon."""
+        try:
+            # Hardware_id = pattern attendu depuis le YAML
+            expected_pattern = self.get_parameter("pulseaudio_source_pattern").value
+            hardware_id = expected_pattern if expected_pattern else "unknown"
+
+            # Vérifier si le hardware attendu est bien actif
+            if self.pulse_source_name and expected_pattern:
+                # Vérifier si le pattern est présent dans la source active (case-insensitive)
+                if expected_pattern.lower() in self.pulse_source_name.lower():
+                    level = DiagnosticStatus.OK
+                    message = "System input listening (source active)"
+                else:
+                    level = DiagnosticStatus.ERROR
+                    message = f"Incorrect hardware: {self.pulse_source_name}"
+            else:
+                # Pas de pattern défini ou pas de source → WARNING
+                level = DiagnosticStatus.WARN
+                message = "Audio configuration not defined"
+
+            # Créer et publier le diagnostic
+            diag_array = DiagnosticArray()
+            diag_array.header.stamp = self.get_clock().now().to_msg()
+
+            status = DiagnosticStatus()
+            status.level = level
+            status.name = "qbo_listen"
+            status.message = message
+            status.hardware_id = hardware_id
+
+            diag_array.status = [status]
+            self.diagnostic_pub.publish(diag_array)
+
+            # Log adapté au niveau
+            if not hasattr(self, '_diagnostic_published'):
+                if level == DiagnosticStatus.OK:
+                    self.get_logger().info(f"📊 Diagnostic: {hardware_id} [OK]")
+                elif level == DiagnosticStatus.ERROR:
+                    self.get_logger().error(f"📊 Diagnostic: {hardware_id} [ERROR] - {message}")
+                else:
+                    self.get_logger().warn(f"📊 Diagnostic: {hardware_id} [WARN] - {message}")
+                self._diagnostic_published = True
+            else:
+                self.get_logger().debug(f"Heartbeat: {hardware_id} [niveau={level}]")
+        except Exception as e:
+            self.get_logger().warning(f"Erreur publication diagnostic: {e}")
 
     def _on_tts_active(self, msg: Bool):
         now = time.monotonic()
@@ -235,11 +494,17 @@ class ListenNode(Node):
 
     def _listen_loop(self):
         self.get_logger().info(
-            f"🎹 Listening @ {FIXED_SR} Hz mono {self.device_name} | frame={self.frame_ms}ms ..."
+            f"Ecoute active sur: {self.device_name}"
         )
 
-        pre_roll = deque(maxlen=5)        # 5 × frame_ms (ex 20ms) = 100 ms de contexte
-        grace_after_noise = 0
+        pre_roll = deque(maxlen=self.pre_roll_frames)  # contexte avant détection
+
+        self.get_logger().info(
+            f"⚙️  Pre-roll: {self.pre_roll_frames * self.frame_ms}ms | "
+            f"Silence end: {self.silence_frames_end * self.frame_ms}ms | "
+            f"Hard stop: {self.hard_stop_frames * self.frame_ms}ms | "
+            f"Max utt: {self.max_utt_ms}ms"
+        )
 
         def drain_queue(max_items=5000):
             """Vide la queue rapidement pour éviter de traiter du backlog."""
@@ -284,6 +549,7 @@ class ListenNode(Node):
                 speech_frames = 0
                 total_frames = 0
                 seg_start = time.monotonic()
+                timeout_reached = False
 
                 # ----------------- CAPTURE SEGMENT -----------------
                 while not self.stop_evt.is_set():
@@ -331,12 +597,34 @@ class ListenNode(Node):
                         silent = 0
                     elif speaking:
                         silent += 1
-                        if silent >= self.silence_frames_end:
-                            break
 
-                    # ---- hard cap anti musique continue ----
+                        # Logique de fin : dépend si timeout atteint ou non
+                        if timeout_reached:
+                            # Après timeout : besoin de silence LONG (hard_stop) pour forcer la fin
+                            if silent >= self.hard_stop_frames:
+                                self.get_logger().debug(
+                                    f"🛑 Hard stop après timeout (silence={silent*self.frame_ms}ms)"
+                                )
+                                break
+                        else:
+                            # Avant timeout : silence court suffit (comportement normal)
+                            if silent >= self.silence_frames_end:
+                                break
+
+                    # ---- Timeout souple : marquer mais continuer si parole active ----
                     elapsed_ms = int((time.monotonic() - seg_start) * 1000)
-                    if elapsed_ms >= self.max_utt_ms:
+                    if elapsed_ms >= self.max_utt_ms and not timeout_reached:
+                        timeout_reached = True
+                        self.get_logger().debug(
+                            f"⏱️  Timeout atteint ({elapsed_ms}ms), attente hard_stop..."
+                        )
+                        # Ne pas break ! Continuer jusqu'à hard_stop si parole continue
+
+                    # ---- Hard cap absolu : 15 secondes max (sécurité) ----
+                    if elapsed_ms >= 15000:
+                        self.get_logger().warning(
+                            f"⚠️  Hard cap absolu atteint (15s), arrêt forcé"
+                        )
                         break
 
                 # si on a abort parce que TTS, recommencer direct
@@ -350,21 +638,16 @@ class ListenNode(Node):
                 if utt_ms < self.min_utt_ms:
                     continue
 
-                # ----------------- FILTRAGE BRUIT -----------------
+                # ----------------- FILTRAGE BRUIT (uniquement segments très courts + ratio très bas) -----------------
                 speech_ratio = speech_frames / max(1, total_frames)
 
-                # segments courts => toujours tenter
-                if utt_ms < 1200:
-                    speech_ratio = 1.0
-
-                if speech_ratio < self.min_speech_ratio and grace_after_noise <= 0:
-                    self.get_logger().info(
-                        f"🔇 Skipped (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
+                # Filtrage léger : seulement pour les segments courts avec quasi aucune voix
+                # (évite de traiter du bruit pur mais laisse passer la parole naturelle avec pauses)
+                if utt_ms < 800 and speech_ratio < 0.15:
+                    self.get_logger().debug(
+                        f"🔇 Bruit court ignoré (speech_ratio={speech_ratio:.2f}, utt_ms={utt_ms})"
                     )
-                    grace_after_noise = 2
                     continue
-
-                grace_after_noise = max(0, grace_after_noise - 1)
 
                 # ----------------- TRANSCRIPTION -----------------
                 raw = b"".join(audio_frames)
@@ -402,6 +685,18 @@ class ListenNode(Node):
                 if not text or len(text) < 2 or text in {".", "..", "...", "…"}:
                     continue
 
+                # Filtrer les hallucinations Whisper courantes
+                text_lower = text.lower()
+                if text_lower in self.whisper_hallucinations:
+                    self.get_logger().info(f"🚫 Hallucination filtrée: {text}")
+                    continue
+
+                # Filtrer les phrases trop courtes avec confiance faible
+                word_count = len(text.split())
+                if word_count <= 2 and conf < 0.65:
+                    self.get_logger().info(f"❌ Phrase courte + low conf ({conf:.2f}): {text}")
+                    continue
+
                 if conf < self.min_confidence:
                     self.get_logger().info(f"❌ Low confidence ({conf:.2f}): {text}")
                     continue
@@ -415,6 +710,8 @@ class ListenNode(Node):
 
     def destroy_node(self):
         self.stop_evt.set()
+        if hasattr(self, 'diagnostic_timer') and self.diagnostic_timer:
+            self.diagnostic_timer.cancel()
         super().destroy_node()
 
 def main(args=None):

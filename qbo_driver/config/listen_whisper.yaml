@@ -3,6 +3,17 @@
     # --------------------
     # Capture audio
     # --------------------
+    # Pattern pour trouver la source audio dans PulseAudio (via 'pactl list short sources').
+    # Exemples: "reSpeaker_XVF3800", "Seeed", "XVF3800", etc.
+    #
+    # Fonctionnement:
+    # - Si pattern defini: trouve et configure la source PulseAudio automatiquement (pactl set-default-source).
+    #   Le node ouvre ensuite le device ALSA "default" qui est route par PulseAudio.
+    # - Si vide (""): utilise le device par defaut du systeme.
+    #
+    # Note: Si la source n'est pas trouvee, le node s'arrete avec une erreur.
+    pulseaudio_source_pattern: "reSpeaker_XVF3800"
+
     # Frequence d'echantillonnage d'entree (Hz).
     sample_rate: 16000
 
@@ -25,18 +36,34 @@
     # Sensibilite VAD (0 a 3): plus haut = plus strict.
     vad_mode: 2
 
-    # Nombre de frames silencieuses pour cloturer une utterance.
+    # Nombre de frames silencieuses pour cloturer une utterance (comportement normal).
     # 20 frames a 20 ms = 400 ms.
     silence_frames_end: 20
 
+    # Nombre de frames silencieuses OBLIGATOIRES apres timeout pour forcer la cloture.
+    # Evite de couper en plein milieu si la personne parle encore apres max_utt_ms.
+    # 40 frames a 20 ms = 800 ms.
+    hard_stop_frames: 40
+
+    # Nombre de frames de contexte AVANT la detection de parole (pre-roll).
+    # 15 frames a 20 ms = 300 ms. Permet de capturer le debut des phrases.
+    pre_roll_frames: 15
+
     # Duree minimale d'une utterance valide (ms).
-    min_utt_ms: 400
+    # Reduit a 300ms pour accepter les phrases courtes (2-3 mots).
+    min_utt_ms: 300
 
-    # Duree maximale d'une utterance (evite les longues nappes de bruit/musique).
-    max_utt_ms: 4000
+    # Duree maximale d'une utterance (ms) - TIMEOUT SOUPLE.
+    # Apres ce delai, le systeme attend un silence long (hard_stop_frames) avant de clore.
+    # Cela evite de couper une phrase en plein milieu si la personne parle encore.
+    # Hard cap absolu: 15 secondes (securite).
+    max_utt_ms: 10000
 
-    # Ratio minimum de frames "voix" dans l'utterance pour l'accepter.
-    min_speech_ratio: 0.50
+    # Ratio minimum de frames "voix" (detection VAD) dans l'utterance.
+    # NOTE: Filtrage desormais tres permissif pour eviter de rejeter des phrases valides.
+    # Seuls les segments TRES courts (<800ms) avec quasi aucune voix (<15%) sont filtres.
+    # La validation repose principalement sur Whisper (confidence + blacklist hallucinations).
+    min_speech_ratio: 0.15
 
     # --------------------
     # Interaction avec le TTS
@@ -55,9 +82,6 @@
 
     # Device de calcul: "cpu" ou "cuda".
     whisper_device: "cuda"
-
-    # Affiche les sources d'entree detectees au demarrage.
-    list_input_sources_on_start: false
 
     # Active les logs detailles des metriques de segment.
     debug_segment_metrics: false
