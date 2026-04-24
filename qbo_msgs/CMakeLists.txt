@@ -26,6 +26,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/FaceObservation.msg"
   "msg/FaceRecognitionResult.msg"
   "msg/FollowerStatus.msg"
+  "msg/EnrollmentProgress.msg"
   # qbo_social
   "msg/SocialEvent.msg"
   "msg/WorldState.msg"

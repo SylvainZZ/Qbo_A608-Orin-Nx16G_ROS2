@@ -59,6 +59,40 @@ qbo_social_behavior_engine:
     # Évite le spam et rend l'interaction plus naturelle
     greet_cooldown: 10.0  # secondes
 
+    # Durée de mémoire sociale : temps pendant lequel le robot se souvient
+    # d'avoir salué une personne. Permet d'éviter de re-saluer la personne
+    # si elle part et revient rapidement (ex: va chercher quelque chose)
+    # Plus longue que greet_cooldown pour gérer les sessions multiples
+    greet_memory_duration: 60.0  # secondes
+
+    # Durée de mémoire de reconnaissance : temps pendant lequel une
+    # reconnaissance faciale reste valide pour déclencher une salutation
+    # après un événement FACE_STABLE. Permet de lier reconnaissance et stabilité.
+    # Valeur courte pour garantir que la salutation suit rapidement la reconnaissance
+    recognition_memory_duration: 3.0  # secondes
+
+    # -------------------------------------------------------------------------
+    # SESSION MANAGEMENT & SPATIAL CONTINUITY
+    # -------------------------------------------------------------------------
+
+    # Timeout de session : temps après FACE_LOST avant de considérer
+    # la session comme terminée. Permet de gérer les pertes courtes
+    # (personne qui tourne la tête, obstruction temporaire, etc.)
+    # Si le visage revient avant ce timeout, la session est préservée
+    session_timeout: 10.0  # secondes
+
+    # Durée de mémoire du contexte de perte : temps pendant lequel
+    # le système garde en mémoire la position et l'identité de la personne
+    # perdue pour vérifier la continuité spatiale lors d'une nouvelle détection
+    lost_context_memory_duration: 5.0  # secondes
+
+    # Seuil de réassociation spatiale : distance maximale (en mètres)
+    # entre la position de perte et la nouvelle position pour considérer
+    # qu'il s'agit de la même personne. Prévient les fausses reconnaissances
+    # quand une personne part et qu'une autre arrive au même moment
+    # Base_link frame (repère monde, stable même si la tête/base bouge)
+    spatial_reassociation_threshold: 0.8  # mètres
+
     # Cooldown entre deux annonces de diagnostic système
     # Évite de surcharger l'utilisateur avec trop d'informations
     diag_cooldown: 5.0  # secondes
@@ -134,25 +168,47 @@ qbo_system_mode_manager:
 # Scénarios typiques:
 #
 # 1. Robot de surveillance (peu d'interaction):
-#    - stable_head_stop_delay: 2.0          (arrête rapidement la tête)
-#    - search_timeout: 15.0                 (recherche courte)
-#    - greet_cooldown: 30.0                 (salue rarement)
-#    - diagnostics_node_timeout: 5.0        (détection rapide des pannes)
+#    - stable_head_stop_delay: 2.0                (arrête rapidement la tête)
+#    - search_timeout: 15.0                       (recherche courte)
+#    - greet_cooldown: 30.0                       (salue rarement)
+#    - greet_memory_duration: 300.0               (mémoire longue: 5 min)
+#    - recognition_memory_duration: 2.0           (fenêtre de reconnaissance courte)
+#    - session_timeout: 5.0                       (reset session rapide)
+#    - lost_context_memory_duration: 3.0          (mémoire spatiale courte)
+#    - spatial_reassociation_threshold: 0.6       (seuil strict: 60cm)
+#    - diagnostics_node_timeout: 5.0              (détection rapide des pannes)
 #
 # 2. Robot d'accueil (interaction maximale):
-#    - stable_head_stop_delay: 10.0         (continue à suivre longtemps)
-#    - search_timeout: 60.0                 (recherche longue)
-#    - greet_cooldown: 5.0                  (salue fréquemment)
-#    - diagnostics_stability_delay: 5.0     (tolère plus d'instabilité)
+#    - stable_head_stop_delay: 10.0               (continue à suivre longtemps)
+#    - search_timeout: 60.0                       (recherche longue)
+#    - greet_cooldown: 5.0                        (salue fréquemment)
+#    - greet_memory_duration: 20.0                (mémoire courte: re-salue rapidement)
+#    - recognition_memory_duration: 5.0           (fenêtre de reconnaissance large)
+#    - session_timeout: 15.0                      (session longue, tolère absences)
+#    - lost_context_memory_duration: 8.0          (mémoire spatiale longue)
+#    - spatial_reassociation_threshold: 1.2       (seuil souple: 1.2m)
+#    - diagnostics_stability_delay: 5.0           (tolère plus d'instabilité)
 #
 # 3. Mode économie d'énergie:
-#    - stable_head_stop_delay: 3.0          (arrête vite)
-#    - search_timeout: 10.0                 (recherche très courte)
-#    - diagnostics_check_frequency: 1.0     (vérifie moins souvent)
+#    - stable_head_stop_delay: 3.0                (arrête vite)
+#    - search_timeout: 10.0                       (recherche très courte)
+#    - greet_cooldown: 60.0                       (salue rarement)
+#    - greet_memory_duration: 600.0               (mémoire très longue: 10 min)
+#    - recognition_memory_duration: 2.0           (fenêtre de reconnaissance courte)
+#    - session_timeout: 5.0                       (reset session rapide)
+#    - lost_context_memory_duration: 3.0          (mémoire spatiale courte)
+#    - spatial_reassociation_threshold: 0.5       (seuil très strict: 50cm)
+#    - diagnostics_check_frequency: 1.0           (vérifie moins souvent)
 #
 # 4. Mode debug/développement:
-#    - diagnostics_stability_delay: 1.0     (réagit rapidement)
-#    - diagnostics_check_frequency: 5.0     (vérifie très souvent)
-#    - diagnostics_node_timeout: 3.0        (détecte immédiatement les crashes)
+#    - greet_cooldown: 5.0                        (salue rapidement pour tests)
+#    - greet_memory_duration: 15.0                (mémoire courte pour tests répétés)
+#    - recognition_memory_duration: 5.0           (fenêtre large pour faciliter les tests)
+#    - session_timeout: 8.0                       (session moyenne pour tests)
+#    - lost_context_memory_duration: 5.0          (valeur par défaut)
+#    - spatial_reassociation_threshold: 0.8       (valeur par défaut)
+#    - diagnostics_stability_delay: 1.0           (réagit rapidement)
+#    - diagnostics_check_frequency: 5.0           (vérifie très souvent)
+#    - diagnostics_node_timeout: 3.0              (détecte immédiatement les crashes)
 #
 # =============================================================================

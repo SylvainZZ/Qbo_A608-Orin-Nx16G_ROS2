@@ -24,3 +24,8 @@ bool network_connected       # Internet connectivity status
 string wifi_ssid            # Current WiFi SSID (empty if not connected or not WiFi)
 string wifi_status          # KNOWN, UNKNOWN (empty if not WiFi)
 string ip_address           # Local IP address (empty if disconnected)
+
+# Timestamps
+builtin_interfaces/Time last_face_seen_time      # Last time a face was seen (FACE_APPEARED or FACE_STABLE)
+builtin_interfaces/Time last_recognized_time     # Last time a person was recognized
+builtin_interfaces/Time last_network_change_time # Last time network status changed

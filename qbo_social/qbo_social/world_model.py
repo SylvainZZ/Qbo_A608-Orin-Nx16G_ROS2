@@ -4,6 +4,22 @@ import rclpy
 from rclpy.node import Node
 
 from qbo_msgs.msg import SocialEvent, WorldState
+from builtin_interfaces.msg import Time
+
+'''
+Le world_model doit :
+    agréger des événements venant de domaines différents
+    mémoriser l'état courant du monde
+    exposer ce contexte au reste du système
+    rester simple et explicable
+
+Le world_model ne doit pas :
+    choisir une action
+    piloter des modules
+    arbitrer entre plusieurs comportements
+    décider du mode social final
+    déclencher directement des intentions
+'''
 
 
 class SocialWorldModel(Node):
@@ -32,8 +48,8 @@ class SocialWorldModel(Node):
         self.focus_person_id = ''
         self.focus_person_name = ''
         self.engagement_level = 0.0
-        self.mode = 'IDLE'
-        self.health_state = 'OK'
+        # self.mode = 'IDLE'
+        # self.health_state = 'OK'
 
         # Temporal context
         self.time_of_day = ''  # MORNING, AFTERNOON, EVENING, NIGHT
@@ -45,17 +61,45 @@ class SocialWorldModel(Node):
         self.wifi_status = ''  # KNOWN, UNKNOWN
         self.ip_address = ''
 
-        # Timer pour publier le WorldState périodiquement (permet au behavior engine de rester à jour)
-        self.create_timer(0.5, self._publish_world_state)
+        # Timestamps
+        self.last_face_seen_time = None
+        self.last_recognized_time = None
+        self.last_network_change_time = None
+
+        # Pas de timer périodique : publication uniquement sur changements significatifs (événements)
 
         self.get_logger().info('SocialWorldModel started')
+
+    def _parse_payload(self, event: SocialEvent) -> dict:
+        """Parse JSON payload from event, returns empty dict on error."""
+        try:
+            import json
+            return json.loads(event.payload_json)
+        except Exception:
+            return {}
+
+    def _update_follower_flags_from_payload(self, payload: dict):
+        # tracking_state: 0=IDLE, 1=SEARCHING, 2=TRACKING, 3=BLOCKED
+        tracking_state = payload.get('tracking_state', None)
+
+        if tracking_state is not None:
+            self.tracking_enabled = tracking_state in [1, 2, 3]
+
+        if 'head_enabled' in payload:
+            self.head_follow_enabled = bool(payload.get('head_enabled', False))
+
+        if 'rotation_enabled' in payload:
+            self.base_follow_enabled = bool(payload.get('rotation_enabled', False))
 
     def _on_event(self, event: SocialEvent):
         # Pas de log ici, sera loggé après mise à jour si changement
 
-        # Début volontairement simple
         if event.event_type == 'FACE_APPEARED':
             self.face_present = True
+            self.last_face_seen_time = self.get_clock().now()
+
+            payload = self._parse_payload(event)
+            self._update_follower_flags_from_payload(payload)
 
         elif event.event_type == 'FACE_STABLE':
             self.face_present = True
@@ -63,7 +107,11 @@ class SocialWorldModel(Node):
             self.focus_person_id = event.person_id
             self.focus_person_name = event.person_name
             self.engagement_level = max(self.engagement_level, 0.4)
-            self.mode = 'SOCIAL_ACTIVE'
+            self.last_face_seen_time = self.get_clock().now()
+
+            payload = self._parse_payload(event)
+            self._update_follower_flags_from_payload(payload)
+            # self.mode = 'SOCIAL_ACTIVE'
 
         elif event.event_type == 'FACE_LOST':
             self.face_present = False
@@ -71,35 +119,13 @@ class SocialWorldModel(Node):
             self.focus_person_id = ''
             self.focus_person_name = ''
             self.engagement_level = 0.0
-            self.mode = 'IDLE'
+            # self.mode = 'IDLE'
 
         elif event.event_type == 'PERSON_RECOGNIZED':
             self.focus_person_id = event.person_id
             self.focus_person_name = event.person_name
             self.engagement_level = max(self.engagement_level, 0.7)
-
-        elif event.event_type == 'CONVERSATION_STARTED':
-            self.conversation_active = True
-            self.mode = 'ENGAGED'
-
-        elif event.event_type == 'CONVERSATION_ENDED':
-            self.conversation_active = False
-            if self.face_present:
-                self.mode = 'SOCIAL_ACTIVE'
-            else:
-                self.mode = 'IDLE'
-
-        elif event.event_type == "PERSON_RECOGNIZED":
-            self.focus_person_name = event.person_name
-            self.engagement_level = 0.8
-
-        elif event.event_type == "SYSTEM_MODE_CHANGED":
-            try:
-                import json
-                payload = json.loads(event.payload_json)
-                self.health_state = payload.get("mode", "NORMAL")
-            except Exception:
-                pass
+            self.last_recognized_time = self.get_clock().now()
 
         # Événements temporels (TIME_*)
         elif event.event_type == 'TIME_MORNING':
@@ -120,44 +146,34 @@ class SocialWorldModel(Node):
 
         elif event.event_type == 'DAY_WEEKEND':
             self.day_type = 'WEEKEND'
-        
+
         # Événements réseau (NETWORK_*)
         elif event.event_type == 'NETWORK_CONNECTED':
             self.network_connected = True
             # Extraire l'IP du payload si disponible
-            try:
-                import json
-                payload = json.loads(event.payload_json)
-                self.ip_address = payload.get('ip_address', '')
-            except Exception:
-                pass
-        
+            payload = self._parse_payload(event)
+            self.ip_address = payload.get('ip_address', '')
+            self.last_network_change_time = self.get_clock().now()
+
         elif event.event_type == 'NETWORK_DISCONNECTED':
             self.network_connected = False
             self.wifi_ssid = ''  # Réinitialiser le WiFi si déconnecté
             self.wifi_status = ''
             self.ip_address = ''
-        
+            self.last_network_change_time = self.get_clock().now()
+
         # Événements WiFi (WIFI_*)
         elif event.event_type == 'WIFI_KNOWN':
             self.wifi_status = 'KNOWN'
             # Extraire le SSID du payload si disponible
-            try:
-                import json
-                payload = json.loads(event.payload_json)
-                self.wifi_ssid = payload.get('ssid', '')
-            except Exception:
-                pass
-        
+            payload = self._parse_payload(event)
+            self.wifi_ssid = payload.get('ssid', '')
+
         elif event.event_type == 'WIFI_UNKNOWN':
             self.wifi_status = 'UNKNOWN'
             # Extraire le SSID du payload si disponible
-            try:
-                import json
-                payload = json.loads(event.payload_json)
-                self.wifi_ssid = payload.get('ssid', '')
-            except Exception:
-                pass
+            payload = self._parse_payload(event)
+            self.wifi_ssid = payload.get('ssid', '')
 
         self._publish_world_state()
 
@@ -178,14 +194,18 @@ class SocialWorldModel(Node):
         msg.focus_person_id = self.focus_person_id
         msg.focus_person_name = self.focus_person_name
         msg.engagement_level = self.engagement_level
-        msg.mode = self.mode
-        msg.health_state = self.health_state
         msg.time_of_day = self.time_of_day
         msg.day_type = self.day_type
         msg.network_connected = self.network_connected
         msg.wifi_ssid = self.wifi_ssid
         msg.wifi_status = self.wifi_status
         msg.ip_address = self.ip_address
+
+        # Timestamps (convertir None en Time vide)
+
+        msg.last_face_seen_time = self.last_face_seen_time.to_msg() if self.last_face_seen_time else Time()
+        msg.last_recognized_time = self.last_recognized_time.to_msg() if self.last_recognized_time else Time()
+        msg.last_network_change_time = self.last_network_change_time.to_msg() if self.last_network_change_time else Time()
 
         self.pub_state.publish(msg)
 
@@ -202,4 +222,3 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()

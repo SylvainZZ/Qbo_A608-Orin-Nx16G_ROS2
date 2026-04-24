@@ -1,5 +1,6 @@
 # Topic de statut du face follower
 # Publié en continu pour que le SBE puisse monitorer l'état
+# header.frame_id = "base_link" (repère de la base du robot)
 
 std_msgs/Header header
 
@@ -18,11 +19,13 @@ bool base_rotation_enabled
 # Raison de blocage (vide si tracking_state != BLOCKED)
 string blocking_reason   # Ex: "head_near_border", "manual_disable"
 
-# Position et distance du visage détecté
+# Position 3D du visage détecté dans le repère base_link (base du robot)
+# Ces coordonnées sont calculées en tenant compte de l'orientation de la tête
+# Repère base_link : X = avant, Y = gauche, Z = haut
 float32 face_distance    # Distance au visage (mètres)
-float32 face_x           # Coordonnée X dans le repère robot (mètres, avant)
-float32 face_y           # Coordonnée Y dans le repère robot (mètres, gauche)
-float32 face_z           # Coordonnée Z dans le repère robot (mètres, haut)
+float32 face_x           # Coordonnée X dans base_link (mètres, avant du robot)
+float32 face_y           # Coordonnée Y dans base_link (mètres, gauche du robot)
+float32 face_z           # Coordonnée Z dans base_link (mètres, haut du robot)
 
 # Position actuelle de la tête (retour de /joint_states)
 float32 head_pan         # Position pan actuelle (radians)

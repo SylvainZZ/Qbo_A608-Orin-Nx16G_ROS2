@@ -27,6 +27,11 @@ public:
         const std::string & name,
         const cv::Mat & embedding);
 
+    bool removePerson(
+        const std::string & name,
+        const std::string & directory,
+        rclcpp::Logger logger);
+
     std::pair<std::string,float> match(
         const cv::Mat & embedding);
 

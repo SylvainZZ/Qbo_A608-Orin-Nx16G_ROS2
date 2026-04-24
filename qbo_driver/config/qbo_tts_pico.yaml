@@ -38,4 +38,4 @@
     queue_size: 30
 
     # Fichier JSON de substitutions de prononciation (chemin relatif au share du package).
-    pronunciation_file: "config/pronunciation_map.json"
+    pronunciation_file: "config/others/pronunciation_map.json"

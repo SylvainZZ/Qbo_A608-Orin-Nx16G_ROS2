@@ -52,6 +52,146 @@ bool FaceDatabase::addPerson(
     return true;
 }
 
+bool FaceDatabase::removePerson(
+    const std::string & name,
+    const std::string & directory,
+    rclcpp::Logger logger)
+{
+    if(name.empty())
+    {
+        RCLCPP_ERROR(logger, "Person name cannot be empty");
+        return false;
+    }
+
+    // Remove from in-memory database
+    auto it = database_.begin();
+    int removed_count = 0;
+    while(it != database_.end())
+    {
+        if(it->name == name)
+        {
+            it = database_.erase(it);
+            removed_count++;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    if(removed_count == 0)
+    {
+        RCLCPP_WARN(logger, "Person '%s' not found in database", name.c_str());
+        return false;
+    }
+
+    RCLCPP_INFO(logger, "Removed %d embeddings from memory for person: %s", removed_count, name.c_str());
+
+    // Update persons.yaml
+    std::string yaml_file = directory + "/persons.yaml";
+    std::vector<std::string> files_to_delete;
+
+    try
+    {
+        if(!std::filesystem::exists(yaml_file))
+        {
+            RCLCPP_WARN(logger, "persons.yaml not found, memory cleared but no files to delete");
+            return true;
+        }
+
+        YAML::Node config = YAML::LoadFile(yaml_file);
+
+        if(!config["persons"])
+        {
+            RCLCPP_WARN(logger, "No persons in YAML file");
+            return true;
+        }
+
+        // Find and collect embedding files to delete
+        YAML::Node new_persons;
+        for(const auto & person : config["persons"])
+        {
+            if(!person["name"])
+                continue;
+
+            std::string person_name = person["name"].as<std::string>();
+
+            if(person_name == name)
+            {
+                // Collect embedding files for deletion
+                if(person["embeddings"])
+                {
+                    for(const auto & emb : person["embeddings"])
+                    {
+                        files_to_delete.push_back(emb.as<std::string>());
+                    }
+                }
+            }
+            else
+            {
+                // Keep other persons
+                new_persons.push_back(person);
+            }
+        }
+
+        // Update YAML file
+        config["persons"] = new_persons;
+
+        std::ofstream fout(yaml_file);
+        if(!fout.is_open())
+        {
+            RCLCPP_ERROR(logger, "Failed to open persons.yaml for writing");
+            return false;
+        }
+
+        fout << config;
+        fout.close();
+
+        RCLCPP_INFO(logger, "Updated persons.yaml, removed person: %s", name.c_str());
+
+        // Delete embedding files from disk
+        std::string embeddings_dir = directory + "/embeddings";
+        int deleted_files = 0;
+
+        for(const auto & filename : files_to_delete)
+        {
+            std::string filepath = embeddings_dir + "/" + filename;
+
+            if(std::filesystem::exists(filepath))
+            {
+                try
+                {
+                    std::filesystem::remove(filepath);
+                    deleted_files++;
+                    RCLCPP_DEBUG(logger, "Deleted embedding file: %s", filename.c_str());
+                }
+                catch(const std::exception & e)
+                {
+                    RCLCPP_WARN(logger, "Failed to delete file %s: %s", filepath.c_str(), e.what());
+                }
+            }
+            else
+            {
+                RCLCPP_WARN(logger, "Embedding file not found: %s", filepath.c_str());
+            }
+        }
+
+        RCLCPP_INFO(logger, "Deleted %d embedding files for person: %s", deleted_files, name.c_str());
+
+        return true;
+    }
+    catch(const YAML::Exception & e)
+    {
+        RCLCPP_ERROR(logger, "YAML error while removing person: %s", e.what());
+        return false;
+    }
+    catch(const std::exception & e)
+    {
+        RCLCPP_ERROR(logger, "Error removing person: %s", e.what());
+        return false;
+    }
+}
+
 bool FaceDatabase::savePerson(
     const std::string & name,
     const std::vector<cv::Mat> & embeddings,

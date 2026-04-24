@@ -10,8 +10,21 @@ qbo_face_recognition:
     faces_path: "/home/qbo-v2/qbo_ws/src/qbo_vision/faces"
 
     # Number of embedding samples to collect during enrollment
-    enroll_samples: 5
+    # AUGMENTÉ de 5 à 10 pour avoir plus de variété et robustesse
+    enroll_samples: 10
+
+    # Minimum time interval between enrollment samples (seconds)
+    enrollment_sample_interval: 5.0
+
+    # Minimum quality threshold for face recognition (0.0 to 1.0)
+    min_quality_threshold: 0.4      # Gardé à 0.4 pour ne pas filtrer les vrais visages
+
+    # Minimum similarity threshold for recognizing a face (0.0 to 1.0)
+    min_similarity_threshold: 0.45  # ABAISSÉ de 0.5 à 0.45 pour 2 personnes
+
+    # Minimum number of samples required for publishing a recognition result
+    min_samples_for_publication: 2  # RÉDUIT de 3 à 2 pour être moins strict
 
     # Size of identity history window for majority vote (smoothing)
-    identity_window: 5
+    identity_window: 7              # AUGMENTÉ de 5 à 7 pour plus de lissage
 

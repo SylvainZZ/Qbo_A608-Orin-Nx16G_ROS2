@@ -383,13 +383,13 @@ class SystemModeManager(Node):
         self.create_timer(10.0, self._manage_auto_profiles)
 
         # ===== Publication périodique de l'état (toutes les 15 s pour monitoring) =====
-        self.create_timer(15.0, self._publish_status)
+        # self.create_timer(15.0, self._publish_status)
 
         self.get_logger().info(
             f"SystemModeManager started — profil initial : {self._current_profile} "
             f"(synchronisation automatique depuis /diagnostics)"
         )
-        self.get_logger().info("  Watchdog: checking profile every 5s")
+        self.get_logger().info("  Watchdog: checking profile every 5s (disabled)")
         self.get_logger().info("  Auto profiles: managing every 10s")
         self.get_logger().info("  Status publisher: every 15s on /qbo_social/events")
         self.get_logger().info("  Intent publisher: /qbo_social/intent")
@@ -642,7 +642,7 @@ class SystemModeManager(Node):
         """
         Gère le démarrage/arrêt automatique des profils selon les règles AUTO_PROFILE_RULES.
         Appelé périodiquement (toutes les 10s).
-        
+
         ⚠️  Ne touche PAS aux profils demandés par des goals autonomes (REQUEST_MODULE).
         """
         active_profiles = self.robot_state.get("active_profiles", {})
@@ -910,4 +910,4 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()

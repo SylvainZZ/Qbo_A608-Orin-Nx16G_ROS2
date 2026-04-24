@@ -199,6 +199,16 @@ ros2 topic echo /qbo_face_recognition/result
 ros2 service call /face_recognition/start_enroll qbo_msgs/srv/StartEnrollPerson "{name: 'Sylvain'}"
 ```
 
+### Supprimer une personne de la base de données
+
+```bash
+ros2 service call /face_recognition/remove_person qbo_msgs/srv/RemovePerson "{name: 'Sylvain'}"
+
+Réponse attendue :
+# success: true
+```
+
+
 ### Lister les personnes enregistrées
 
 ```bash

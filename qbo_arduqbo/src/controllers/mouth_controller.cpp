@@ -44,24 +44,24 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
         return;
     }
 
-    // Convert 20 bools into a 20-bit number
+    // Convert 20 bools into a 20-bit number (bits 0-19, ordre direct)
     uint32_t data = 0;
     for (int i = 0; i < 20; ++i) {
         if (msg->mouth_image[i]) {
-            data |= (1 << (23 - i));
+            data |= (1 << i);  // 🔄 Test: ordre direct au lieu d'inversé
         }
     }
 
-    // Reproduire le découpage Arduino :
-    uint8_t b3 = data >> 14;           // top 6 bits
-    uint8_t b2 = (data >> 7) & 0x7F;   // middle 7 bits
-    uint8_t b1 = data & 0x7F;          // bottom 7 bits
+    // Découpage Arduino : 6 bits + 7 bits + 7 bits = 20 bits
+    uint8_t b1 = data & 0x7F;          // Bottom 7 bits (bits 6-0)
+    uint8_t b2 = (data >> 7) & 0x7F;   // Middle 7 bits (bits 13-7)
+    uint8_t b3 = (data >> 14) & 0x3F;  // Top 6 bits (bits 19-14)
 
     int code = driver_->setMouth(b3, b2, b1);
     if (code < 0) {
         RCLCPP_ERROR(this->get_logger(), "Unable to send mouth command");
     } else {
-        RCLCPP_DEBUG(this->get_logger(), "Sent mouth pattern (b1=%u, b2=%u, b3=%u)", b1, b2, b3);
+        RCLCPP_DEBUG(this->get_logger(), "Sent mouth pattern (data=0x%05X, b1=%u, b2=%u, b3=%u)", data, b1, b2, b3);
     }
 }
 

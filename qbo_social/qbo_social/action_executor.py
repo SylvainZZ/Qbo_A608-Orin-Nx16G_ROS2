@@ -1,19 +1,73 @@
 #!/usr/bin/env python3
+"""
+Action Executor - Orchestrateur principal des actions comportementales.
+Reçoit les intents, route vers les handlers appropriés, et publie les résultats.
+"""
 
 import rclpy
 from rclpy.node import Node
 import json
+import sys
+import os
 
-from qbo_msgs.msg import BehaviorIntent, Nose
-from qbo_msgs.msg import SocialEvent
-from qbo_msgs.srv import SetFollowerStatus, ManageProfile
+from qbo_msgs.msg import BehaviorIntent, SocialEvent
+from std_msgs.msg import Header
+
+# Import des clients
+sys.path.append(os.path.join(os.path.dirname(__file__), 'clients'))
+from follower_client import FollowerClient
+from bringup_client import BringupClient
+from display_client import DisplayClient
+from tts_client import TTSClient
+
+# Import des actions
+sys.path.append(os.path.join(os.path.dirname(__file__), 'actions'))
+from tracking_actions import (
+    TrackFaceHeadOnlyAction, TrackFaceFullAction,
+    StopFaceTrackingAction, StartPersonSearchAction, StopPersonSearchAction
+)
+from display_actions import (
+    SetNoseColorAction, ShowSmileAction,
+    DisplayTextAction, ClearDisplayAction
+)
+from speech_actions import SayShortPhraseAction, SpeakTextAction, StopSpeakingAction
+from social_actions import GreetPersonAction, ExpressRecognitionAction, ExpressEmotionAction
+from profile_actions import StartProfileAction, StopProfileAction
 
 
 class SocialActionExecutor(Node):
+    """
+    Orchestrateur principal des actions comportementales.
+
+    Responsabilités :
+    - Recevoir les intents via /qbo_social/intent
+    - Router vers le handler approprié
+    - Exécuter l'action
+    - Publier ACTION_DONE ou ACTION_FAILED
+    """
 
     def __init__(self):
         super().__init__('qbo_social_action_executor')
 
+        # =============================
+        # 1. INITIALISER LES CLIENTS
+        # =============================
+        self.get_logger().info("Initializing clients...")
+
+        self.follower_client = FollowerClient(self)
+        self.bringup_client = BringupClient(self)
+        self.display_client = DisplayClient(self)
+        self.tts_client = TTSClient(self)
+
+        # =============================
+        # 2. ENREGISTRER LES HANDLERS
+        # =============================
+        self.handlers = {}
+        self._register_handlers()
+
+        # =============================
+        # 3. CRÉER SUBSCRIBER/PUBLISHER
+        # =============================
         self.sub_intent = self.create_subscription(
             BehaviorIntent,
             '/qbo_social/intent',
@@ -21,279 +75,158 @@ class SocialActionExecutor(Node):
             10
         )
 
-        self.pub_nose = self.create_publisher(
-            Nose,
-            '/qbo_arduqbo/nose_ctrl/cmd_nose',
+        self.pub_event = self.create_publisher(
+            SocialEvent,
+            '/qbo_social/event',
             10
         )
 
-        # Service client pour contrôler le face follower
-        self.follower_service = self.create_client(
-            SetFollowerStatus,
-            '/qbo_face_following/set_follower_status'
-        )
-
-        # Service client pour gérer les profils de nœuds (bringup manager)
-        self.bringup_service = self.create_client(
-            ManageProfile,
-            '/qbo_bringup/manage_profile'
-        )
-
-        self.get_logger().info("Waiting for face follower service...")
-        self.follower_service.wait_for_service(timeout_sec=5.0)
-
-        self.get_logger().info("Waiting for bringup manager service...")
-        self.bringup_service.wait_for_service(timeout_sec=5.0)
-
-        self.get_logger().info("SocialActionExecutor started")
-
-
-    # =========================
-    def _on_intent(self, intent: BehaviorIntent):
-
         self.get_logger().info(
-            f"EXEC → {intent.intent_type}"
+            f"SocialActionExecutor started with {len(self.handlers)} handlers"
         )
 
-        # ===== FACE TRACKING ACTIONS =====
-        if intent.intent_type == "TRACK_FACE_HEAD_ONLY":
-            self._set_follower_control(enable_head=True, enable_base=False)
+    # =============================
+    # ENREGISTREMENT DES HANDLERS
+    # =============================
+    def _register_handlers(self):
+        """
+        Enregistre tous les handlers d'actions.
+        Format : { "INTENT_TYPE": HandlerInstance }
+        """
 
-        elif intent.intent_type == "TRACK_FACE_FULL":
-            self._set_follower_control(enable_head=True, enable_base=True)
+        # Tracking actions
+        tracking_handlers = [
+            TrackFaceHeadOnlyAction(self, self.follower_client),
+            TrackFaceFullAction(self, self.follower_client),
+            StopFaceTrackingAction(self, self.follower_client),
+            StartPersonSearchAction(self, self.follower_client),
+            StopPersonSearchAction(self, self.follower_client),
+        ]
 
-        elif intent.intent_type == "STOP_FACE_TRACKING":
-            self._set_follower_control(enable_head=False, enable_base=False)
+        # Display actions
+        display_handlers = [
+            SetNoseColorAction(self, self.display_client),
+            ShowSmileAction(self, self.display_client),
+            DisplayTextAction(self, self.display_client),
+            ClearDisplayAction(self, self.display_client),
+        ]
 
-        elif intent.intent_type == "START_PERSON_SEARCH":
-            # Active la rotation de base pour faciliter la détection
-            # (Future: pourrait inclure un scan actif rotatif)
-            self._set_follower_control(enable_head=True, enable_base=True)
+        # Speech actions
+        speech_handlers = [
+            SayShortPhraseAction(self, self.tts_client),
+            SpeakTextAction(self, self.tts_client),
+            StopSpeakingAction(self, self.tts_client),
+        ]
 
-        elif intent.intent_type == "STOP_PERSON_SEARCH":
-            # Désactive la recherche
-            self._set_follower_control(enable_head=False, enable_base=False)
+        # Social actions
+        social_handlers = [
+            GreetPersonAction(self, self.display_client, self.tts_client),
+            ExpressRecognitionAction(self, self.display_client, self.tts_client),
+            ExpressEmotionAction(self, self.display_client, self.tts_client),
+        ]
 
-        # ===== SOCIAL ACTIONS =====
-        elif intent.intent_type == "GREET_PERSON":
+        # Profile actions
+        profile_handlers = [
+            StartProfileAction(self, self.bringup_client),
+            StopProfileAction(self, self.bringup_client),
+        ]
 
-            # 👉 LED verte
-            msg = Nose()
-            msg.color = 4  # vert
-            # self.pub_nose.publish(msg)
+        # Enregistrer tous les handlers
+        all_handlers = (
+            tracking_handlers +
+            display_handlers +
+            speech_handlers +
+            social_handlers +
+            profile_handlers
+        )
 
-            # 👉 log (placeholder AIML)
-            self.get_logger().info(
-                f"Hello {intent.target_person_name}!"
+        for handler in all_handlers:
+            for intent_type in handler.intent_types:
+                self.handlers[intent_type] = handler
+                self.get_logger().info(
+                    f"  Registered: {intent_type} → {handler.__class__.__name__}"
+                )
+
+    # =============================
+    # DISPATCH DES INTENTS
+    # =============================
+    def _on_intent(self, intent: BehaviorIntent):
+        """
+        Callback principal : reçoit un intent et le route vers le handler approprié.
+        """
+        intent_type = intent.intent_type
+
+        self.get_logger().info(f"RECEIVED → {intent_type}")
+
+        # Chercher le handler correspondant
+        handler = self.handlers.get(intent_type)
+
+        if not handler:
+            self.get_logger().warn(
+                f"⚠ No handler registered for: {intent_type}"
             )
-
-        # ===== LIFECYCLE ACTIONS =====
-        # TODO étape 2 : implémenter le lancement réel via subprocess ros2 launch
-        elif intent.intent_type == "START_PROFILE":
-            self._handle_start_profile(intent)
-
-        elif intent.intent_type == "STOP_PROFILE":
-            self._handle_stop_profile(intent)
-
-    def _handle_start_profile(self, intent: BehaviorIntent):
-        """Démarre le profil de nœuds requis via qbo_bringup_manager service."""
-        try:
-            import json as _json
-            payload = _json.loads(intent.payload_json or "{}")
-        except Exception:
-            payload = {}
-
-        profile = payload.get("profile", "MINIMAL")
-        missing = payload.get("missing_nodes", [])
-
-        self.get_logger().warn(
-            f"[START_PROFILE] Profil={profile!r} — nœuds manquants : {missing}"
-        )
-
-        # Vérifier que le service est disponible
-        if not self.bringup_service.service_is_ready():
-            self.get_logger().error("Bringup manager service not available!")
+            self._publish_action_failed(intent, "No handler found")
             return
 
-        # Préparer la requête
-        request = ManageProfile.Request()
-        request.profile_name = profile
-        request.action = "START"
-        request.target_nodes = []  # Vide = démarrer tout le profil
-
-        # Appel asynchrone du service
-        future = self.bringup_service.call_async(request)
-        future.add_done_callback(
-            lambda f: self._on_bringup_response(f, profile, "START")
-        )
-
-        self.get_logger().info(f"Requesting START for profile {profile}...")
-
-    def _handle_stop_profile(self, intent: BehaviorIntent):
-        """Arrête un profil ou des nœuds spécifiques via qbo_bringup_manager service."""
+        # Exécuter l'action
         try:
-            import json as _json
-            payload = _json.loads(intent.payload_json or "{}")
-        except Exception:
-            payload = {}
+            success = handler.execute(intent)
 
-        profile = payload.get("profile", "MINIMAL")
-        target_nodes = payload.get("nodes", [])  # Liste optionnelle de nœuds à arrêter
-
-        self.get_logger().warn(
-            f"[STOP_PROFILE] Profil={profile!r} — nœuds cibles : {target_nodes}"
-        )
-
-        # Vérifier que le service est disponible
-        if not self.bringup_service.service_is_ready():
-            self.get_logger().error("Bringup manager service not available!")
-            return
-
-        # Préparer la requête
-        request = ManageProfile.Request()
-        request.profile_name = profile
-        request.action = "STOP"
-        request.target_nodes = target_nodes
-
-        # Appel asynchrone du service
-        future = self.bringup_service.call_async(request)
-        future.add_done_callback(
-            lambda f: self._on_bringup_response(f, profile, "STOP")
-        )
-
-        self.get_logger().info(f"Requesting STOP for profile {profile}...")
-
-    def _on_bringup_response(self, future, profile: str, action: str):
-        """Callback pour la réponse du service ManageProfile."""
-        try:
-            response = future.result()
-            if response.success:
-                self.get_logger().info(
-                    f"✓ Profile {profile} {action} successful: {response.message}"
-                )
-                self.get_logger().info(
-                    f"  Active profiles: {response.active_nodes}"
-                )
+            if success:
+                self.get_logger().info(f"✓ DONE → {intent_type}")
+                self._publish_action_done(intent)
             else:
-                self.get_logger().error(
-                    f"✗ Profile {profile} {action} failed: {response.message}"
-                )
+                self.get_logger().warn(f"✗ FAILED → {intent_type}")
+                self._publish_action_failed(intent, "Handler returned False")
+
         except Exception as e:
             self.get_logger().error(
-                f"Service call failed for {profile} {action}: {str(e)}"
+                f"✗ EXCEPTION in {intent_type}: {e}"
             )
+            self._publish_action_failed(intent, str(e))
 
-    def _publish_generated_text(self, text, context):
-
+    # =============================
+    # PUBLICATION D'ÉVÉNEMENTS
+    # =============================
+    def _publish_action_done(self, intent: BehaviorIntent):
+        """Publie un événement ACTION_DONE."""
         msg = SocialEvent()
-
-        now = self.get_clock().now().to_msg()
-
-        msg.header.stamp = now
-        msg.stamp = now
-
-        msg.event_type = "TEXT_GENERATED"
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.stamp = msg.header.stamp
+        msg.event_type = "ACTION_DONE"
         msg.source = "action_executor"
-
-        msg.person_id = ""
-        msg.person_name = ""
+        msg.person_id = intent.target_person_id
+        msg.person_name = intent.target_person_name
         msg.confidence = 1.0
-
         msg.payload_json = json.dumps({
-            "text": text,
-            "context": context
+            "intent_type": intent.intent_type,
+            "reason": intent.reason
         })
-
         self.pub_event.publish(msg)
 
-        self.get_logger().info(
-            f"EVENT → TEXT_GENERATED: {text}"
-        )
-
-    def _handle_speak(self, intent):
-
-        payload = json.loads(intent.payload_json or "{}")
-
-        text = payload.get("text", "")
-
-        # =========================
-        # 🔹 CAS 1 : TEXTE DIRECT
-        # =========================
-        if text:
-
-            self._publish_generated_text(
-                text=text,
-                context={
-                    "source": "direct_intent",
-                    "reason": intent.reason
-                }
-            )
-            return
-
-        # =========================
-        # 🔹 CAS 2 : DIAGNOSTIC → AIML
-        # =========================
-        if payload.get("event_type") == "diagnostic":
-
-            text = self._query_aiml_diagnostic(payload)
-
-            if text:
-
-                self._publish_generated_text(
-                    text=text,
-                    context={
-                        "source": "aiml_diagnostic",
-                        "key": payload.get("key", ""),
-                        "severity": payload.get("severity", ""),
-                        "reason": intent.reason
-                    }
-                )
-
-    # =========================
-    # FOLLOWER CONTROL
-    # =========================
-    def _set_follower_control(self, enable_head: bool, enable_base: bool):
-        """
-        Contrôle le face follower via le service SetFollowerStatus.
-
-        Args:
-            enable_head: Active/désactive les mouvements de tête (pan/tilt)
-            enable_base: Active/désactive la rotation de la base mobile
-        """
-        if not self.follower_service.service_is_ready():
-            self.get_logger().warn("Face follower service not available")
-            return
-
-        request = SetFollowerStatus.Request()
-        request.enable_head_movement = enable_head
-        request.enable_base_rotation = enable_base
-
-        future = self.follower_service.call_async(request)
-        future.add_done_callback(
-            lambda f: self._follower_response_callback(f, enable_head, enable_base)
-        )
-
-    def _follower_response_callback(self, future, enable_head: bool, enable_base: bool):
-        """Callback pour la réponse du service SetFollowerStatus."""
-        try:
-            response = future.result()
-            if response.success:
-                mode = "FULL" if (enable_head and enable_base) else \
-                       "HEAD_ONLY" if enable_head else \
-                       "DISABLED"
-                self.get_logger().info(
-                    f"Follower mode: {mode} | {response.message}"
-                )
-            else:
-                self.get_logger().warn(
-                    f"Follower service failed: {response.message}"
-                )
-        except Exception as e:
-            self.get_logger().error(
-                f"Service call failed: {str(e)}"
-            )
+    def _publish_action_failed(self, intent: BehaviorIntent, error: str):
+        """Publie un événement ACTION_FAILED."""
+        msg = SocialEvent()
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.stamp = msg.header.stamp
+        msg.event_type = "ACTION_FAILED"
+        msg.source = "action_executor"
+        msg.person_id = intent.target_person_id
+        msg.person_name = intent.target_person_name
+        msg.confidence = 0.0
+        msg.payload_json = json.dumps({
+            "intent_type": intent.intent_type,
+            "reason": intent.reason,
+            "error": error
+        })
+        self.pub_event.publish(msg)
 
 
+# =============================
+# MAIN
+# =============================
 def main(args=None):
     rclpy.init(args=args)
     node = SocialActionExecutor()
@@ -303,4 +236,7 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

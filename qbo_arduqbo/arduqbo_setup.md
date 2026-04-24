@@ -235,7 +235,10 @@ ros2 service call /qbo_arduqbo/nose_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 
 **Exemples**
 ```bash
-ros2 topic pub -1 /qbo_arduqbo/mouth_ctrl/cmd_mouth qbo_msgs/msg/Mouth "{mouth_image: [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true]}"
+ros2 topic pub -1 /qbo_arduqbo/mouth_ctrl/cmd_mouth qbo_msgs/msg/Mouth "{mouth_image: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]}"
+ros2 topic pub -1 /qbo_arduqbo/mouth_ctrl/cmd_mouth qbo_msgs/msg/Mouth "{mouth_image: [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]}"
+
+
 ros2 service call /qbo_arduqbo/mouth_ctrl/test_leds qbo_msgs/srv/TestLeds "{}"
 ```
 

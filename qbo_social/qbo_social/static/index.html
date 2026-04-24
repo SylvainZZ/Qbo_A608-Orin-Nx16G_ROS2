@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QBO Social Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="timestamp">
+                <div id="timestampDate">--</div>
+                <div id="timestampTime">--</div>
+            </div>
+        </header>
+
+        <!-- Navigation par onglets -->
+        <nav class="tabs">
+            <button class="tab-button active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-button" onclick="switchTab('actions')">Actions</button>
+            <div class="status-msg" id="statusMsg">En attente de connexion...</div>
+        </nav>
+
+        <!-- ============================================ -->
+        <!-- ONGLET DASHBOARD -->
+        <!-- ============================================ -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="grid">
+            <!-- Système -->
+            <div class="panel">
+                <h2>⚙️ SYSTÈME (SBE)</h2>
+                <div class="stat-row">
+                    <span class="stat-label">Mode:</span>
+                    <span class="stat-value" id="mode">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Profil:</span>
+                    <span class="stat-value" id="profile">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Nœuds manquants:</span>
+                    <span class="stat-value" id="missing">--</span>
+                </div>
+            </div>
+
+            <!-- Nœuds Hardware (à droite, peut s'étendre) -->
+            <div class="panel panel-tall">
+                <h2>🔌 NŒUDS HARDWARE</h2>
+                <table class="nodes-table">
+                    <thead>
+                        <tr>
+                            <th>Hardware ID</th>
+                            <th>État</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nodesTable">
+                        <tr><td colspan="3" class="status-dim">En attente...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Système Qbo (Thermique + Batterie) -->
+            <div class="panel">
+                <h2>🌡️ SYSTÈME (Qbo)</h2>
+                <div class="stat-row">
+                    <span class="stat-label">CPU:</span>
+                    <span class="stat-value">
+                        <span id="cpuTemp">--</span>°C
+                        <div class="progress-bar"><div class="progress-fill" id="cpuBar"></div></div>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">GPU:</span>
+                    <span class="stat-value">
+                        <span id="gpuTemp">--</span>°C
+                        <div class="progress-bar"><div class="progress-fill" id="gpuBar"></div></div>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">RAM:</span>
+                    <span class="stat-value">
+                        <span id="ramPct">--</span>%
+                        <div class="progress-bar"><div class="progress-fill" id="ramBar"></div></div>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Power:</span>
+                    <span class="stat-value"><span id="power">--</span> W</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🔋 Batterie:</span>
+                    <span class="stat-value">
+                        <span id="batteryV">--</span> V
+                        <div class="progress-bar"><div class="progress-fill" id="batteryBar"></div></div>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Runtime:</span>
+                    <span class="stat-value" id="runtime">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Charge:</span>
+                    <span class="stat-value" id="charging">--</span>
+                </div>
+            </div>
+
+            <!-- WorldState -->
+            <div class="panel">
+                <h2>🌍 WORLD STATE</h2>
+                <div class="stat-row">
+                    <span class="stat-label">Visage:</span>
+                    <span class="stat-value" id="face">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Personne:</span>
+                    <span class="stat-value" id="person">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Engagement:</span>
+                    <span class="stat-value">
+                        <span id="engagement">--</span>
+                        <div class="progress-bar"><div class="progress-fill" id="engagementBar"></div></div>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Tracking:</span>
+                    <span class="stat-value" id="tracking">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Conversation:</span>
+                    <span class="stat-value" id="conversation">--</span>
+                </div>
+            </div>
+
+            <!-- Log (à droite, dynamique) -->
+            <div class="panel panel-tall">
+                <h2>📋 LOG (14 derniers événements)</h2>
+                <div style="margin-bottom: 10px;">
+                    <span class="stat-label">
+                        Events: <span id="eventCount">0</span> |
+                        Intents: <span id="intentCount">0</span> |
+                        Bloqués: <span id="blockedCount">0</span>
+                    </span>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="status-dim">En attente d'événements...</div>
+                </div>
+            </div>
+
+            <!-- Session Active -->
+            <div class="panel">
+                <h2>📊 SESSION ACTIVE</h2>
+                <div class="stat-row">
+                    <span class="stat-label">État:</span>
+                    <span class="stat-value" id="sessionStatus">
+                        <span class="status-dim">● Aucune session</span>
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Personne:</span>
+                    <span class="stat-value" id="sessionPerson">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Durée:</span>
+                    <span class="stat-value" id="sessionDuration">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Dernière vue:</span>
+                    <span class="stat-value" id="sessionLastSeen">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Timeout:</span>
+                    <span class="stat-value" id="sessionTimeout">--</span>
+                </div>
+            </div>
+
+            <!-- Position & Carte -->
+            <div class="panel">
+                <h2>📍 POSITION & CARTE</h2>
+                <canvas id="mapCanvas" width="300" height="300" style="border: 1px solid #334155; border-radius: 4px; background: #0f172a;"></canvas>
+                <div class="stat-row" style="margin-top: 10px;">
+                    <span class="stat-label">Position:</span>
+                    <span class="stat-value" id="posXYZ">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Distance:</span>
+                    <span class="stat-value" id="posDist">--</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Angle:</span>
+                    <span class="stat-value" id="posAngle">--</span>
+                </div>
+            </div>
+
+            <!-- Intent Pipeline -->
+            <div class="panel">
+                <h2>🎯 INTENT PIPELINE</h2>
+                <div class="intent-flow">
+                    <div>
+                        <div class="stat-label">Raw Intent</div>
+                        <div class="intent-box" id="rawIntent">---</div>
+                    </div>
+                    <div class="intent-arrow">→</div>
+                    <div>
+                        <div class="stat-label">Filtered Intent</div>
+                        <div class="intent-box" id="filteredIntent">---</div>
+                    </div>
+                    <div class="intent-arrow">→</div>
+                    <div>
+                        <div class="stat-label">Status</div>
+                        <div class="intent-box" id="intentStatus">---</div>
+                    </div>
+                </div>
+                <div class="stat-row" style="margin-top: 15px;">
+                    <span class="stat-label">Raison:</span>
+                    <span class="stat-value" id="intentReason">--</span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!-- Fin onglet Dashboard -->
+
+        <!-- ============================================ -->
+        <!-- ONGLET ACTIONS -->
+        <!-- ============================================ -->
+        <div id="tab-actions" class="tab-content">
+            <div class="actions-container">
+                
+                <!-- Tracking Actions -->
+                <div class="action-category">
+                    <h2>👁️ TRACKING & RECHERCHE</h2>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-tracking" onclick="sendIntent('TRACK_FACE_HEAD_ONLY')">
+                            🎯 Suivi Tête Seule
+                        </button>
+                        <button class="btn-action btn-tracking" onclick="sendIntent('TRACK_FACE_FULL')">
+                            🎯 Suivi Complet (Tête + Base)
+                        </button>
+                        <button class="btn-action btn-stop" onclick="sendIntent('STOP_FACE_TRACKING')">
+                            ⏹️ Arrêter Suivi
+                        </button>
+                        <button class="btn-action btn-tracking" onclick="sendIntent('START_PERSON_SEARCH')">
+                            🔍 Recherche Personne
+                        </button>
+                        <button class="btn-action btn-stop" onclick="sendIntent('STOP_PERSON_SEARCH')">
+                            ⏹️ Arrêter Recherche
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Display Actions -->
+                <div class="action-category">
+                    <h2>💡 AFFICHAGE LED & LCD</h2>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 4})">
+                            🟢 Nez Vert
+                        </button>
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 1})">
+                            🔴 Nez Rouge
+                        </button>
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 2})">
+                            🔵 Nez Bleu
+                        </button>
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 5})">
+                            🟡 Nez Jaune
+                        </button>
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 0})">
+                            ⚫ Nez OFF
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE')">
+                            😊 Sourire
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('DISPLAY_TEXT', {line1: 'Hello!', line2: 'Test QBO'})">
+                            📺 Texte LCD Test
+                        </button>
+                        <button class="btn-action btn-stop" onclick="sendIntent('CLEAR_DISPLAY')">
+                            🗑️ Effacer LCD
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Speech Actions -->
+                <div class="action-category">
+                    <h2>🔊 PAROLE & TTS</h2>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-speech" onclick="sendIntent('SAY_SHORT_PHRASE', {text: 'Bonjour !', language: 'fr'})">
+                            👋 Dire "Bonjour"
+                        </button>
+                        <button class="btn-action btn-speech" onclick="sendIntent('SAY_SHORT_PHRASE', {text: 'Je suis prêt', language: 'fr'})">
+                            ✅ Dire "Je suis prêt"
+                        </button>
+                        <button class="btn-action btn-speech" onclick="sendIntent('SAY_SHORT_PHRASE', {text: 'Test de synthèse vocale', language: 'fr'})">
+                            🎤 Test TTS
+                        </button>
+                        <button class="btn-action btn-stop" onclick="sendIntent('STOP_SPEAKING')">
+                            🔇 Arrêter Parole
+                        </button>
+                    </div>
+                    <div class="custom-speech">
+                        <input type="text" id="customSpeechText" placeholder="Texte personnalisé..." class="input-text">
+                        <button class="btn-action btn-speech" onclick="sendCustomSpeech()">
+                            💬 Parler
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Social Actions -->
+                <div class="action-category">
+                    <h2>🤝 INTERACTIONS SOCIALES</h2>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-social" onclick="sendIntent('GREET_PERSON', {name: 'Utilisateur'})">
+                            👋 Saluer (Utilisateur)
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_RECOGNITION', {name: 'Utilisateur'})">
+                            👁️ Exprimer Reconnaissance
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'happy'})">
+                            😊 Émotion: Joyeux
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'surprised'})">
+                            😮 Émotion: Surpris
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'sad'})">
+                            😢 Émotion: Triste
+                        </button>
+                    </div>
+                    <div class="custom-speech">
+                        <input type="text" id="customPersonName" placeholder="Nom de la personne..." class="input-text">
+                        <button class="btn-action btn-social" onclick="sendCustomGreet()">
+                            👋 Saluer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Profile Actions -->
+                <div class="action-category">
+                    <h2>⚙️ GESTION PROFILS</h2>
+                    <div class="profile-grid">
+                        <div class="profile-card">
+                            <div class="profile-title">MINIMAL</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'MINIMAL'})" title="Démarrer MINIMAL">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'MINIMAL'})" title="Arrêter MINIMAL">⏹️</button>
+                            </div>
+                        </div>
+                        <div class="profile-card">
+                            <div class="profile-title">VISION</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'VISION'})" title="Démarrer VISION">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'VISION'})" title="Arrêter VISION">⏹️</button>
+                            </div>
+                        </div>
+                        <div class="profile-card">
+                            <div class="profile-title">NAVIGATION</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'NAVIGATION'})" title="Démarrer NAVIGATION">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'NAVIGATION'})" title="Arrêter NAVIGATION">⏹️</button>
+                            </div>
+                        </div>
+                        <div class="profile-card">
+                            <div class="profile-title">VOICE OUTPUT</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'VOICE_OUTPUT'})" title="Démarrer VOICE_OUTPUT">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'VOICE_OUTPUT'})" title="Arrêter VOICE_OUTPUT">⏹️</button>
+                            </div>
+                        </div>
+                        <div class="profile-card">
+                            <div class="profile-title">VOICE INPUT</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'VOICE_INPUT'})" title="Démarrer VOICE_INPUT">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'VOICE_INPUT'})" title="Arrêter VOICE_INPUT">⏹️</button>
+                            </div>
+                        </div>
+                        <div class="profile-card">
+                            <div class="profile-title">CONVERSATION</div>
+                            <div class="profile-buttons">
+                                <button class="btn-play-small" onclick="sendIntent('START_PROFILE', {profile: 'CONVERSATION_ENGINE'})" title="Démarrer CONVERSATION_ENGINE">▶️</button>
+                                <button class="btn-stop-small" onclick="sendIntent('STOP_PROFILE', {profile: 'CONVERSATION_ENGINE'})" title="Arrêter CONVERSATION_ENGINE">⏹️</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log des actions -->
+                <div class="action-category">
+                    <h2>📋 LOG DES ACTIONS</h2>
+                    <div class="action-log" id="actionLog">
+                        <div class="status-dim">Aucune action envoyée</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Fin onglet Actions -->
+
+    </div>
+
+    <script src="/static/dashboard.js?v=3"></script>
+</body>
+</html>
