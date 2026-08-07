@@ -566,12 +566,12 @@ class QboBringupManager(Node):
 
     def shutdown_all_profiles(self):
         """Arrête proprement tous les profils actifs (appelé au shutdown du node)."""
-        self.get_logger().info("Shutting down all active profiles...")
+        print("[INFO] Shutting down all active profiles...")
         for profile_name in list(self.active_profiles.keys()):
-            self.get_logger().info(f"  Stopping {profile_name}...")
+            print(f"[INFO]   Stopping {profile_name}...")
             proc = self.active_profiles[profile_name]
             proc.stop()
-        self.get_logger().info("All profiles stopped")
+        print("[INFO] All profiles stopped")
 
 
 # =============================================================================
@@ -585,11 +585,11 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info("KeyboardInterrupt received, shutting down...")
+        print("[INFO] KeyboardInterrupt received, shutting down...")
     finally:
         node.shutdown_all_profiles()
         node.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
 
 if __name__ == '__main__':

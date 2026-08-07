@@ -1,0 +1,9 @@
+string text
+string session_id
+bool resolve
+bool execute
+---
+bool success
+qbo_home_interfaces/HomeIntent intent
+qbo_home_interfaces/IntentResult result
+string error_message

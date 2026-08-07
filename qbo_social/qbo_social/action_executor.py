@@ -19,6 +19,7 @@ from follower_client import FollowerClient
 from bringup_client import BringupClient
 from display_client import DisplayClient
 from tts_client import TTSClient
+from aiml_client import AimlClient, QueryAIMLAction
 
 # Import des actions
 sys.path.append(os.path.join(os.path.dirname(__file__), 'actions'))
@@ -58,6 +59,7 @@ class SocialActionExecutor(Node):
         self.bringup_client = BringupClient(self)
         self.display_client = DisplayClient(self)
         self.tts_client = TTSClient(self)
+        self.aiml_client = AimlClient(self)
 
         # =============================
         # 2. ENREGISTRER LES HANDLERS
@@ -77,7 +79,7 @@ class SocialActionExecutor(Node):
 
         self.pub_event = self.create_publisher(
             SocialEvent,
-            '/qbo_social/event',
+            '/qbo_social/events',
             10
         )
 
@@ -131,13 +133,19 @@ class SocialActionExecutor(Node):
             StopProfileAction(self, self.bringup_client),
         ]
 
+        # AIML actions
+        aiml_handlers = [
+            QueryAIMLAction(self, self.aiml_client, self.tts_client),
+        ]
+
         # Enregistrer tous les handlers
         all_handlers = (
             tracking_handlers +
             display_handlers +
             speech_handlers +
             social_handlers +
-            profile_handlers
+            profile_handlers +
+            aiml_handlers
         )
 
         for handler in all_handlers:

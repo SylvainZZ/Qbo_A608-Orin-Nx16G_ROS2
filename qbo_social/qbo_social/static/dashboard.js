@@ -111,7 +111,8 @@ function sendCustomGreet() {
         alert('Veuillez entrer un nom');
         return;
     }
-    sendIntent('GREET_PERSON', { name: name });
+    // Salutation avec grand sourire et durée de 3 secondes
+    sendIntent('GREET_PERSON', { name: name, smile: 'happy', duration: 3.0 });
     document.getElementById('customPersonName').value = '';
 }
 

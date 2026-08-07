@@ -1,0 +1,11 @@
+# qbo_home_assistant — default parameters
+# Copy and adapt this file; load with:
+#   ros2 launch qbo_home_assistant ha_bridge.launch.py
+# or directly via the Node parameters list.
+
+ha_bridge:
+  ros__parameters:
+    ha_ws_url: "ws://192.168.1.56:8123/api/websocket"
+    ha_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5MzRjZTYwM2E4Yjg0MjI2YWE4Yzg2NGYwYTFiZDdmOSIsImlhdCI6MTc4NjAxNzMxNywiZXhwIjoyMTAxMzc3MzE3fQ.2mblY8P9E2TYAQioeYd1VQ8OCzulgc0oiWcW3J5Jo2A" # paste your HA long-lived token here
+    reconnect_delay_s: 5.0
+    all_states_period_s: 0.0    # > 0 to enable periodic full snapshot

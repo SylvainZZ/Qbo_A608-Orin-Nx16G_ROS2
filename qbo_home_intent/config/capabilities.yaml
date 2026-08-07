@@ -1,0 +1,35 @@
+# Device class capabilities — used by validator to reject unsupported actions
+capabilities:
+  light:
+    actions: [turn_on, turn_off, set_brightness, set_color]
+    queryable_properties: [state, brightness]
+    supports_dimmer: true
+
+  cover:
+    actions: [open, close, stop, set_position]
+    queryable_properties: [state, current_position]
+    position_range: [0, 100]
+
+  climate:
+    actions: [set_temperature]
+    queryable_properties: [temperature, current_temperature, hvac_mode]
+    temperature_range: [5.0, 30.0]
+
+  switch:
+    actions: [turn_on, turn_off]
+    queryable_properties: [state]
+
+  select:
+    actions: [select_option]
+    queryable_properties: [state]
+    options: [Off, Confort, Eco, Hors gel]
+
+  sensor:
+    actions: []
+    queryable_properties: [state]
+    read_only: true
+
+  binary_sensor:
+    actions: []
+    queryable_properties: [state]
+    read_only: true

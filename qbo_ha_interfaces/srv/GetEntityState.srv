@@ -1,0 +1,6 @@
+# Query the current state of one specific entity
+string entity_id
+---
+bool        success
+EntityState entity_state
+string      error_message

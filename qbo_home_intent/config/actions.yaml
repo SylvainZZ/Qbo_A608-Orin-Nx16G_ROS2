@@ -1,0 +1,42 @@
+# Verb → action mappings for French NLP (Étape 3)
+control:
+  turn_on:
+    verbs: [allume, allumer, active, activer, mets, mettre, ouvre la lumiere, ouvre la lumière]
+  turn_off:
+    verbs: [eteins, éteins, eteindre, éteindre, coupe, couper, desactive, désactive, desactiver, désactiver, eteins, ferme la lumiere, ferme la lumière]
+  open:
+    verbs: [ouvre, ouvrir, leve, lève, lever, monte, monter, remonte, remonter]
+    targets: [cover, switch.portail, switch.porte_garage]
+  close:
+    verbs: [ferme, fermer, baisse, baisser, descends, descendre, redescends, redescendre]
+    targets: [cover]
+  stop:
+    verbs: [stop, stoppe, stopper, arrete, arrête, arreter, arrêter]
+  set_brightness:
+    verbs: [regle la luminosite, règle la luminosité, mets a, mets à, dim, dimme, luminosite a, luminosité à, intensite, intensité]
+    parameters: [brightness_pct]
+  set_temperature:
+    verbs: [regle la temperature, règle la température, chauffe a, chauffe à, mets le chauffage a, mets le chauffage à, consigne a, consigne à, temperature a, température à]
+    parameters: [temperature]
+  set_color:
+    verbs: [mets en, passe en, change la couleur, couleur]
+    parameters: [color_name]
+  set_position:
+    verbs: [positionne a, positionne à, mets a, règle à, regle a]
+    parameters: [position]
+  select_option:
+    verbs: [mode, passe en mode, mets en mode, active le mode]
+    parameters: [option]
+
+query:
+  read_temperature:
+    verbs: [quelle temperature, quelle température, combien de degres, combien de degrés, il fait combien, fait il combien, temperature dans, température dans]
+    targets: [sensor, climate]
+  read_state:
+    verbs: [cest quoi letat, quel est letat, est ce que, est allume, est éteint, est il allume, est il allumé, est il eteint, est il éteint]
+  read_power:
+    verbs: [quelle consommation, combien de watts, puissance, watt]
+    targets: [sensor]
+  read_energy:
+    verbs: [combien denergie, consommation totale, energie totale, énergie totale]
+    targets: [sensor]

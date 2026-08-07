@@ -1,0 +1,9 @@
+# Invoke any Home Assistant service  (e.g.  light / turn_on)
+string domain           # e.g.  light
+string service          # e.g.  turn_on
+string entity_id        # target entity; may be empty for domain-wide calls
+string service_data     # JSON-encoded extra parameters (brightness, temperature…)
+---
+bool   success
+string result           # JSON-encoded raw HA response
+string error_message

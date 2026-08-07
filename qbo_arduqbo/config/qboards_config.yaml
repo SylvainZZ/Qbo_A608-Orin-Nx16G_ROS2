@@ -26,6 +26,7 @@ qbo_arduqbo:
     capacity_ah: 10.0
     battery_type: LiFePo4
     nominal_voltage: 13.2
+    voltage_filter_size: 10
 
 /qbo_arduqbo/base_ctrl:
   ros__parameters:

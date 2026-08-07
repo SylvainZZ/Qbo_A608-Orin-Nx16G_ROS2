@@ -111,7 +111,10 @@ class DiagnosticsInspector:
         diag_adapter = getattr(self.node, "diagnostics_adapter", None)
         if diag_adapter is not None:
             diag_adapter.robot_state["nodes_present"] = dict(self._present)
-
+            # self.node.get_logger().info(
+            #     f"[DiagnosticsInspector] robot_state['nodes_present'] mis à jour : {diag_adapter.robot_state['nodes_present']}"
+            # )
+    # [event_adapter-1] [INFO] [1778942046.589731428] [qbo_social_event_adapter]: [DiagnosticsInspector] robot_state['nodes_present'] mis à jour : {'qbo_bringup_manager': True, 'minimal': True, 'qbo_dynamixel': True, 'orin-nx-16g': True, 'System': True, 'Qboard_3': True, 'Qboard_1': True, 'Qboard_4': True, 'LCD': True, 'Qboard_5': True}
     # =========================================================================
     # PUBLICATION ÉVÉNEMENT
     # =========================================================================
@@ -131,3 +134,24 @@ class DiagnosticsInspector:
             payload=payload,
         )
         self.node.pub_event.publish(msg)
+
+        # Publier aussi SYSTEM_STATE_UPDATED avec l'état combiné
+        self._publish_system_state_updated()
+
+    def _publish_system_state_updated(self):
+        """Publie SYSTEM_STATE_UPDATED avec clés critiques + présence nœuds."""
+        diag_adapter = getattr(self.node, "diagnostics_adapter", None)
+        system_state = dict(diag_adapter._system_state) if diag_adapter is not None else {}
+
+        msg = self.node._create_event_msg(
+            event_type="SYSTEM_STATE_UPDATED",
+            source="diagnostics_inspector",
+            payload={
+                "system_state": system_state,
+                "nodes_present": dict(self._present),
+            }
+        )
+        self.node.pub_event.publish(msg)
+        self.node.get_logger().info(
+            f"EVENT → SYSTEM_STATE_UPDATED (nodes) : {dict(self._present)}"
+        )

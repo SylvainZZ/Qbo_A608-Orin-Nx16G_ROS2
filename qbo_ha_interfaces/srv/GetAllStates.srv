@@ -1,0 +1,6 @@
+# Query the states of all entities, optionally filtered by domain
+string domain_filter    # restrict to a domain (e.g. "light"); empty = all entities
+---
+bool          success
+EntityState[] states
+string        error_message

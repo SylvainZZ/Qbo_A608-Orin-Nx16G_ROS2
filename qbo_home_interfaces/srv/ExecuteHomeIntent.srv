@@ -1,0 +1,6 @@
+qbo_home_interfaces/HomeIntent intent
+bool dry_run
+---
+bool success
+qbo_home_interfaces/IntentResult result
+string error_message

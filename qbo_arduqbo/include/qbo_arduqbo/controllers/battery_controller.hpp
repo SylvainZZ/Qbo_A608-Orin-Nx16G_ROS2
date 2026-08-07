@@ -37,4 +37,8 @@ private:
     double nominal_voltage_= 12.0;
     std::string battery_type_ = "Unknown";
 
+    // Filtrage de la tension
+    std::deque<double> voltage_history_;
+    int voltage_filter_size_ = 10;
+
 };

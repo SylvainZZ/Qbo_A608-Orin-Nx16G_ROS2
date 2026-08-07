@@ -1,0 +1,46 @@
+# Tests de requêtes d'information (Étape 6)
+tests:
+  - text: "quelle température fait-il dans le salon"
+    expected:
+      intent_type: query
+      action: read_temperature
+      area: salon
+      device_class: sensor
+
+  - text: "quelle est la température extérieure"
+    expected:
+      intent_type: query
+      action: read_temperature
+      entity_id: sensor.temperature_exterieure
+
+  - text: "combien fait-il dehors"
+    expected:
+      intent_type: query
+      entity_id: sensor.temperature_exterieure
+
+  - text: "est-ce que le salon est allumé"
+    expected:
+      intent_type: query
+      action: read_state
+      area: salon
+      device_class: light
+
+  - text: "quel est le niveau de la batterie Zendure"
+    expected:
+      intent_type: query
+      entity_id: sensor.zendure_battery_level
+
+  - text: "quelle est la production solaire"
+    expected:
+      intent_type: query
+      entity_id: sensor.solar_production_power
+
+  - text: "quel est l'état du portail"
+    expected:
+      intent_type: query
+      entity_id: binary_sensor.position_portail
+
+  - text: "combien y a-t-il d'eau de pluie"
+    expected:
+      intent_type: query
+      entity_id: sensor.citerne_eau_pluie

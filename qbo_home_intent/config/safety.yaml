@@ -1,0 +1,59 @@
+# Safety rules — risk_level: 0=safe  1=low  2=medium(confirmation)  3=high
+risk_levels:
+  0: {label: safe,   requires_confirmation: false}
+  1: {label: low,    requires_confirmation: false}
+  2: {label: medium, requires_confirmation: true}
+  3: {label: high,   requires_confirmation: true, verbal_warning: true}
+
+rules:
+  - id: portail_open
+    entity_id: switch.portail
+    action: turn_on
+    risk_level: 2
+    warning: "Je vais ouvrir le portail. Confirmez-vous ?"
+
+  - id: garage_open
+    entity_id: switch.porte_garage
+    action: turn_on
+    risk_level: 2
+    warning: "Je vais ouvrir la porte du garage. Confirmez-vous ?"
+
+  - id: cumulus_off
+    entity_id: switch.cumulus
+    action: turn_off
+    risk_level: 2
+    warning: "Je vais couper le cumulus. Confirmez-vous ?"
+
+  - id: all_lights_off
+    entity_id: ""
+    domain: light
+    action: turn_off
+    risk_level: 1
+    warning: "Je vais éteindre toutes les lumières."
+
+  - id: all_covers_close
+    entity_id: ""
+    domain: cover
+    action: close
+    risk_level: 1
+    warning: "Je vais fermer tous les volets."
+
+  - id: temperature_high
+    domain: climate
+    action: set_temperature
+    condition:
+      parameter: temperature
+      operator: ">"
+      value: 27.0
+    risk_level: 2
+    warning: "La consigne demandée est élevée. Confirmez-vous ?"
+
+  - id: temperature_low
+    domain: climate
+    action: set_temperature
+    condition:
+      parameter: temperature
+      operator: "<"
+      value: 7.0
+    risk_level: 2
+    warning: "La consigne est très basse. Confirmez-vous ?"

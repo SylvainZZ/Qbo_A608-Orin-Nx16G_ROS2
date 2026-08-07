@@ -129,7 +129,7 @@ class SocialBehaviorEngine(Node):
         """Calcule la distance euclidienne entre deux positions 3D."""
         if not pos1 or not pos2:
             return float('inf')
-        
+
         import math
         dx = pos1["x"] - pos2["x"]
         dy = pos1["y"] - pos2["y"]
@@ -138,7 +138,7 @@ class SocialBehaviorEngine(Node):
 
     def _check_spatial_continuity(self, event: SocialEvent, now: float) -> bool:
         """Vérifie la continuité spatiale et temporelle avec le contexte de perte.
-        
+
         Retourne True si la continuité est plausible, False sinon.
         Publie des traces de décision.
         """
@@ -424,6 +424,10 @@ class SocialBehaviorEngine(Node):
             self.last_recognized_time = 0.0
             return
 
+        elif event.event_type == "SPEECH_RECOGNIZED":
+            self._on_speech_recognized(event, now)
+            return
+
     def _cleanup_greet_memory(self, now: float):
         """Supprime les entrées obsolètes du dictionnaire last_greet_by_person."""
         to_remove = [
@@ -432,6 +436,68 @@ class SocialBehaviorEngine(Node):
         ]
         for person in to_remove:
             del self.last_greet_by_person[person]
+
+    # =========================================================================
+    # GESTION DES ENTRÉES VOCALES (SPEECH)
+    # =========================================================================
+
+    def _on_speech_recognized(self, event: SocialEvent, now: float):
+        """
+        Traitèment d'une transcription vocale (SPEECH_RECOGNIZED).
+        Envoie la phrase à l'AIML uniquement si un visage est présent.
+        """
+        import json
+
+        # Condition principale : visage présent
+        if not self.world.face_present:
+            self._publish_trace(
+                triggering_event="SPEECH_RECOGNIZED",
+                chosen_intent="",
+                reason="speech_ignored_no_face_present",
+                relevance=0.0,
+                suppressed=True
+            )
+            self.get_logger().debug(
+                "[SPEECH] Transcription ignorée : aucun visage présent"
+            )
+            return
+
+        try:
+            payload = json.loads(event.payload_json)
+        except Exception:
+            payload = {}
+
+        sentence = payload.get("sentence", "").strip()
+        confidence = payload.get("confidence", 0.0)
+
+        if not sentence:
+            return
+
+        self.get_logger().info(
+            f"[SPEECH] Phrase reçue (conf={confidence:.2f}) : {sentence!r} "
+            f"— interlocuteur: {self.session_person_name or 'inconnu'!r}"
+        )
+
+        self._publish_trace(
+            triggering_event="SPEECH_RECOGNIZED",
+            chosen_intent="QUERY_AIML",
+            reason=f"speech_with_face_present_conf_{confidence:.2f}",
+            relevance=confidence,
+            suppressed=False
+        )
+
+        self._publish_intent(
+            intent_type="QUERY_AIML",
+            target_person_id=event.person_id or "",
+            target_person_name=self.session_person_name,
+            priority=0.9,
+            reason="speech_recognized_face_present",
+            payload=json.dumps({
+                "sentence": sentence,
+                "confidence": confidence,
+                "person_name": self.session_person_name,
+            })
+        )
 
     def _publish_intent(self, intent_type: str, target_person_id: str = "",
                         target_person_name: str = "", priority: float = 1.0,

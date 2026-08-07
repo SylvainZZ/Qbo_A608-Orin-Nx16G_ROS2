@@ -250,30 +250,86 @@
                     </div>
                 </div>
 
-                <!-- Display Actions -->
+                <!-- Display Actions - Nez LED -->
                 <div class="action-category">
-                    <h2>💡 AFFICHAGE LED & LCD</h2>
+                    <h2>💡 NEZ LED (Auto-extinction 2s)</h2>
                     <div class="action-buttons">
-                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 4})">
-                            🟢 Nez Vert
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 4, duration: 2.0})">
+                            🟢 Vert (2s)
                         </button>
-                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 1})">
-                            🔴 Nez Rouge
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 1, duration: 2.0})">
+                            🔴 Rouge (2s)
                         </button>
-                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 2})">
-                            🔵 Nez Bleu
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 2, duration: 2.0})">
+                            🔵 Bleu (2s)
                         </button>
-                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 5})">
-                            🟡 Nez Jaune
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 5, duration: 2.0})">
+                            🟡 Jaune (2s)
                         </button>
-                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 0})">
-                            ⚫ Nez OFF
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 6, duration: 2.0})">
+                            🔵 Cyan (2s)
                         </button>
-                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE')">
-                            😊 Sourire
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 7, duration: 2.0})">
+                            ⚪ Blanc (2s)
                         </button>
+                        <button class="btn-action btn-led" onclick="sendIntent('SET_NOSE_COLOR', {color: 4, duration: 0})">
+                            🟢 Permanent
+                        </button>
+                        <button class="btn-action btn-stop" onclick="sendIntent('SET_NOSE_COLOR', {color: 0, duration: 0})">
+                            ⚫ OFF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Display Actions - Bouche LED -->
+                <div class="action-category">
+                    <h2>😊 BOUCHE LED (Auto-extinction 2s)</h2>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'happy', duration: 2.0})">
+                            😄 Très Heureux
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'big', duration: 2.0})">
+                            😃 Grand Sourire
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'normal', duration: 2.0})">
+                            🙂 Sourire Normal
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'wink', duration: 2.0})">
+                            😉 Clin d'Œil
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'excited', duration: 2.0})">
+                            🤩 Excité
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'surprised', duration: 2.0})">
+                            😮 Surpris
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'thinking', duration: 2.0})">
+                            🤔 Réflexion
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'neutral', duration: 2.0})">
+                            😐 Neutre
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'worried', duration: 2.0})">
+                            😟 Inquiet
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'sad', duration: 2.0})">
+                            😢 Triste
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'angry', duration: 2.0})">
+                            😠 En Colère
+                        </button>
+                        <button class="btn-action btn-display" onclick="sendIntent('SHOW_SMILE', {variant: 'sleepy', duration: 2.0})">
+                            😴 Endormi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Display Actions - LCD -->
+                <div class="action-category">
+                    <h2>📺 ÉCRAN LCD</h2>
+                    <div class="action-buttons">
                         <button class="btn-action btn-display" onclick="sendIntent('DISPLAY_TEXT', {line1: 'Hello!', line2: 'Test QBO'})">
-                            📺 Texte LCD Test
+                            📺 Texte Test
                         </button>
                         <button class="btn-action btn-stop" onclick="sendIntent('CLEAR_DISPLAY')">
                             🗑️ Effacer LCD
@@ -308,24 +364,59 @@
 
                 <!-- Social Actions -->
                 <div class="action-category">
-                    <h2>🤝 INTERACTIONS SOCIALES</h2>
+                    <h2>🤝 INTERACTIONS SOCIALES (Bouche + Parole)</h2>
+                    
+                    <!-- Salutations -->
+                    <h3 style="color: #94a3b8; font-size: 14px; margin: 15px 0 10px 0;">👋 Salutations</h3>
                     <div class="action-buttons">
-                        <button class="btn-action btn-social" onclick="sendIntent('GREET_PERSON', {name: 'Utilisateur'})">
-                            👋 Saluer (Utilisateur)
+                        <button class="btn-action btn-social" onclick="sendIntent('GREET_PERSON', {name: 'Utilisateur', smile: 'happy', duration: 3.0})">
+                            😄 Saluer Joyeusement
                         </button>
-                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_RECOGNITION', {name: 'Utilisateur'})">
-                            👁️ Exprimer Reconnaissance
+                        <button class="btn-action btn-social" onclick="sendIntent('GREET_PERSON', {name: 'Utilisateur', smile: 'normal', duration: 2.5})">
+                            🙂 Saluer Normalement
                         </button>
-                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'happy'})">
-                            😊 Émotion: Joyeux
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_RECOGNITION', {name: 'Utilisateur', smile: 'wink', duration: 2.5})">
+                            😉 Reconnaissance (Clin d'Œil)
                         </button>
-                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'surprised'})">
-                            😮 Émotion: Surpris
-                        </button>
-                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'sad'})">
-                            😢 Émotion: Triste
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_RECOGNITION', {name: 'Utilisateur', smile: 'excited', duration: 3.0})">
+                            🤩 Reconnaissance Enthousiaste
                         </button>
                     </div>
+                    
+                    <!-- Émotions complètes -->
+                    <h3 style="color: #94a3b8; font-size: 14px; margin: 15px 0 10px 0;">🎭 Émotions (Nez + Bouche + Voix)</h3>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'happy', speak: true})">
+                            😊 Content
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'excited', speak: true})">
+                            🤩 Excité
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'surprised', speak: true})">
+                            😮 Surpris
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'thinking', speak: true})">
+                            🤔 Réflexion
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'worried', speak: true})">
+                            😟 Inquiet
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'sad', speak: true})">
+                            😢 Triste
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'angry', speak: true})">
+                            😠 En Colère
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'sleepy', speak: true})">
+                            😴 Fatigué
+                        </button>
+                        <button class="btn-action btn-social" onclick="sendIntent('EXPRESS_EMOTION', {emotion: 'neutral', speak: false})">
+                            😐 Neutre (Silent)
+                        </button>
+                    </div>
+                    
+                    <!-- Personnalisé -->
+                    <h3 style="color: #94a3b8; font-size: 14px; margin: 15px 0 10px 0;">✏️ Personnalisé</h3>
                     <div class="custom-speech">
                         <input type="text" id="customPersonName" placeholder="Nom de la personne..." class="input-text">
                         <button class="btn-action btn-social" onclick="sendCustomGreet()">

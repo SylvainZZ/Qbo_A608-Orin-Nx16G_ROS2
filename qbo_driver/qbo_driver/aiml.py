@@ -5,6 +5,10 @@ from ament_index_python.packages import get_package_share_directory
 
 from qbo_msgs.srv import GenerateText
 from std_srvs.srv import Trigger
+import random
+import math
+import os
+import json
 
 import os
 import json
@@ -108,70 +112,87 @@ class AIMLNode(Node):
 
         self.get_logger().info("🚀 Initialisation AIML...")
 
-        # ==============================
-        # 🔹 1️⃣ Charger modèles
-        # ==============================
+        try:
+            # Vérifier que les dossiers existent
+            if not os.path.exists(DATA_DIR):
+                self.get_logger().warn(f"⚠ DATA_DIR n'existe pas : {DATA_DIR}")
+                os.makedirs(DATA_DIR, exist_ok=True)
 
-        self.qa_loader = QALoader(
-            model_name=EMBED_MODEL_NAME,
-            logger=self.get_logger(),
-            data_dir=DATA_DIR,
-            index_dir=INDEX_DIR
-        )
+            if not os.path.exists(INDEX_DIR):
+                self.get_logger().warn(f"⚠ INDEX_DIR n'existe pas : {INDEX_DIR}")
+                os.makedirs(INDEX_DIR, exist_ok=True)
 
-        self.qa_diag = QALoader(
-            model_name=None,  # on partage le même modèle que qa_loader
-            logger=self.get_logger(),
-            data_dir=DATA_DIR,
-            index_dir=INDEX_DIR
-        )
-        self.qa_diag.share_embedding(self.qa_loader)
+            # ==============================
+            # 🔹 1️⃣ Charger modèles
+            # ==============================
 
-        self.llm_engine = LLMEngine(
-            model_name=GEN_MODEL_NAME,
-            logger=self.get_logger(),
-            enable=True
-        )
+            self.qa_loader = QALoader(
+                model_name=EMBED_MODEL_NAME,
+                logger=self.get_logger(),
+                data_dir=DATA_DIR,
+                index_dir=INDEX_DIR
+            )
 
-        self.enable_style_rewrite = False
+            self.qa_diag = QALoader(
+                model_name=None,  # on partage le même modèle que qa_loader
+                logger=self.get_logger(),
+                data_dir=DATA_DIR,
+                index_dir=INDEX_DIR
+            )
+            self.qa_diag.share_embedding(self.qa_loader)
 
-        # ==============================
-        # 🔹 2️⃣ Configuration seuils
-        # ==============================
+            self.llm_engine = LLMEngine(
+                model_name=GEN_MODEL_NAME,
+                logger=self.get_logger(),
+                enable=True
+            )
 
-        # ==============================
-        # 🔹 3️⃣ Charger index RAG
-        # ==============================
+            self.enable_style_rewrite = False
 
-        self.qa_loader.load_latest_index(prefix="index")   # index actuel (listen/CLI)
-        self.qa_diag.load_latest_index(prefix="diag")      # index diagnostics dédié
-        self.THRESHOLDS = {
-            "listen": 0.70,      # actions
-            "diagnostic": 0.88,  # événements
-            "dialog": 0.75       # conversation pure
-        }
+            # ==============================
+            # 🔹 2️⃣ Configuration seuils
+            # ==============================
 
-        # ==============================
-        # 🔹 4️⃣ Service de vectorisation à la demande
-        # ==============================
+            self.THRESHOLDS = {
+                "listen": 0.70,      # actions
+                "diagnostic": 0.88,  # événements
+                "dialog": 0.75       # conversation pure
+            }
 
-        self.vector_service = self.create_service(
-            Trigger,
-            '/aiml/vectorize_index',
-            self.vectorize_callback
-        )
+            # ==============================
+            # 🔹 3️⃣ Charger index RAG
+            # ==============================
 
-        # ==============================
-        # 🔹 5️⃣ Service de génération de texte
-        # ==============================
+            self.qa_loader.load_latest_index(prefix="index")   # index actuel (listen/CLI)
+            self.qa_diag.load_latest_index(prefix="diag")      # index diagnostics dédié
 
-        self.generate_service = self.create_service(
-            GenerateText,
-            '/aiml/generate_text',
-            self.generate_text_callback
-        )
+            # ==============================
+            # 🔹 4️⃣ Service de vectorisation à la demande
+            # ==============================
 
-        self.get_logger().info("✅ AIML prêt.")
+            self.vector_service = self.create_service(
+                Trigger,
+                '/aiml/vectorize_index',
+                self.vectorize_callback
+            )
+
+            # ==============================
+            # 🔹 5️⃣ Service de génération de texte
+            # ==============================
+
+            self.generate_service = self.create_service(
+                GenerateText,
+                '/aiml/generate_text',
+                self.generate_text_callback
+            )
+
+            self.get_logger().info("✅ AIML prêt.")
+
+        except Exception as e:
+            self.get_logger().error(f"❌ Erreur lors de l'initialisation AIML : {e}")
+            import traceback
+            self.get_logger().error(traceback.format_exc())
+            raise
 
 
     # ==============================
@@ -229,7 +250,6 @@ class AIMLNode(Node):
                 if not best_item:
                     response.success = True
                     response.response_text = "Je ne suis pas sûr de comprendre."
-                    response.intent_json = ""
                     return response
 
                 # Seuil selon présence d'un intent dans le QA
@@ -241,7 +261,6 @@ class AIMLNode(Node):
                 if confidence < threshold:
                     response.success = True
                     response.response_text = "Je ne sais pas répondre à ça."
-                    response.intent_json = ""
                     return response
 
                 # Si le QA contient un intent, on l'embarque dans la réponse
@@ -251,11 +270,7 @@ class AIMLNode(Node):
 
                 response.success = True
                 response.response_text = base_answer
-                # Renvoi du payload intent pour que le SBE l'exécute
-                if "intent" in best_item:
-                    response.intent_json = json.dumps(best_item["intent"])
-                else:
-                    response.intent_json = ""
+                # Note : les intents sont désormais gérés directement par le SBE
                 return response
 
             # =========================
@@ -284,27 +299,25 @@ class AIMLNode(Node):
                 if not best_item:
                     response.success = False
                     response.response_text = ""
-                    response.intent_json = ""
                     return response
 
                 final_text = self.generate_answer(best_item, None, {})
 
                 response.success = True
                 response.response_text = final_text
-                response.intent_json = ""
                 return response
 
             else:
                 response.success = False
                 response.response_text = "Type inconnu"
-                response.intent_json = ""
                 return response
 
         except Exception as e:
             self.get_logger().error(f"AIML error: {e}")
+            import traceback
+            self.get_logger().error(traceback.format_exc())
             response.success = False
             response.response_text = ""
-            response.intent_json = ""
             return response
 
     def build_diagnostic_query(self, data):

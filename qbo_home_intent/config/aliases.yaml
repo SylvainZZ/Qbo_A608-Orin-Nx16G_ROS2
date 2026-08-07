@@ -1,0 +1,58 @@
+# Object-level aliases for NLP resolution (accent-free after normalization)
+devices:
+  lumiere:
+    aliases: [lumiere, lumieres, lampe, lampes, eclairage, light]
+    device_class: light
+
+  volet:
+    aliases: [volet, volets, store, stores, rideau, rideaux, volet roulant, volets roulants]
+    device_class: cover
+
+  chauffage:
+    aliases: [chauffage, radiateur, chauffe, thermostat, plancher chauffant]
+    device_class: climate
+
+  fil_pilote:
+    aliases: [fil pilote, chauffage fil pilote, mode chauffage]
+    device_class: select
+
+  portail:
+    aliases: [portail, portillon, grille, entree]
+    entity_id: switch.portail
+
+  porte_garage:
+    aliases: [porte garage, porte du garage]
+    entity_id: switch.porte_garage
+
+  cumulus:
+    aliases: [cumulus, chauffe eau, eau chaude, ballon deau, ballon eau chaude]
+    entity_id: switch.cumulus
+
+sensors:
+  temperature_ext:
+    aliases: [temperature exterieure, dehors il fait, temperature dehors, il fait dehors]
+    entity_id: sensor.temperature_exterieure
+
+  luminosite:
+    aliases: [luminosite exterieure, luminosite, ensoleillement, lumiere exterieure]
+    entity_id: sensor.luminosite_exterieure
+
+  intrusion:
+    aliases: [intrusion, alarme, alarme intrusion, mouvement]
+    entity_id: binary_sensor.intrusion
+
+  position_portail:
+    aliases: [position portail, portail ouvert, portail ferme]
+    entity_id: binary_sensor.position_portail
+
+  batterie_zendure:
+    aliases: [batterie zendure, batterie solaire, niveau batterie, zendure, batterie]
+    entity_id: sensor.zendure_battery_level
+
+  production_solaire:
+    aliases: [production solaire, panneaux solaires, energie solaire, solaire]
+    entity_id: sensor.solar_production_power
+
+  eau_pluie:
+    aliases: [eau de pluie, citerne, cuve, reserve eau, eau pluie]
+    entity_id: sensor.citerne_eau_pluie

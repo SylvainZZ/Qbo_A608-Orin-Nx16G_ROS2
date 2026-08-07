@@ -1,0 +1,39 @@
+# Tests de commandes ambiguës — le resolver doit demander une clarification (Étape 4)
+tests:
+  - text: "allume la lumière"
+    expected:
+      intent_type: control
+      action: turn_on
+      device_class: light
+      status: needs_clarification
+      missing_slot: area
+      note: "Plusieurs pièces éclairées, la zone est manquante"
+
+  - text: "ferme les volets"
+    expected:
+      intent_type: control
+      action: close
+      device_class: cover
+      status: needs_clarification
+      missing_slot: area
+      note: "Plusieurs volets disponibles sans zone"
+
+  - text: "règle le chauffage"
+    expected:
+      intent_type: control
+      device_class: climate
+      status: needs_clarification
+      missing_slot: value
+      note: "La consigne de température est manquante"
+
+  - text: "éteins"
+    expected:
+      intent_type: control
+      status: needs_clarification
+      note: "Ni l'objet ni la zone ne sont précisés"
+
+  - text: "mets à 50"
+    expected:
+      intent_type: control
+      status: needs_clarification
+      note: "La valeur est présente mais l'objet et l'action sont ambigus"

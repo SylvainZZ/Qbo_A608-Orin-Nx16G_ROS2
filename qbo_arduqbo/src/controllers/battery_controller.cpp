@@ -27,6 +27,7 @@ CBatteryController::CBatteryController(
     get_parameter("capacity_ah", capacity_ah_);
     get_parameter("nominal_voltage", nominal_voltage_);
     get_parameter("battery_type", battery_type_);
+    get_parameter("voltage_filter_size", voltage_filter_size_);
 
     // Diagnostics
     updater_.setHardwareID("Qboard_3");
@@ -37,9 +38,10 @@ CBatteryController::CBatteryController(
                                 "       - Nominal voltage: %.2f V\n"
                                 "       - Capacity: %.2f Ah\n"
                                 "       - Warning level: %.2f V\n"
-                                "       - Error level: %.2f V",
+                                "       - Error level: %.2f V\n"
+                                "       - Voltage filter size: %d samples",
             battery_type_.c_str(), nominal_voltage_, capacity_ah_,
-            warn_battery_level_, error_battery_level_);
+            warn_battery_level_, error_battery_level_, voltage_filter_size_);
 }
 
 std::string formatDouble(double value, int precision = 2)
@@ -58,7 +60,18 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
         return;
     }
 
-    double voltage = level_ / 10.0;
+    double voltage_raw = level_ / 10.0;
+
+    // Ajouter la nouvelle valeur à l'historique
+    voltage_history_.push_back(voltage_raw);
+
+    // Limiter la taille de l'historique
+    if (voltage_history_.size() > static_cast<size_t>(voltage_filter_size_)) {
+        voltage_history_.pop_front();
+    }
+
+    // Calculer la moyenne des valeurs
+    double voltage = std::accumulate(voltage_history_.begin(), voltage_history_.end(), 0.0) / voltage_history_.size();
 
     status.add("Voltage", formatDouble(voltage)); // in volts
     status.add("Type", battery_type_); // e.g. "Li-ion", "NiMH", or other
@@ -72,9 +85,9 @@ void CBatteryController::diagnosticCallback(diagnostic_updater::DiagnosticStatus
     bool boards_on = stat_ & 0x01;              // bit 0
 
     status.add("Charge Mode", std::to_string(charge_mode));
-    status.add("External Power", ext_power ? "Yes" : "No");
-    status.add("Power PC", pc_on ? "Yes" : "No");
-    status.add("Power Qboard", boards_on ? "Yes" : "No");
+    status.add("External Power", ext_power ? "True" : "False");
+    status.add("Power PC", pc_on ? "True" : "False");
+    status.add("Power Qboard", boards_on ? "True" : "False");
 
     std::string charge_desc;
     switch (charge_mode) {

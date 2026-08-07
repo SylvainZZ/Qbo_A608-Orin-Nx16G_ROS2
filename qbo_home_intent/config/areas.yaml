@@ -1,0 +1,41 @@
+# Zone definitions with French aliases (accent-free after normalization)
+areas:
+  salon:
+    label: Salon
+    aliases: [sejour, sejoour, living, piece principale, piece de vie]
+    ha_area_id: salon
+
+  bureau:
+    label: Bureau
+    aliases: [salle de travail, office, piece de travail]
+    ha_area_id: bureau
+
+  cuisine:
+    label: Cuisine
+    aliases: [kitchenette, salle a manger attenant]
+    ha_area_id: cuisine
+
+  chambre_1:
+    label: Chambre 1
+    aliases: [chambre principale, grande chambre, chambre parents, chambre 1]
+    ha_area_id: chambre_1
+
+  chambre_2:
+    label: Chambre 2
+    aliases: [deuxieme chambre, chambre damis, petite chambre, chambre 2, chambre invites]
+    ha_area_id: chambre_2
+
+  atelier:
+    label: Atelier
+    aliases: [garage, atelier garage, atelier]
+    ha_area_id: atelier
+
+  salle_a_manger:
+    label: Salle à manger
+    aliases: [salle manger, dining, salle a manger]
+    ha_area_id: salle_a_manger
+
+  exterieur:
+    label: Extérieur
+    aliases: [dehors, jardin, terrasse, exterieur]
+    ha_area_id: exterieur

@@ -1,0 +1,6 @@
+qbo_home_interfaces/HomeIntent intent
+string session_id
+---
+bool success
+qbo_home_interfaces/HomeIntent resolved_intent
+string error_message

@@ -9,6 +9,7 @@ from qbo_msgs.msg import SocialEvent
 from qbo_social.adapters.diagnostics_adapter import DiagnosticsAdapter
 from qbo_social.adapters.diagnostics_inspector import DiagnosticsInspector
 from qbo_social.adapters.face_adapter import FaceAdapter
+from qbo_social.adapters.listen_adapter import ListenAdapter
 
 
 class SocialEventAdapter(Node):
@@ -26,12 +27,24 @@ class SocialEventAdapter(Node):
         self.declare_parameter("min_confidence", 0.6)
 
         # --- Diagnostics ---
+        # Clés critiques à extraire depuis /diagnostics
+        self.declare_parameter("diagnostics_critical_keys", ["External Power", "Power PC"])
+        # Nœuds à surveiller
+        self.declare_parameter("diagnostics_monitored_nodes", [
+            "qbo_dynamixel", "orin-nx-16g", "System",
+            "Qboard_3", "Qboard_1", "Qboard_4", "Qboard_5",
+            "LCD", "qbo_bringup_manager"
+        ])
         # Délai de stabilité avant publication d'un diagnostic
         self.declare_parameter("diagnostics_stability_delay", 3.0)
         # Timeout avant considérer un nœud comme manquant
         self.declare_parameter("diagnostics_node_timeout", 10.0)
         # Fréquence de vérification du watchdog
         self.declare_parameter("diagnostics_check_frequency", 2.0)
+
+        # --- Listen (STT) ---
+        # Confidence minimale pour émettre un événement SPEECH_RECOGNIZED
+        self.declare_parameter("listen_min_confidence", 0.5)
 
         # ===== ROS Publishers =====
         self.pub_event = self.create_publisher(
@@ -45,10 +58,18 @@ class SocialEventAdapter(Node):
         # ===== Adapters =====
         self.get_logger().info("Initializing adapters...")
 
-        # DiagnosticsAdapter avec paramètre de stabilité
-        stability_delay = self.get_parameter("diagnostics_stability_delay").value
-        self.diagnostics_adapter = DiagnosticsAdapter(self, stability_delay=stability_delay)
-        self.get_logger().info(f"  ✓ DiagnosticsAdapter initialized (stability_delay={stability_delay}s)")
+        # DiagnosticsAdapter avec paramètres ROS
+        critical_keys = self.get_parameter("diagnostics_critical_keys").value
+        monitored_nodes = self.get_parameter("diagnostics_monitored_nodes").value
+        self.diagnostics_adapter = DiagnosticsAdapter(
+            self,
+            critical_keys=critical_keys,
+            monitored_nodes=monitored_nodes
+        )
+        self.get_logger().info(
+            f"  ✓ DiagnosticsAdapter initialized ({len(critical_keys)} clés critiques, "
+            f"{len(monitored_nodes)} nœuds surveillés)"
+        )
 
         # DiagnosticsInspector avec paramètres de monitoring
         node_timeout = self.get_parameter("diagnostics_node_timeout").value
@@ -65,7 +86,14 @@ class SocialEventAdapter(Node):
         self.face_adapter = FaceAdapter(self)
         self.get_logger().info("  ✓ FaceAdapter initialized")
 
-        self.get_logger().info("SocialEventAdapter started (with FaceAdapter and DiagnosticsAdapter)")
+        # ListenAdapter avec paramètre de confiance
+        listen_min_confidence = self.get_parameter("listen_min_confidence").value
+        self.listen_adapter = ListenAdapter(
+            self,
+            min_confidence=listen_min_confidence
+        )
+
+        self.get_logger().info("SocialEventAdapter started (with FaceAdapter, DiagnosticsAdapter and ListenAdapter)")
 
     # =========================
     # EVENT PUBLISHER HELPER

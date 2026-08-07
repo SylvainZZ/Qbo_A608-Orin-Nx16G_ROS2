@@ -44,24 +44,28 @@ void MouthController::setMouth(const qbo_msgs::msg::Mouth::SharedPtr msg)
         return;
     }
 
-    // Convert 20 bools into a 20-bit number (bits 0-19, ordre direct)
+    // ✅ CORRECTION : L'Arduino setImage() lit les bits 23 à 4
+    // Il reconstruit : data = (b1_param << 16) | (b2_param << 8) | b3_param
+    // Où b1_param reçoit notre b3, b2_param notre b2, b3_param notre b1
+    // Donc il faut placer nos données dans les bits 23-4 du mot final
+
     uint32_t data = 0;
     for (int i = 0; i < 20; ++i) {
         if (msg->mouth_image[i]) {
-            data |= (1 << i);  // 🔄 Test: ordre direct au lieu d'inversé
+            data |= (1UL << (23 - i));  // bits 23 à 4 (pas 19 à 0 !)
         }
     }
 
-    // Découpage Arduino : 6 bits + 7 bits + 7 bits = 20 bits
-    uint8_t b1 = data & 0x7F;          // Bottom 7 bits (bits 6-0)
-    uint8_t b2 = (data >> 7) & 0x7F;   // Middle 7 bits (bits 13-7)
-    uint8_t b3 = (data >> 14) & 0x3F;  // Top 6 bits (bits 19-14)
+    // Découpage pour correspondre à la reconstruction Arduino
+    uint8_t b1 = data & 0xFF;           // bits 7-0
+    uint8_t b2 = (data >> 8) & 0xFF;    // bits 15-8
+    uint8_t b3 = (data >> 16) & 0xFF;   // bits 23-16
 
     int code = driver_->setMouth(b3, b2, b1);
     if (code < 0) {
         RCLCPP_ERROR(this->get_logger(), "Unable to send mouth command");
     } else {
-        RCLCPP_DEBUG(this->get_logger(), "Sent mouth pattern (data=0x%05X, b1=%u, b2=%u, b3=%u)", data, b1, b2, b3);
+        RCLCPP_DEBUG(this->get_logger(), "Sent mouth pattern (data=0x%06X, b3=%u, b2=%u, b1=%u)", data, b3, b2, b1);
     }
 }
 

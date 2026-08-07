@@ -24,9 +24,10 @@ class SetNoseColorAction(BaseAction):
         try:
             payload = json.loads(intent.payload_json or "{}")
             color = payload.get("color", 4)  # Vert par défaut
+            duration = payload.get("duration", 2.0)  # 2 secondes par défaut
 
-            self.log_info(f"Setting nose color to {color}")
-            self.display_client.set_nose_color(color)
+            self.log_info(f"Setting nose color to {color} for {duration}s")
+            self.display_client.set_nose_color(color, duration=duration)
             return True
 
         except Exception as e:
@@ -45,8 +46,12 @@ class ShowSmileAction(BaseAction):
 
     def execute(self, intent):
         try:
-            self.log_info("Showing smile")
-            self.display_client.show_smile()
+            payload = json.loads(intent.payload_json or "{}")
+            variant = payload.get("variant", "normal")  # normal, big, wink
+            duration = payload.get("duration", 2.0)  # 2 secondes par défaut
+
+            self.log_info(f"Showing {variant} smile for {duration}s")
+            self.display_client.show_smile(variant=variant, duration=duration)
             return True
 
         except Exception as e:

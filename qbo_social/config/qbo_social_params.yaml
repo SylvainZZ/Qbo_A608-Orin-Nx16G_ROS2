@@ -32,6 +32,24 @@ qbo_social_event_adapter:
     # DIAGNOSTICS PARAMETERS
     # -------------------------------------------------------------------------
 
+    # Clés critiques à extraire depuis /diagnostics
+    # Ces valeurs brutes (Yes/No, Ok/Error, etc.) sont publiées dans SYSTEM_STATE_UPDATED
+    # et utilisées par system_mode_manager pour les règles système
+    diagnostics_critical_keys: ["External Power", "Power PC"]
+
+    # Nœuds/hardware à surveiller (pour référence, géré par DiagnosticsInspector)
+    # Liste des hardware_id attendus dans /diagnostics
+    diagnostics_monitored_nodes:
+      - "qbo_dynamixel"
+      - "orin-nx-16g"
+      - "System"
+      - "Qboard_3"
+      - "Qboard_1"
+      - "Qboard_4"
+      - "Qboard_5"
+      - "LCD"
+      - "qbo_bringup_manager"
+
     # Délai de stabilité avant publication d'un diagnostic
     # Évite les faux positifs en attendant que l'état se stabilise
     diagnostics_stability_delay: 3.0  # secondes
@@ -160,6 +178,12 @@ qbo_system_mode_manager:
 #
 # Pour ajuster un paramètre en ligne de commande:
 #   ros2 run qbo_social behavior_engine --ros-args -p stable_head_stop_delay:=10.0
+#
+# Configuration des diagnostics:
+#   Les clés critiques et la liste des nœuds sont définis directement dans ce fichier
+#   sous qbo_social_event_adapter/diagnostics_critical_keys et diagnostics_monitored_nodes.
+#   Pour ajouter une nouvelle clé critique à surveiller:
+#     diagnostics_critical_keys: ["External Power", "Power PC", "Battery Voltage"]
 #
 # Pour surveiller le behavior engine (DEBUG):
 #   ros2 run qbo_social debug_behavior_state              (affichage standard)

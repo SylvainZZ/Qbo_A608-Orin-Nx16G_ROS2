@@ -1,0 +1,45 @@
+# Objets virtuels — agrégats et abstractions sans entité HA directe
+virtual_objects:
+  - id: all_lights
+    label: "Toutes les lumières"
+    device_class: light
+    area: ""
+    entity_id: ""        # vide = broadcast sur le domaine entier
+    aliases: [toutes les lumieres, toutes les lampes, tout leclairage, lumiere partout]
+    capabilities: [turn_on, turn_off]
+
+  - id: all_covers
+    label: "Tous les volets"
+    device_class: cover
+    area: ""
+    entity_id: ""
+    aliases: [tous les volets, tous les stores, volets partout]
+    capabilities: [open, close, stop]
+
+  - id: heating_frost_all
+    label: "Hors-gel général"
+    device_class: select
+    area: ""
+    entity_id: ""
+    entities:
+      - select.chauffage_chambre_1
+      - select.chauffage_chambre_2
+      - select.chauffage_bureau
+      - select.chauffage_atelier
+    aliases: [mode hors gel, hors gel partout, protection gel, hors gel general]
+    capabilities: [select_option]
+    default_option: "Hors gel"
+
+  - id: comfort_mode_all
+    label: "Mode confort général"
+    device_class: select
+    area: ""
+    entity_id: ""
+    entities:
+      - select.chauffage_chambre_1
+      - select.chauffage_chambre_2
+      - select.chauffage_bureau
+      - select.chauffage_atelier
+    aliases: [mode confort, confort partout, tout en confort]
+    capabilities: [select_option]
+    default_option: "Confort"

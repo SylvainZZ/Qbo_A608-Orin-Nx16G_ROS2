@@ -1,0 +1,59 @@
+# Tests de commandes à risque — vérification des règles de sécurité (Étape 3 + 4)
+tests:
+  - text: "ouvre le portail"
+    expected:
+      intent_type: control
+      action: turn_on
+      entity_id: switch.portail
+      risk_level: 2
+      confirmation_required: true
+      warning: "Je vais ouvrir le portail. Confirmez-vous ?"
+
+  - text: "ouvre la porte du garage"
+    expected:
+      intent_type: control
+      action: turn_on
+      entity_id: switch.porte_garage
+      risk_level: 2
+      confirmation_required: true
+      warning: "Je vais ouvrir la porte du garage. Confirmez-vous ?"
+
+  - text: "éteins toutes les lumières"
+    expected:
+      intent_type: control
+      action: turn_off
+      device_class: light
+      entity_id: ""
+      risk_level: 1
+      confirmation_required: false
+
+  - text: "coupe le cumulus"
+    expected:
+      intent_type: control
+      action: turn_off
+      entity_id: switch.cumulus
+      risk_level: 2
+      confirmation_required: true
+      warning: "Je vais couper le cumulus. Confirmez-vous ?"
+
+  - text: "règle le chauffage à 30 degrés"
+    expected:
+      intent_type: control
+      action: set_temperature
+      device_class: climate
+      parameters:
+        temperature: "30"
+      risk_level: 2
+      confirmation_required: true
+      warning: "La consigne demandée est élevée. Confirmez-vous ?"
+
+  - text: "règle le chauffage à 5 degrés"
+    expected:
+      intent_type: control
+      action: set_temperature
+      device_class: climate
+      parameters:
+        temperature: "5"
+      risk_level: 2
+      confirmation_required: true
+      warning: "La consigne est très basse. Confirmez-vous ?"
