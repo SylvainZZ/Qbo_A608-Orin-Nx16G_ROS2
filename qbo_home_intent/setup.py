@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'knowledge'), glob('knowledge/*')),
-        (os.path.join('share', package_name, 'launch'), glob('tests/*.yaml')),
+        (os.path.join('share', package_name, 'tests'), glob('tests/*.yaml')),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
@@ -28,6 +28,8 @@ setup(
     entry_points={
         'console_scripts': [
             'home_intent = qbo_home_intent.main:main',
+            'ha_entities_sync = qbo_home_intent.ha_entities_sync:main',
+            'runner_tests = qbo_home_intent.runner_tests:main',
         ],
     },
 )
