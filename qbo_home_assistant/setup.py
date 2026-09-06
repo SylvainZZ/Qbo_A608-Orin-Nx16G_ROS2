@@ -20,7 +20,6 @@ setup(
     maintainer_email='contact@konexinc.fr',
     description='ROS2 bridge between the Qbo robot and Home Assistant via WebSocket.',
     license='Apache-2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'ha_bridge = qbo_home_assistant.main:main',

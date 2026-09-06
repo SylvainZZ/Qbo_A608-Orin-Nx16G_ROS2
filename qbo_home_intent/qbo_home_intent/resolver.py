@@ -35,18 +35,22 @@ class HomeResolver:
         entity_id: str = "",
     ) -> list[dict[str, Any]]:
         """Return matching objects ordered by specificity (most specific first)."""
-        # Exact entity_id match is unambiguous
+        # Exact entity_id match is unambiguous — return [] if not found to avoid false fallback
         if entity_id:
             exact = [o for o in self._all if o.get("entity_id") == entity_id]
-            if exact:
-                return exact
+            return exact
 
         candidates = list(self._all)
 
         if area:
             candidates = [o for o in candidates if o.get("area") == area]
         if device_class:
-            candidates = [o for o in candidates if o.get("device_class") == device_class]
+            by_class = [o for o in candidates if o.get("device_class") == device_class]
+            if not by_class:
+                # fallback: match HA domain from entity_id (e.g. device_class='sensor' → 'sensor.*')
+                prefix = device_class + "."
+                by_class = [o for o in candidates if o.get("entity_id", "").startswith(prefix)]
+            candidates = by_class
         if name:
             name_lower = name.lower()
             by_name = [

@@ -1,981 +1,8 @@
 {
-  "generated_at": "2026-08-08T15:44:11.446066+00:00",
-  "total_entities": 613,
-  "total_domains": 34,
+  "generated_at": "2026-09-05T16:26:35.328465+00:00",
+  "total_entities": 402,
+  "total_domains": 4,
   "domains": {
-    "automation": {
-      "count": 31,
-      "entities": [
-        {
-          "entity_id": "automation.chauffage_par_fil_pilote_programme_chambre_1_2",
-          "friendly_name": "🔥🗓️ Service Chauffage Ch.1&2",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1772811504392",
-            "last_triggered": "2026-06-24T14:00:00.003713+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "🔥🗓️ Service Chauffage Ch.1&2"
-          }
-        },
-        {
-          "entity_id": "automation.cuve_eau_pluie_ajout_pluie_fin_de_journee",
-          "friendly_name": "Cuve eau pluie - ajout pluie fin de journée",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1782652691093",
-            "last_triggered": "2026-08-07T21:59:00.409415+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Cuve eau pluie - ajout pluie fin de journée"
-          }
-        },
-        {
-          "entity_id": "automation.cuve_eau_pluie_calibration_manuelle",
-          "friendly_name": "Cuve eau pluie - calibration manuelle",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1782663885879",
-            "last_triggered": "2026-08-05T06:26:48.841957+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Cuve eau pluie - calibration manuelle"
-          }
-        },
-        {
-          "entity_id": "automation.cuve_eau_pluie_memorisation_pluie_confirmee",
-          "friendly_name": "Cuve eau pluie - reset pluie confirmée minuit",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1782652204016",
-            "last_triggered": "2026-08-07T22:00:30.247584+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Cuve eau pluie - reset pluie confirmée minuit"
-          }
-        },
-        {
-          "entity_id": "automation.economiseur_d_eclairage_garage",
-          "friendly_name": "💡🌿 Economiseur d'éclairage garage",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1772028368362",
-            "last_triggered": "2026-08-05T20:40:51.934143+00:00",
-            "mode": "parallel",
-            "current": 0,
-            "max": 50,
-            "friendly_name": "💡🌿 Economiseur d'éclairage garage"
-          }
-        },
-        {
-          "entity_id": "automation.economiseur_d_eclairages_exterieurs",
-          "friendly_name": "💡🌿 Economiseur d'éclairages extérieurs",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1772028492928",
-            "last_triggered": "2026-08-07T23:04:41.122734+00:00",
-            "mode": "parallel",
-            "current": 0,
-            "max": 50,
-            "friendly_name": "💡🌿 Economiseur d'éclairages extérieurs"
-          }
-        },
-        {
-          "entity_id": "automation.eteindre_clim_etage",
-          "friendly_name": "🔥🗓️ Eteindre Clim Etage",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781724335046",
-            "last_triggered": "2026-08-07T21:50:00.473764+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "🔥🗓️ Eteindre Clim Etage"
-          }
-        },
-        {
-          "entity_id": "automation.filtration_piscine_economique",
-          "friendly_name": "🏊‍♂️⚙️ Filtration piscine economique",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1772720652013",
-            "last_triggered": "2026-06-26T08:15:00.358182+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "🏊‍♂️⚙️ Filtration piscine economique"
-          }
-        },
-        {
-          "entity_id": "automation.knx_acquittement_automatique_alarmes_z41pro",
-          "friendly_name": "KNX - Acquittement automatique alarmes Z41Pro",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1782666117512",
-            "last_triggered": "2026-08-03T23:11:13.800847+00:00",
-            "mode": "parallel",
-            "current": 0,
-            "max": 10,
-            "friendly_name": "KNX - Acquittement automatique alarmes Z41Pro"
-          }
-        },
-        {
-          "entity_id": "automation.machine_a_etats_ha_knx",
-          "friendly_name": "Machine à états HA + KNX",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1777447066029",
-            "last_triggered": "2026-08-08T15:44:00.496574+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Machine à états HA + KNX"
-          }
-        },
-        {
-          "entity_id": "automation.off_phare_in_day",
-          "friendly_name": "Off Phare in day and Synch Clock",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781976269918",
-            "last_triggered": "2026-08-08T04:36:56.194347+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Off Phare in day and Synch Clock"
-          }
-        },
-        {
-          "entity_id": "automation.on_phare_in_night",
-          "friendly_name": "On phare in night",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781975976697",
-            "last_triggered": "2026-06-26T19:47:23.547267+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "On phare in night"
-          }
-        },
-        {
-          "entity_id": "automation.securite_cuve_eau_de_pluie_vide",
-          "friendly_name": "Sécurité préventive cuve eau de pluie",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1785081149610",
-            "last_triggered": "2026-07-26T16:31:08.353472+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Sécurité préventive cuve eau de pluie"
-          }
-        },
-        {
-          "entity_id": "automation.service_chauffage_salle_a_manger",
-          "friendly_name": "🔥🗓️ Service Chauffage Coin Jour",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1773219793796",
-            "last_triggered": "2026-08-08T14:34:04.659182+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "🔥🗓️ Service Chauffage Coin Jour"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrant_volets_coin_jour_ferie_presence",
-          "friendly_name": "Service ouvrant volets - Total - Férie/Présence",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1778661594792",
-            "last_triggered": "2026-08-08T08:00:00.329124+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrant volets - Total - Férie/Présence"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrant_volets_coin_jour_hebdomadaire",
-          "friendly_name": "Service ouvrant volets - Coin jour - Hebdomadaire",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1778661448229",
-            "last_triggered": "2026-08-04T05:00:00.015016+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrant volets - Coin jour - Hebdomadaire"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrant_volets_coin_nuit_hebdomadaire",
-          "friendly_name": "Service ouvrant volets - Coin nuit - Hebdomadaire",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1782553692953",
-            "last_triggered": "2026-08-04T05:00:00.003151+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrant volets - Coin nuit - Hebdomadaire"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrant_volets_cuisine_hebdomadaire",
-          "friendly_name": "Service ouvrant volets - Cuisine - Hebdomadaire",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1778664271122",
-            "last_triggered": "2026-08-04T04:30:00.002330+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrant volets - Cuisine - Hebdomadaire"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrant_volets_total_abscence",
-          "friendly_name": "Service ouvrant volets - Total - Abscence",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "id": "1782554296097",
-            "last_triggered": null,
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrant volets - Total - Abscence"
-          }
-        },
-        {
-          "entity_id": "automation.service_ouvrants_gestion_presence_absence",
-          "friendly_name": "Service ouvrants - Gestion présence / absence",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1773408976990",
-            "last_triggered": "2026-08-08T14:34:04.668594+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Service ouvrants - Gestion présence / absence"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_buanderie",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Buanderie",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781782587623",
-            "last_triggered": "2026-08-08T12:05:00.144801+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Buanderie"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_bureau",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant bureau",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1772700066244",
-            "last_triggered": "2026-08-08T11:05:00.257909+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant bureau"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_chambre_1",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Chambre 1",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1783169060519",
-            "last_triggered": "2026-08-08T11:05:00.361079+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Chambre 1"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_chambre_3",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Chambre 3",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781777736269",
-            "last_triggered": "2026-08-07T22:00:00.108822+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Chambre 3"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_couloir_escalier",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant couloir/escalier",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781777331082",
-            "last_triggered": "2026-08-08T12:05:00.431059+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant couloir/escalier"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_cuisine",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Cuisine",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781777511021",
-            "last_triggered": "2026-08-08T12:05:00.241611+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Cuisine"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_entree",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Entrée",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781782484980",
-            "last_triggered": "2026-08-07T22:00:00.069088+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Entrée"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_salle_a_manger",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Salle à manger",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1781777645861",
-            "last_triggered": "2026-08-07T22:00:00.382088+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Salle à manger"
-          }
-        },
-        {
-          "entity_id": "automation.suivi_du_soleil_pour_volet_roulant_salon",
-          "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Salon",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1784972715424",
-            "last_triggered": "2026-08-08T11:05:00.288448+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "☀️🎯 Suivi du soleil pour volet roulant Salon"
-          }
-        },
-        {
-          "entity_id": "automation.top_mail",
-          "friendly_name": "Top mail",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1779456020702",
-            "last_triggered": "2026-08-07T13:00:00.485181+00:00",
-            "mode": "single",
-            "current": 0,
-            "friendly_name": "Top mail"
-          }
-        },
-        {
-          "entity_id": "automation.vmc_buanderie_arret_auto_20_min_manuel",
-          "friendly_name": "VMC buanderie - manuel + cycles 10h/16h (arrêt auto 20 min)",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "id": "1766945951768",
-            "last_triggered": "2026-08-08T14:00:00.101532+00:00",
-            "mode": "restart",
-            "current": 0,
-            "friendly_name": "VMC buanderie - manuel + cycles 10h/16h (arrêt auto 20 min)"
-          }
-        }
-      ]
-    },
-    "binary_sensor": {
-      "count": 41,
-      "entities": [
-        {
-          "entity_id": "binary_sensor.alarme_alarme_incendie",
-          "friendly_name": "Alarme - Alarme incendie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "smoke",
-            "friendly_name": "Alarme - Alarme incendie"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_alarme_technique",
-          "friendly_name": "Alarme technique",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "problem",
-            "friendly_name": "Alarme technique"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_alerte",
-          "friendly_name": "Alerte",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "safety",
-            "friendly_name": "Alerte"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_alerte_silencieuse",
-          "friendly_name": "Alerte silencieuse",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "safety",
-            "friendly_name": "Alerte silencieuse"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_anomalie",
-          "friendly_name": "Anomalie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "problem",
-            "friendly_name": "Anomalie"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_en_arret_totale",
-          "friendly_name": "En arrêt totale",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "running",
-            "friendly_name": "En arrêt totale"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_en_service_groupe_1",
-          "friendly_name": "En service groupe 1",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "running",
-            "friendly_name": "En service groupe 1"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_en_service_groupe_2",
-          "friendly_name": "En service groupe 2",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "running",
-            "friendly_name": "En service groupe 2"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_en_service_totale",
-          "friendly_name": "En service totale",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "running",
-            "friendly_name": "En service totale"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_gel",
-          "friendly_name": "Alarme gel",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.200",
-            "device_class": "cold",
-            "friendly_name": "Alarme gel"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_intrusion",
-          "friendly_name": "Intrusion",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "motion",
-            "friendly_name": "Intrusion"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_intrusion_confirmee",
-          "friendly_name": "Intrusion confirmée",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "motion",
-            "friendly_name": "Intrusion confirmée"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_issue_ouverte",
-          "friendly_name": "Issue ouverte",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "door",
-            "friendly_name": "Issue ouverte"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_pluie",
-          "friendly_name": "Alarme pluie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.200",
-            "device_class": "safety",
-            "friendly_name": "Alarme pluie"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_prealarme_faible",
-          "friendly_name": "Préalarme faible",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "safety",
-            "friendly_name": "Préalarme faible"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_prealarme_forte",
-          "friendly_name": "Préalarme forte",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.1",
-            "device_class": "safety",
-            "friendly_name": "Préalarme forte"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_vent_1",
-          "friendly_name": "Alarme vent.1",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.200",
-            "device_class": "safety",
-            "friendly_name": "Alarme vent.1"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_vent_2",
-          "friendly_name": "Alarme vent.2",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "device_class": "safety",
-            "friendly_name": "Alarme vent.2"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.alarme_vent_3",
-          "friendly_name": "Alarme vent.3",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "device_class": "safety",
-            "friendly_name": "Alarme vent.3"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.forte_luminosite_exterieure",
-          "friendly_name": "Forte luminosité extérieure",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "entity_id": "sensor.luminosite_exterieure",
-            "hysteresis": 0.0,
-            "lower": null,
-            "position": "below",
-            "sensor_value": 5585.92,
-            "type": "upper",
-            "upper": 50000.0,
-            "icon": "mdi:sun-wireless",
-            "friendly_name": "Forte luminosité extérieure"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.garden_tondeuse_depart_de_la_base",
-          "friendly_name": "Tondeuse Départ de la base",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Tondeuse Départ de la base"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.garden_tondeuse_en_charge",
-          "friendly_name": "Tondeuse En charge",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "device_class": "battery_charging",
-            "friendly_name": "Tondeuse En charge"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.iphone_de_fanny_kiosk_mode",
-          "friendly_name": "iPhone de Fanny  Kiosk Mode",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:tablet",
-            "friendly_name": "iPhone de Fanny  Kiosk Mode"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.iphone_de_sylvain_kiosk_mode",
-          "friendly_name": "iPhone de Sylvain Kiosk Mode",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:tablet",
-            "friendly_name": "iPhone de Sylvain Kiosk Mode"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_disk_error",
-          "friendly_name": "Caméra Jardin Disk error",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "last_tripped_time": "2026-08-08T16:33:37.470697",
-            "device_class": "problem",
-            "friendly_name": "Caméra Jardin Disk error"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_field_detection",
-          "friendly_name": "Field detection",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "restored": true,
-            "device_class": "motion",
-            "friendly_name": "Field detection",
-            "supported_features": 0
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_ip_conflict",
-          "friendly_name": "Caméra Jardin IP conflict",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "last_tripped_time": "2026-08-08T16:33:37.470703",
-            "device_class": "problem",
-            "friendly_name": "Caméra Jardin IP conflict"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_line_crossing",
-          "friendly_name": "Line crossing",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "restored": true,
-            "device_class": "motion",
-            "friendly_name": "Line crossing",
-            "supported_features": 0
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_mouvement",
-          "friendly_name": "Mouvement",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "restored": true,
-            "device_class": "motion",
-            "friendly_name": "Mouvement",
-            "supported_features": 0
-          }
-        },
-        {
-          "entity_id": "binary_sensor.network_video_recorder_channel_1_recording_failure",
-          "friendly_name": "Caméra Jardin Recording failure",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "last_tripped_time": "2026-08-08T16:33:37.470709",
-            "device_class": "problem",
-            "friendly_name": "Caméra Jardin Recording failure"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.nuit_station",
-          "friendly_name": "Nuit Station",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "source": "1.1.200",
-            "device_class": "light",
-            "friendly_name": "Nuit Station"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.pluie_confirmee",
-          "friendly_name": "Pluie confirmée",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:weather-pouring",
-            "friendly_name": "Pluie confirmée"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.position_portail",
-          "friendly_name": "Position Portail",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "source": "1.2.8",
-            "device_class": "door",
-            "friendly_name": "Position Portail"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.position_porte_garage",
-          "friendly_name": "Position Porte Garage",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "source": "1.2.9",
-            "device_class": "garage_door",
-            "icon": "mdi:garage-open",
-            "friendly_name": "Position Porte Garage"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.reserve_eau_de_pluie_basse",
-          "friendly_name": "Réserve eau de pluie basse",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "device_class": "problem",
-            "icon": "mdi:water-alert",
-            "friendly_name": "Réserve eau de pluie basse"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.solarflow_1600_ac_plus_heat_state",
-          "friendly_name": "SolarFlow 1600 AC+  chauffage de batterie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "SolarFlow 1600 AC+  chauffage de batterie"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.solarflow_1600_ac_plus_hems_state",
-          "friendly_name": "SolarFlow 1600 AC+  HEMS Active",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "SolarFlow 1600 AC+  HEMS Active"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.solarflow_1600_ac_plus_reverse_state",
-          "friendly_name": "SolarFlow 1600 AC+  Reverse Flow State",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "device_class": "switch",
-            "friendly_name": "SolarFlow 1600 AC+  Reverse Flow State"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.tars_bac_plein",
-          "friendly_name": "Tars  Bac plein",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Tars  Bac plein"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.unnamed_room_en_charge",
-          "friendly_name": "Enceinte nomade En charge",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "device_class": "battery_charging",
-            "friendly_name": "Enceinte nomade En charge"
-          }
-        },
-        {
-          "entity_id": "binary_sensor.unnamed_room_microphone",
-          "friendly_name": "Enceinte nomade Microphone",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Enceinte nomade Microphone"
-          }
-        }
-      ]
-    },
-    "button": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "button.garden_tondeuse_sync_clock",
-          "friendly_name": "Tondeuse Sync clock",
-          "state": "2026-08-08T04:36:56.362714+00:00",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Tondeuse Sync clock"
-          }
-        }
-      ]
-    },
-    "calendar": {
-      "count": 5,
-      "entities": [
-        {
-          "entity_id": "calendar.absence",
-          "friendly_name": "Absence",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Absence",
-            "supported_features": 7
-          }
-        },
-        {
-          "entity_id": "calendar.automatismes",
-          "friendly_name": "Automatismes",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Automatismes",
-            "supported_features": 7
-          }
-        },
-        {
-          "entity_id": "calendar.garden_tondeuse",
-          "friendly_name": "Tondeuse",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "message": "Tondeuse Schedule 1",
-            "all_day": false,
-            "start_time": "2026-08-09 07:00:00",
-            "end_time": "2026-08-09 12:30:00",
-            "location": "",
-            "description": "",
-            "friendly_name": "Tondeuse"
-          }
-        },
-        {
-          "entity_id": "calendar.jours_feries",
-          "friendly_name": "Jours fériés",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "message": "Assomption",
-            "all_day": true,
-            "start_time": "2026-08-15 00:00:00",
-            "end_time": "2026-08-16 00:00:00",
-            "location": "France",
-            "description": "",
-            "friendly_name": "Jours fériés"
-          }
-        },
-        {
-          "entity_id": "calendar.presence",
-          "friendly_name": "Présence",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "message": "Vacances ",
-            "all_day": true,
-            "start_time": "2026-08-04 00:00:00",
-            "end_time": "2026-08-15 00:00:00",
-            "location": "Maison",
-            "description": "Travaux ",
-            "friendly_name": "Présence",
-            "supported_features": 7
-          }
-        }
-      ]
-    },
-    "camera": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "camera.192_168_1_44",
-          "friendly_name": "192_168_1_44",
-          "state": "idle",
-          "area_id": "",
-          "attributes": {
-            "access_token": "dd3ea8fea061eef56219a4ef6aa9616b4dd09df4c1d5efd1ed214f29517561d2",
-            "entity_picture": "/api/camera_proxy/camera.192_168_1_44?token=dd3ea8fea061eef56219a4ef6aa9616b4dd09df4c1d5efd1ed214f29517561d2",
-            "friendly_name": "192_168_1_44",
-            "supported_features": 2
-          }
-        },
-        {
-          "entity_id": "camera.network_video_recorder_channel_1",
-          "friendly_name": "Caméra Jardin",
-          "state": "idle",
-          "area_id": "",
-          "attributes": {
-            "access_token": "7880e64dc1e3447ec127f4a53f7beccfc23699c498f306952c5f1e54a39337f1",
-            "entity_picture": "/api/camera_proxy/camera.network_video_recorder_channel_1?token=7880e64dc1e3447ec127f4a53f7beccfc23699c498f306952c5f1e54a39337f1",
-            "friendly_name": "Caméra Jardin",
-            "supported_features": 2
-          }
-        }
-      ]
-    },
     "climate": {
       "count": 2,
       "entities": [
@@ -1010,7 +37,7 @@
               "on",
               "off"
             ],
-            "current_temperature": 26.6,
+            "current_temperature": 26.9,
             "temperature": 24.0,
             "fan_mode": "off",
             "hvac_action": "off",
@@ -1052,7 +79,7 @@
               "on",
               "off"
             ],
-            "current_temperature": 23.0,
+            "current_temperature": 23.5,
             "temperature": 25.0,
             "fan_mode": "off",
             "hvac_action": "cooling",
@@ -1064,23 +91,8 @@
         }
       ]
     },
-    "conversation": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "conversation.home_assistant",
-          "friendly_name": "Home Assistant",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Home Assistant",
-            "supported_features": 1
-          }
-        }
-      ]
-    },
     "cover": {
-      "count": 14,
+      "count": 15,
       "entities": [
         {
           "entity_id": "cover.porte_garage",
@@ -1100,7 +112,7 @@
           "area_id": "",
           "attributes": {
             "is_closed": false,
-            "current_position": 100,
+            "current_position": 40,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_A_NW Salle à manger",
             "supported_features": 15
@@ -1126,7 +138,7 @@
           "area_id": "",
           "attributes": {
             "is_closed": false,
-            "current_position": 100,
+            "current_position": 40,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_NW Chambre 2",
             "supported_features": 15
@@ -1139,7 +151,7 @@
           "area_id": "",
           "attributes": {
             "is_closed": false,
-            "current_position": 100,
+            "current_position": 40,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_NW Entrée",
             "supported_features": 15
@@ -1211,13 +223,26 @@
           }
         },
         {
+          "entity_id": "cover.volet_roulant_sw_atelier",
+          "friendly_name": "Volet roulant_SW Atelier",
+          "state": "closed",
+          "area_id": "",
+          "attributes": {
+            "is_closed": true,
+            "current_position": 0,
+            "device_class": "shutter",
+            "friendly_name": "Volet roulant_SW Atelier",
+            "supported_features": 15
+          }
+        },
+        {
           "entity_id": "cover.volet_roulant_sw_bureau",
           "friendly_name": "Volet roulant_SW Bureau",
           "state": "open",
           "area_id": "",
           "attributes": {
             "is_closed": false,
-            "current_position": 100,
+            "current_position": 68,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_SW Bureau",
             "supported_features": 15
@@ -1239,11 +264,11 @@
         {
           "entity_id": "cover.volet_roulant_sw_local_tracteur",
           "friendly_name": "Volet roulant_SW Local tracteur",
-          "state": "closed",
+          "state": "open",
           "area_id": "",
           "attributes": {
-            "is_closed": true,
-            "current_position": 0,
+            "is_closed": false,
+            "current_position": 49,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_SW Local tracteur",
             "supported_features": 15
@@ -1256,745 +281,10 @@
           "area_id": "",
           "attributes": {
             "is_closed": false,
-            "current_position": 100,
+            "current_position": 40,
             "device_class": "shutter",
             "friendly_name": "Volet roulant_SW Salon",
             "supported_features": 15
-          }
-        }
-      ]
-    },
-    "device_tracker": {
-      "count": 3,
-      "entities": [
-        {
-          "entity_id": "device_tracker.garden_tondeuse",
-          "friendly_name": "Tondeuse",
-          "state": "not_home",
-          "area_id": "",
-          "attributes": {
-            "in_zones": [],
-            "source_type": "gps",
-            "latitude": 43.6434216,
-            "longitude": 1.0967516,
-            "gps_accuracy": 0,
-            "friendly_name": "Tondeuse"
-          }
-        },
-        {
-          "entity_id": "device_tracker.iphone_de_fanny",
-          "friendly_name": "iPhone de Fanny ",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "in_zones": [],
-            "source_type": "gps",
-            "friendly_name": "iPhone de Fanny "
-          }
-        },
-        {
-          "entity_id": "device_tracker.iphone_de_sylvain",
-          "friendly_name": "iPhone de Sylvain",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "in_zones": [],
-            "source_type": "gps",
-            "battery_level": 55,
-            "friendly_name": "iPhone de Sylvain"
-          }
-        }
-      ]
-    },
-    "event": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "event.backup_automatic_backup",
-          "friendly_name": "Backup Sauvegarde automatique",
-          "state": "2026-08-08T03:20:56.460+00:00",
-          "area_id": "",
-          "attributes": {
-            "event_types": [
-              "completed",
-              "failed",
-              "in_progress"
-            ],
-            "event_type": "completed",
-            "backup_stage": null,
-            "failed_reason": null,
-            "friendly_name": "Backup Sauvegarde automatique"
-          }
-        }
-      ]
-    },
-    "input_boolean": {
-      "count": 14,
-      "entities": [
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_buanderie",
-          "friendly_name": "Armement Protection Solaire Buanderie",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Buanderie"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_bureau",
-          "friendly_name": "Armement Protection Solaire Bureau",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Bureau"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_chambre_1",
-          "friendly_name": "Armement Protection Solaire Chambre 1",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Chambre 1"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_chambre_3",
-          "friendly_name": "Armement Protection Solaire Chambre 3",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Chambre 3"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_couloir",
-          "friendly_name": "Armement Protection Solaire Couloir",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Couloir"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_cuisine",
-          "friendly_name": "Armement Protection Solaire Cuisine",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Cuisine"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_entree",
-          "friendly_name": "Armement Protection Solaire Entrée",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Entrée"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_salle_a_manger",
-          "friendly_name": "Armement Protection Solaire Salle à manger",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Salle à manger"
-          }
-        },
-        {
-          "entity_id": "input_boolean.armement_protection_solaire_salon",
-          "friendly_name": "Armement Protection Solaire Salon",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:shield-sun-outline",
-            "friendly_name": "Armement Protection Solaire Salon"
-          }
-        },
-        {
-          "entity_id": "input_boolean.fausse_filtration_piscine",
-          "friendly_name": "Fausse filtration piscine",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:pump",
-            "friendly_name": "Fausse filtration piscine"
-          }
-        },
-        {
-          "entity_id": "input_boolean.faux_soleil",
-          "friendly_name": "Faux Soleil",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:emoticon-cool",
-            "friendly_name": "Faux Soleil"
-          }
-        },
-        {
-          "entity_id": "input_boolean.fermer_la_cuisine_le_soir",
-          "friendly_name": "Fermer la cuisine au crépuscule ?",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:help-circle",
-            "friendly_name": "Fermer la cuisine au crépuscule ?"
-          }
-        },
-        {
-          "entity_id": "input_boolean.ouvrir_cuisine_le_matin",
-          "friendly_name": "Ouvrir cuisine à l'aube ?",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "icon": "mdi:help-circle",
-            "friendly_name": "Ouvrir cuisine à l'aube ?"
-          }
-        },
-        {
-          "entity_id": "input_boolean.pluie_confirmee_aujourd_hui",
-          "friendly_name": "Pluie confirmée aujourd'hui",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": false,
-            "icon": "mdi:weather-rainy",
-            "friendly_name": "Pluie confirmée aujourd'hui"
-          }
-        }
-      ]
-    },
-    "input_button": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "input_button.cuve_pleine",
-          "friendly_name": "Cuve pleine",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": false,
-            "icon": "mdi:storage-tank",
-            "friendly_name": "Cuve pleine"
-          }
-        },
-        {
-          "entity_id": "input_button.cuve_vide",
-          "friendly_name": "Cuve vide",
-          "state": "2026-08-05T06:26:48.840873+00:00",
-          "area_id": "",
-          "attributes": {
-            "editable": false,
-            "icon": "mdi:storage-tank-outline",
-            "friendly_name": "Cuve vide"
-          }
-        }
-      ]
-    },
-    "input_datetime": {
-      "count": 6,
-      "entities": [
-        {
-          "entity_id": "input_datetime.dernier_ajout_pluie_cuve",
-          "friendly_name": "Dernier ajout pluie cuve",
-          "state": "2026-08-03 23:59:00",
-          "area_id": "",
-          "attributes": {
-            "has_date": true,
-            "has_time": true,
-            "editable": false,
-            "year": 2026,
-            "month": 8,
-            "day": 3,
-            "hour": 23,
-            "minute": 59,
-            "second": 0,
-            "timestamp": 1785794340.0,
-            "icon": "mdi:calendar-plus",
-            "friendly_name": "Dernier ajout pluie cuve"
-          }
-        },
-        {
-          "entity_id": "input_datetime.derniere_calibration_cuve",
-          "friendly_name": "Dernière calibration cuve",
-          "state": "2026-08-05 08:26:48",
-          "area_id": "",
-          "attributes": {
-            "has_date": true,
-            "has_time": true,
-            "editable": false,
-            "year": 2026,
-            "month": 8,
-            "day": 5,
-            "hour": 8,
-            "minute": 26,
-            "second": 48,
-            "timestamp": 1785911208.0,
-            "icon": "mdi:calendar-check",
-            "friendly_name": "Dernière calibration cuve"
-          }
-        },
-        {
-          "entity_id": "input_datetime.heure_fermeture_coin_jour_ferie",
-          "friendly_name": "Heure fermeture - Coin jour - Ferié",
-          "state": "22:00:00",
-          "area_id": "",
-          "attributes": {
-            "has_date": false,
-            "has_time": true,
-            "editable": true,
-            "hour": 22,
-            "minute": 0,
-            "second": 0,
-            "timestamp": 79200,
-            "icon": "mdi:arrow-down-bold-box",
-            "friendly_name": "Heure fermeture - Coin jour - Ferié"
-          }
-        },
-        {
-          "entity_id": "input_datetime.heure_fermeture_cuisine_absence",
-          "friendly_name": "heure fermeture cuisine absence/presence",
-          "state": "22:00:00",
-          "area_id": "",
-          "attributes": {
-            "has_date": false,
-            "has_time": true,
-            "editable": true,
-            "hour": 22,
-            "minute": 0,
-            "second": 0,
-            "timestamp": 79200,
-            "friendly_name": "heure fermeture cuisine absence/presence"
-          }
-        },
-        {
-          "entity_id": "input_datetime.heure_ouverture_coin_jour_ferie",
-          "friendly_name": "Heure ouverture - Coin jour - Ferié",
-          "state": "08:00:00",
-          "area_id": "",
-          "attributes": {
-            "has_date": false,
-            "has_time": true,
-            "editable": true,
-            "hour": 8,
-            "minute": 0,
-            "second": 0,
-            "timestamp": 28800,
-            "icon": "mdi:arrow-up-bold-box",
-            "friendly_name": "Heure ouverture - Coin jour - Ferié"
-          }
-        },
-        {
-          "entity_id": "input_datetime.heure_ouverture_cuisine_absence",
-          "friendly_name": "heure ouverture cuisine absence/presence",
-          "state": "08:00:00",
-          "area_id": "",
-          "attributes": {
-            "has_date": false,
-            "has_time": true,
-            "editable": true,
-            "hour": 8,
-            "minute": 0,
-            "second": 0,
-            "timestamp": 28800,
-            "friendly_name": "heure ouverture cuisine absence/presence"
-          }
-        }
-      ]
-    },
-    "input_number": {
-      "count": 18,
-      "entities": [
-        {
-          "entity_id": "input_number.cap_de_la_maison",
-          "friendly_name": "Cap de la maison",
-          "state": "-15.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": -22.0,
-            "max": 22.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "°",
-            "icon": "mdi:ferry",
-            "friendly_name": "Cap de la maison"
-          }
-        },
-        {
-          "entity_id": "input_number.capacite_cuve_eau_pluie",
-          "friendly_name": "Capacité cuve eau de pluie",
-          "state": "5000.0",
-          "area_id": "",
-          "attributes": {
-            "initial": 5000.0,
-            "editable": false,
-            "min": 0.0,
-            "max": 10000.0,
-            "step": 100.0,
-            "mode": "slider",
-            "unit_of_measurement": "L",
-            "icon": "mdi:storage-tank",
-            "friendly_name": "Capacité cuve eau de pluie"
-          }
-        },
-        {
-          "entity_id": "input_number.consigne_confort_chaud_sam",
-          "friendly_name": "Consigne confort chaud SAM",
-          "state": "21.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 15.0,
-            "max": 25.0,
-            "step": 0.5,
-            "mode": "box",
-            "unit_of_measurement": "°C",
-            "icon": "mdi:sun-thermometer",
-            "friendly_name": "Consigne confort chaud SAM"
-          }
-        },
-        {
-          "entity_id": "input_number.consigne_confort_froid_sam",
-          "friendly_name": "Consigne confort froid SAM",
-          "state": "24.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 20.0,
-            "max": 30.0,
-            "step": 0.5,
-            "mode": "box",
-            "unit_of_measurement": "°C",
-            "icon": "mdi:snowflake-thermometer",
-            "friendly_name": "Consigne confort froid SAM"
-          }
-        },
-        {
-          "entity_id": "input_number.consigne_eco_chaud_sam",
-          "friendly_name": "Consigne éco chaud SAM",
-          "state": "19.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 15.0,
-            "max": 25.0,
-            "step": 0.5,
-            "mode": "box",
-            "unit_of_measurement": "°C",
-            "icon": "mdi:sun-thermometer",
-            "friendly_name": "Consigne éco chaud SAM"
-          }
-        },
-        {
-          "entity_id": "input_number.consigne_eco_froid_sam",
-          "friendly_name": "Consigne éco froid SAM",
-          "state": "26.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 20.0,
-            "max": 30.0,
-            "step": 0.5,
-            "mode": "box",
-            "unit_of_measurement": "°C",
-            "icon": "mdi:snowflake-thermometer",
-            "friendly_name": "Consigne éco froid SAM"
-          }
-        },
-        {
-          "entity_id": "input_number.hems_edf_ema",
-          "friendly_name": "hems_edf_ema",
-          "state": "420.5",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": -500.0,
-            "max": 500.0,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "W",
-            "friendly_name": "hems_edf_ema"
-          }
-        },
-        {
-          "entity_id": "input_number.hems_prev_export_kwh",
-          "friendly_name": "hems_prev_export_kwh",
-          "state": "72397.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 9999999.0,
-            "step": 0.001,
-            "mode": "box",
-            "unit_of_measurement": "kWh",
-            "friendly_name": "hems_prev_export_kwh"
-          }
-        },
-        {
-          "entity_id": "input_number.hems_prev_import_kwh",
-          "friendly_name": "hems_prev_import_kwh",
-          "state": "30185.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 9999999.0,
-            "step": 0.001,
-            "mode": "box",
-            "unit_of_measurement": "kWh",
-            "friendly_name": "hems_prev_import_kwh"
-          }
-        },
-        {
-          "entity_id": "input_number.hems_state",
-          "friendly_name": "hems_state",
-          "state": "2.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 2.0,
-            "step": 1.0,
-            "mode": "slider",
-            "friendly_name": "hems_state"
-          }
-        },
-        {
-          "entity_id": "input_number.position_absence",
-          "friendly_name": "position absence",
-          "state": "0.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 100.0,
-            "step": 1.0,
-            "mode": "slider",
-            "friendly_name": "position absence"
-          }
-        },
-        {
-          "entity_id": "input_number.position_fermeture_ouvrant",
-          "friendly_name": "Position fermeture ouvrant",
-          "state": "0.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 100.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "%",
-            "icon": "mdi:roller-shade-closed",
-            "friendly_name": "Position fermeture ouvrant"
-          }
-        },
-        {
-          "entity_id": "input_number.position_ouverture_ouvrant",
-          "friendly_name": "Position ouverture ouvrant",
-          "state": "100.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 100.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "%",
-            "icon": "mdi:window-shutter-open",
-            "friendly_name": "Position ouverture ouvrant"
-          }
-        },
-        {
-          "entity_id": "input_number.position_volet_en_absence",
-          "friendly_name": "Position volet en absence",
-          "state": "0.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 100.0,
-            "step": 1.0,
-            "mode": "slider",
-            "icon": "mdi:abugida-thai",
-            "friendly_name": "Position volet en absence"
-          }
-        },
-        {
-          "entity_id": "input_number.rendement_recuperation_pluie",
-          "friendly_name": "Rendement récupération pluie",
-          "state": "70.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": false,
-            "min": 0.0,
-            "max": 100.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "%",
-            "icon": "mdi:water-percent",
-            "friendly_name": "Rendement récupération pluie"
-          }
-        },
-        {
-          "entity_id": "input_number.surface_toiture",
-          "friendly_name": "Surface toiture",
-          "state": "181.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": false,
-            "min": 0.0,
-            "max": 500.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "m²",
-            "icon": "mdi:home-roof",
-            "friendly_name": "Surface toiture"
-          }
-        },
-        {
-          "entity_id": "input_number.temps_de_filtration_restant",
-          "friendly_name": "Temps de filtration restant",
-          "state": "671.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": true,
-            "min": 0.0,
-            "max": 1500.0,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "min",
-            "icon": "mdi:timer-sand",
-            "friendly_name": "Temps de filtration restant"
-          }
-        },
-        {
-          "entity_id": "input_number.volume_eau_pluie_estime",
-          "friendly_name": "Volume eau pluie estimé (base)",
-          "state": "0.0",
-          "area_id": "",
-          "attributes": {
-            "initial": null,
-            "editable": false,
-            "min": 0.0,
-            "max": 10000.0,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "L",
-            "icon": "mdi:water",
-            "friendly_name": "Volume eau pluie estimé (base)"
-          }
-        }
-      ]
-    },
-    "input_select": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "input_select.etat_systeme",
-          "friendly_name": "État système",
-          "state": "2 - HA lancé / KNX connecté",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "0 - HA arrêté",
-              "1 - HA lancé / KNX déconnecté",
-              "2 - HA lancé / KNX connecté"
-            ],
-            "editable": false,
-            "friendly_name": "État système"
-          }
-        },
-        {
-          "entity_id": "input_select.override_chauffage",
-          "friendly_name": "Forçage chauffage SAM",
-          "state": "Auto",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "Auto",
-              "Confort",
-              "Eco"
-            ],
-            "editable": true,
-            "icon": "mdi:hand-back-right",
-            "friendly_name": "Forçage chauffage SAM"
-          }
-        }
-      ]
-    },
-    "input_text": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "input_text.mot",
-          "friendly_name": "mot",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "min": 0,
-            "max": 4,
-            "pattern": null,
-            "mode": "password",
-            "icon": "mdi:grid",
-            "friendly_name": "mot"
-          }
-        }
-      ]
-    },
-    "lawn_mower": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "lawn_mower.garden_tondeuse",
-          "friendly_name": "Tondeuse",
-          "state": "docked",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Tondeuse",
-            "supported_features": 7
           }
         }
       ]
@@ -2021,13 +311,13 @@
         {
           "entity_id": "light.appliques_cuisine",
           "friendly_name": "Cuisine Appliques",
-          "state": "off",
+          "state": "on",
           "area_id": "",
           "attributes": {
             "supported_color_modes": [
               "onoff"
             ],
-            "color_mode": null,
+            "color_mode": "onoff",
             "icon": "mdi:lightbulb",
             "friendly_name": "Cuisine Appliques",
             "supported_features": 0
@@ -2353,13 +643,13 @@
         {
           "entity_id": "light.spots_cuisine",
           "friendly_name": "Cuisine Spots",
-          "state": "off",
+          "state": "on",
           "area_id": "",
           "attributes": {
             "supported_color_modes": [
               "onoff"
             ],
-            "color_mode": null,
+            "color_mode": "onoff",
             "icon": "mdi:lightbulb",
             "friendly_name": "Cuisine Spots",
             "supported_features": 0
@@ -2397,622 +687,8 @@
         }
       ]
     },
-    "media_player": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "media_player.piece_a_vivre",
-          "friendly_name": "Bureau",
-          "state": "paused",
-          "area_id": "",
-          "attributes": {
-            "group_members": [
-              "media_player.piece_a_vivre"
-            ],
-            "volume_level": 0.18,
-            "is_volume_muted": false,
-            "media_content_type": "music",
-            "media_position": 28,
-            "media_position_updated_at": "2026-08-08T15:05:45.253102+00:00",
-            "media_title": "Poet's Corner",
-            "media_channel": "Poet's Corner",
-            "shuffle": false,
-            "repeat": "off",
-            "device_class": "speaker",
-            "friendly_name": "Bureau",
-            "supported_features": 8321599
-          }
-        },
-        {
-          "entity_id": "media_player.unnamed_room",
-          "friendly_name": "Enceinte nomade",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "device_class": "speaker",
-            "friendly_name": "Enceinte nomade",
-            "supported_features": 8321599
-          }
-        }
-      ]
-    },
-    "notify": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "notify.iphone_de_fanny",
-          "friendly_name": "iPhone de Fanny ",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "iPhone de Fanny ",
-            "supported_features": 1
-          }
-        },
-        {
-          "entity_id": "notify.iphone_de_sylvain",
-          "friendly_name": "iPhone de Sylvain",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "iPhone de Sylvain",
-            "supported_features": 1
-          }
-        }
-      ]
-    },
-    "number": {
-      "count": 12,
-      "entities": [
-        {
-          "entity_id": "number.garden_tondeuse_cutting_height",
-          "friendly_name": "Tondeuse Cutting height",
-          "state": "5",
-          "area_id": "",
-          "attributes": {
-            "min": 1,
-            "max": 9,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Tondeuse Cutting height"
-          }
-        },
-        {
-          "entity_id": "number.piece_a_vivre_aigues",
-          "friendly_name": "Bureau Aigües",
-          "state": "0",
-          "area_id": "",
-          "attributes": {
-            "min": -10,
-            "max": 10,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Bureau Aigües"
-          }
-        },
-        {
-          "entity_id": "number.piece_a_vivre_balance",
-          "friendly_name": "Bureau Balance",
-          "state": "0",
-          "area_id": "",
-          "attributes": {
-            "min": -100,
-            "max": 100,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Bureau Balance"
-          }
-        },
-        {
-          "entity_id": "number.piece_a_vivre_basses",
-          "friendly_name": "Bureau Basses",
-          "state": "0",
-          "area_id": "",
-          "attributes": {
-            "min": -10,
-            "max": 10,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Bureau Basses"
-          }
-        },
-        {
-          "entity_id": "number.solarflow_1600_ac_plus_input_limit",
-          "friendly_name": "SolarFlow 1600 AC+  Limite d'entrée",
-          "state": "0.0",
-          "area_id": "",
-          "attributes": {
-            "min": 0,
-            "max": 1600,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "W",
-            "device_class": "power",
-            "friendly_name": "SolarFlow 1600 AC+  Limite d'entrée"
-          }
-        },
-        {
-          "entity_id": "number.solarflow_1600_ac_plus_min_soc",
-          "friendly_name": "SolarFlow 1600 AC+  SOC minimum",
-          "state": "20.0",
-          "area_id": "",
-          "attributes": {
-            "min": 0,
-            "max": 100,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "%",
-            "device_class": "soc",
-            "friendly_name": "SolarFlow 1600 AC+  SOC minimum"
-          }
-        },
-        {
-          "entity_id": "number.solarflow_1600_ac_plus_output_limit",
-          "friendly_name": "SolarFlow 1600 AC+  Limite de sortie",
-          "state": "623.0",
-          "area_id": "",
-          "attributes": {
-            "min": 0,
-            "max": 1600,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "W",
-            "device_class": "power",
-            "friendly_name": "SolarFlow 1600 AC+  Limite de sortie"
-          }
-        },
-        {
-          "entity_id": "number.solarflow_1600_ac_plus_soc_set",
-          "friendly_name": "SolarFlow 1600 AC+  SOC maximum",
-          "state": "100.0",
-          "area_id": "",
-          "attributes": {
-            "min": 0,
-            "max": 100,
-            "step": 1.0,
-            "mode": "slider",
-            "unit_of_measurement": "%",
-            "device_class": "soc",
-            "friendly_name": "SolarFlow 1600 AC+  SOC maximum"
-          }
-        },
-        {
-          "entity_id": "number.unnamed_room_aigues",
-          "friendly_name": "Enceinte nomade Aigües",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "min": -10,
-            "max": 10,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Enceinte nomade Aigües"
-          }
-        },
-        {
-          "entity_id": "number.unnamed_room_balance",
-          "friendly_name": "Enceinte nomade Balance",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "min": -100,
-            "max": 100,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Enceinte nomade Balance"
-          }
-        },
-        {
-          "entity_id": "number.unnamed_room_basses",
-          "friendly_name": "Enceinte nomade Basses",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "min": -10,
-            "max": 10,
-            "step": 1.0,
-            "mode": "auto",
-            "friendly_name": "Enceinte nomade Basses"
-          }
-        },
-        {
-          "entity_id": "number.zendure_manager_manual_power",
-          "friendly_name": "Zendure Manager Puissance manuelle",
-          "state": "400",
-          "area_id": "",
-          "attributes": {
-            "min": -12000,
-            "max": 12000,
-            "step": 1.0,
-            "mode": "box",
-            "unit_of_measurement": "W",
-            "device_class": "power",
-            "friendly_name": "Zendure Manager Puissance manuelle"
-          }
-        }
-      ]
-    },
-    "person": {
-      "count": 4,
-      "entities": [
-        {
-          "entity_id": "person.konexinc",
-          "friendly_name": "KONEXINC",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "id": "konexinc",
-            "device_trackers": [],
-            "in_zones": [],
-            "user_id": "45c5d3e51d7241b3807045b32eb72642",
-            "friendly_name": "KONEXINC"
-          }
-        },
-        {
-          "entity_id": "person.sylvain",
-          "friendly_name": "Sylvain",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "id": "sylvain",
-            "device_trackers": [
-              "device_tracker.iphone_de_sylvain"
-            ],
-            "in_zones": [],
-            "user_id": "96aa3d91a56d4ad1a7c4f4e5c5a455c2",
-            "entity_picture": "/api/image/serve/72d4a7f95e97a123c3d5d1f9c7fc648c/512x512",
-            "friendly_name": "Sylvain"
-          }
-        },
-        {
-          "entity_id": "person.viguerie",
-          "friendly_name": "Fanny",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "id": "viguerie",
-            "device_trackers": [
-              "device_tracker.iphone_de_fanny"
-            ],
-            "in_zones": [],
-            "user_id": "443602ab09274d639869ddab57ae992e",
-            "entity_picture": "/api/image/serve/b6112ffd9233aa61ad77c8ff4cda5b78/512x512",
-            "friendly_name": "Fanny"
-          }
-        },
-        {
-          "entity_id": "person.zendure",
-          "friendly_name": "Zendure",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "id": "zendure",
-            "device_trackers": [],
-            "in_zones": [],
-            "user_id": "1a32eed404c042a9bfb3fd71bf50216b",
-            "friendly_name": "Zendure"
-          }
-        }
-      ]
-    },
-    "scene": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "scene.depart",
-          "friendly_name": "Scène Départ Maison",
-          "state": "2026-07-23T04:03:03.695147+00:00",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Scène Départ Maison"
-          }
-        }
-      ]
-    },
-    "schedule": {
-      "count": 6,
-      "entities": [
-        {
-          "entity_id": "schedule.chauffage_salle_a_manger_2",
-          "friendly_name": "Planning confort chauffage Salle à Manger",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-08T22:00:00+02:00",
-            "icon": "mdi:calendar-multiselect",
-            "friendly_name": "Planning confort chauffage Salle à Manger"
-          }
-        },
-        {
-          "entity_id": "schedule.planning_chauffage_ch1_2",
-          "friendly_name": "Planning Confort Chauffage Ch1&2",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-10T05:30:00+02:00",
-            "icon": "mdi:calendar-multiselect-outline",
-            "friendly_name": "Planning Confort Chauffage Ch1&2"
-          }
-        },
-        {
-          "entity_id": "schedule.planning_fermeture_bureau",
-          "friendly_name": "Planning ouvrant coin jour",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-08T22:00:00+02:00",
-            "icon": "mdi:calendar-multiselect-outline",
-            "friendly_name": "Planning ouvrant coin jour"
-          }
-        },
-        {
-          "entity_id": "schedule.planning_fermeture_escalier",
-          "friendly_name": "Planning Ouvrant Cuisine",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-08T22:00:00+02:00",
-            "icon": "mdi:calendar-multiselect-outline",
-            "friendly_name": "Planning Ouvrant Cuisine"
-          }
-        },
-        {
-          "entity_id": "schedule.planning_ouvrant_coin_nuit",
-          "friendly_name": "Planning ouvrant coin nuit",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-08T22:00:00+02:00",
-            "icon": "mdi:calendar-multiselect-outline",
-            "friendly_name": "Planning ouvrant coin nuit"
-          }
-        },
-        {
-          "entity_id": "schedule.planning_volets_roulants_ch1_2",
-          "friendly_name": "Planning Volets Roulants Ch1 & 2 ",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "editable": true,
-            "next_event": "2026-08-08T22:00:00+02:00",
-            "icon": "mdi:calendar-multiselect-outline",
-            "friendly_name": "Planning Volets Roulants Ch1 & 2 "
-          }
-        }
-      ]
-    },
-    "script": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "script.extinction_generale",
-          "friendly_name": "Extinction générale",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "last_triggered": null,
-            "mode": "single",
-            "current": 0,
-            "icon": "mdi:lightbulb-multiple-off-outline",
-            "friendly_name": "Extinction générale"
-          }
-        }
-      ]
-    },
-    "select": {
-      "count": 13,
-      "entities": [
-        {
-          "entity_id": "select.chauffage_atelier",
-          "friendly_name": "Chauffage Atelier",
-          "state": "Off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "Off",
-              "Confort",
-              "Eco",
-              "Hors gel"
-            ],
-            "icon": "mdi:radiator",
-            "friendly_name": "Chauffage Atelier"
-          }
-        },
-        {
-          "entity_id": "select.chauffage_bureau",
-          "friendly_name": "Chauffage Bureau",
-          "state": "Off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "Off",
-              "Confort",
-              "Eco",
-              "Hors gel"
-            ],
-            "icon": "mdi:radiator",
-            "friendly_name": "Chauffage Bureau"
-          }
-        },
-        {
-          "entity_id": "select.chauffage_chambre_1",
-          "friendly_name": "Chauffage Chambre 1",
-          "state": "Off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "Off",
-              "Confort",
-              "Eco",
-              "Hors gel"
-            ],
-            "icon": "mdi:radiator",
-            "friendly_name": "Chauffage Chambre 1"
-          }
-        },
-        {
-          "entity_id": "select.chauffage_chambre_2",
-          "friendly_name": "Chauffage Chambre 2",
-          "state": "Off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "Off",
-              "Confort",
-              "Eco",
-              "Hors gel"
-            ],
-            "icon": "mdi:radiator",
-            "friendly_name": "Chauffage Chambre 2"
-          }
-        },
-        {
-          "entity_id": "select.garden_tondeuse_phares",
-          "friendly_name": "Tondeuse Phares",
-          "state": "always_off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "always_off",
-              "always_on",
-              "evening_and_night",
-              "evening_only"
-            ],
-            "friendly_name": "Tondeuse Phares"
-          }
-        },
-        {
-          "entity_id": "select.hulkbuster_animation",
-          "friendly_name": "HulkBuster Animation",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "off",
-              "reactor",
-              "alert"
-            ],
-            "icon": "mdi:led-strip-variant",
-            "friendly_name": "HulkBuster Animation"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_ac_mode",
-          "friendly_name": "SolarFlow 1600 AC+  Mode de fonctionnement AC",
-          "state": "output",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "input",
-              "output"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  Mode de fonctionnement AC"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_connection",
-          "friendly_name": "SolarFlow 1600 AC+  Mode de connexion",
-          "state": "zenSDK",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "cloud",
-              "zenSDK"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  Mode de connexion"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_fanspeed",
-          "friendly_name": "SolarFlow 1600 AC+  Ventilateur vitesse",
-          "state": "auto",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "auto",
-              "normal",
-              "fast"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  Ventilateur vitesse"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_fuse_group",
-          "friendly_name": "SolarFlow 1600 AC+  groupe de fusible de l'appareil",
-          "state": "owncircuit",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "unused",
-              "owncircuit",
-              "group800",
-              "group800_2400",
-              "group1200",
-              "group2000",
-              "group2400",
-              "group3600"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  groupe de fusible de l'appareil"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_grid_off_mode",
-          "friendly_name": "SolarFlow 1600 AC+  Mode Hors-Réseau",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "normal",
-              "eco",
-              "off"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  Mode Hors-Réseau"
-          }
-        },
-        {
-          "entity_id": "select.solarflow_1600_ac_plus_grid_reverse",
-          "friendly_name": "SolarFlow 1600 AC+  Exportation d'énergie",
-          "state": "forbidden",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "disabled",
-              "allow",
-              "forbidden"
-            ],
-            "friendly_name": "SolarFlow 1600 AC+  Exportation d'énergie"
-          }
-        },
-        {
-          "entity_id": "select.zendure_manager_operation",
-          "friendly_name": "Zendure Manager Mode de fonctionnement",
-          "state": "smart_charging",
-          "area_id": "",
-          "attributes": {
-            "options": [
-              "off",
-              "manual",
-              "smart",
-              "smart_discharging",
-              "smart_charging",
-              "store_solar"
-            ],
-            "friendly_name": "Zendure Manager Mode de fonctionnement"
-          }
-        }
-      ]
-    },
     "sensor": {
-      "count": 364,
+      "count": 359,
       "entities": [
         {
           "entity_id": "sensor.31_weather_alert",
@@ -3020,10 +696,10 @@
           "state": "Jaune",
           "area_id": "",
           "attributes": {
-            "Orages": "Jaune",
             "Canicule": "Jaune",
             "Vent violent": "Vert",
             "Pluie-inondation": "Vert",
+            "Orages": "Vert",
             "Neige-verglas": "Vert",
             "Inondation": "Vert",
             "attribution": "Data provided by Météo-France",
@@ -3034,7 +710,7 @@
         {
           "entity_id": "sensor.ab2000_01156_batcur",
           "friendly_name": "AB2000 01156 Intensité",
-          "state": "-5.6",
+          "state": "-6.7",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3046,7 +722,7 @@
         {
           "entity_id": "sensor.ab2000_01156_delta_voltage",
           "friendly_name": "AB2000 01156 Delta tension",
-          "state": "0.01",
+          "state": "0.05",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3070,7 +746,7 @@
         {
           "entity_id": "sensor.ab2000_01156_max_vol",
           "friendly_name": "AB2000 01156 Tension maximale",
-          "state": "3.31",
+          "state": "3.36",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3082,7 +758,7 @@
         {
           "entity_id": "sensor.ab2000_01156_min_vol",
           "friendly_name": "AB2000 01156 Tension minimale",
-          "state": "3.3",
+          "state": "3.31",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3103,7 +779,7 @@
         {
           "entity_id": "sensor.ab2000_01156_power",
           "friendly_name": "AB2000 01156 Puissance",
-          "state": "277",
+          "state": "334",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3115,7 +791,7 @@
         {
           "entity_id": "sensor.ab2000_01156_soc_level",
           "friendly_name": "AB2000 01156 Niveau de charge",
-          "state": "75",
+          "state": "99",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3145,7 +821,7 @@
         {
           "entity_id": "sensor.ab2000_01156_total_vol",
           "friendly_name": "AB2000 01156 Tension totale",
-          "state": "49.6",
+          "state": "49.9",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3157,7 +833,7 @@
         {
           "entity_id": "sensor.ab2000_07385_batcur",
           "friendly_name": "AB2000 07385 Intensité",
-          "state": "-2.8",
+          "state": "-5.5",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3169,7 +845,7 @@
         {
           "entity_id": "sensor.ab2000_07385_delta_voltage",
           "friendly_name": "AB2000 07385 Delta tension",
-          "state": "0.01",
+          "state": "0.06",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3181,7 +857,7 @@
         {
           "entity_id": "sensor.ab2000_07385_max_temp",
           "friendly_name": "AB2000 07385 Température maximale",
-          "state": "31.0",
+          "state": "33.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3193,7 +869,7 @@
         {
           "entity_id": "sensor.ab2000_07385_max_vol",
           "friendly_name": "AB2000 07385 Tension maximale",
-          "state": "3.31",
+          "state": "3.37",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3205,7 +881,7 @@
         {
           "entity_id": "sensor.ab2000_07385_min_vol",
           "friendly_name": "AB2000 07385 Tension minimale",
-          "state": "3.3",
+          "state": "3.31",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3226,7 +902,7 @@
         {
           "entity_id": "sensor.ab2000_07385_power",
           "friendly_name": "AB2000 07385 Puissance",
-          "state": "138",
+          "state": "275",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3238,7 +914,7 @@
         {
           "entity_id": "sensor.ab2000_07385_soc_level",
           "friendly_name": "AB2000 07385 Niveau de charge",
-          "state": "77",
+          "state": "99",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3268,7 +944,7 @@
         {
           "entity_id": "sensor.ab2000_07385_total_vol",
           "friendly_name": "AB2000 07385 Tension totale",
-          "state": "49.6",
+          "state": "50.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3280,7 +956,7 @@
         {
           "entity_id": "sensor.ab2000_11090_batcur",
           "friendly_name": "AB2000 11090 Intensité",
-          "state": "-3.7",
+          "state": "-6.2",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3292,7 +968,7 @@
         {
           "entity_id": "sensor.ab2000_11090_delta_voltage",
           "friendly_name": "AB2000 11090 Delta tension",
-          "state": "0.01",
+          "state": "0.03",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3304,7 +980,7 @@
         {
           "entity_id": "sensor.ab2000_11090_max_temp",
           "friendly_name": "AB2000 11090 Température maximale",
-          "state": "33.0",
+          "state": "34.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3316,7 +992,7 @@
         {
           "entity_id": "sensor.ab2000_11090_max_vol",
           "friendly_name": "AB2000 11090 Tension maximale",
-          "state": "3.31",
+          "state": "3.35",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3328,7 +1004,7 @@
         {
           "entity_id": "sensor.ab2000_11090_min_vol",
           "friendly_name": "AB2000 11090 Tension minimale",
-          "state": "3.3",
+          "state": "3.32",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3349,7 +1025,7 @@
         {
           "entity_id": "sensor.ab2000_11090_power",
           "friendly_name": "AB2000 11090 Puissance",
-          "state": "183",
+          "state": "309",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3361,7 +1037,7 @@
         {
           "entity_id": "sensor.ab2000_11090_soc_level",
           "friendly_name": "AB2000 11090 Niveau de charge",
-          "state": "76",
+          "state": "99",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3391,7 +1067,7 @@
         {
           "entity_id": "sensor.ab2000_11090_total_vol",
           "friendly_name": "AB2000 11090 Tension totale",
-          "state": "49.5",
+          "state": "49.9",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -3420,7 +1096,7 @@
         {
           "entity_id": "sensor.backup_last_attempted_automatic_backup",
           "friendly_name": "Backup Dernière tentative de sauvegarde automatique",
-          "state": "2026-08-08T03:04:05+00:00",
+          "state": "2026-09-05T03:43:29+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -3430,7 +1106,7 @@
         {
           "entity_id": "sensor.backup_last_successful_automatic_backup",
           "friendly_name": "Backup Dernière sauvegarde automatique réussie",
-          "state": "2026-08-08T03:20:56+00:00",
+          "state": "2026-09-05T04:01:43+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -3440,7 +1116,7 @@
         {
           "entity_id": "sensor.backup_next_scheduled_automatic_backup",
           "friendly_name": "Backup Prochaine sauvegarde automatique programmée",
-          "state": "2026-08-09T03:18:32+00:00",
+          "state": "2026-09-06T03:32:40+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -3450,7 +1126,7 @@
         {
           "entity_id": "sensor.braava_jet_batterie",
           "friendly_name": "Braava jet Batterie",
-          "state": "85",
+          "state": "100",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -3535,7 +1211,7 @@
         {
           "entity_id": "sensor.braava_jet_tank_level",
           "friendly_name": "Braava jet Tank level",
-          "state": "100",
+          "state": "0",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -3553,9 +1229,124 @@
           }
         },
         {
+          "entity_id": "sensor.bureau_tars_batterie",
+          "friendly_name": "Tars  Batterie",
+          "state": "100",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "%",
+            "device_class": "battery",
+            "friendly_name": "Tars  Batterie"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_cycles_de_la_batterie",
+          "friendly_name": "Tars  Cycles de la batterie",
+          "state": "737",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "friendly_name": "Tars  Cycles de la batterie"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_dock_tank_level",
+          "friendly_name": "Tars  Dock tank level",
+          "state": "unknown",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "%",
+            "friendly_name": "Tars  Dock tank level"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_duree_moyenne_d_une_mission",
+          "friendly_name": "Tars  Durée moyenne d'une mission",
+          "state": "27",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "min",
+            "friendly_name": "Tars  Durée moyenne d'une mission"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_missions_annulees",
+          "friendly_name": "Tars  Missions annulées",
+          "state": "98",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "unit_of_measurement": "Missions",
+            "friendly_name": "Tars  Missions annulées"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_missions_e",
+          "friendly_name": "Tars  Missions é",
+          "state": "37",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "unit_of_measurement": "Missions",
+            "friendly_name": "Tars  Missions é"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_missions_reussies",
+          "friendly_name": "Tars  Missions réussies",
+          "state": "969",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "unit_of_measurement": "Missions",
+            "friendly_name": "Tars  Missions réussies"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_nombre_total_de_missions",
+          "friendly_name": "Tars  Nombre total de missions",
+          "state": "1104",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "unit_of_measurement": "Missions",
+            "friendly_name": "Tars  Nombre total de missions"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_surface_nettoyee_totale",
+          "friendly_name": "Tars  Surface nettoyée totale",
+          "state": "23847.43",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "m²",
+            "friendly_name": "Tars  Surface nettoyée totale"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_tank_level",
+          "friendly_name": "Tars  Tank level",
+          "state": "unknown",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "%",
+            "friendly_name": "Tars  Tank level"
+          }
+        },
+        {
+          "entity_id": "sensor.bureau_tars_temps_total_de_nettoyage",
+          "friendly_name": "Tars  Temps total de nettoyage",
+          "state": "549",
+          "area_id": "",
+          "attributes": {
+            "unit_of_measurement": "h",
+            "friendly_name": "Tars  Temps total de nettoyage"
+          }
+        },
+        {
           "entity_id": "sensor.compteur_eau_eau_chaude",
           "friendly_name": "Compteur eau Eau chaude",
-          "state": "265.728",
+          "state": "267.255",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3569,7 +1360,7 @@
         {
           "entity_id": "sensor.compteur_eau_eau_de_pluie_arrossage",
           "friendly_name": "Compteur eau Eau de pluie arrossage",
-          "state": "43.997",
+          "state": "49.5",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3583,7 +1374,7 @@
         {
           "entity_id": "sensor.compteur_eau_eau_de_pluie_toilettes",
           "friendly_name": "Compteur eau Eau de pluie toilettes",
-          "state": "119.437",
+          "state": "119.494",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3597,7 +1388,7 @@
         {
           "entity_id": "sensor.compteur_eau_eau_froide_totale",
           "friendly_name": "Compteur eau Eau froide totale",
-          "state": "757.2061",
+          "state": "765.908",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3609,15 +1400,15 @@
         },
         {
           "entity_id": "sensor.compteur_eau_eau_froide_totale_cost",
-          "friendly_name": "sensor Cost",
-          "state": "0.0611939999999345",
+          "friendly_name": "Compteur eau Eau froide totale Cost",
+          "state": "12.3082400000001",
           "area_id": "",
           "attributes": {
             "state_class": "total",
-            "last_reset": "2026-08-08T14:33:47.093338+00:00",
+            "last_reset": "2026-08-27T17:42:53.167333+00:00",
             "unit_of_measurement": "EUR",
             "device_class": "monetary",
-            "friendly_name": "sensor Cost"
+            "friendly_name": "Compteur eau Eau froide totale Cost"
           }
         },
         {
@@ -3662,7 +1453,7 @@
         {
           "entity_id": "sensor.compteur_energie_chauffages_rev",
           "friendly_name": "Compteur énergie Chauffages(Rev)",
-          "state": "11381493",
+          "state": "11440607",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3675,7 +1466,7 @@
         {
           "entity_id": "sensor.compteur_energie_cumulus",
           "friendly_name": "Compteur énergie Cumulus",
-          "state": "14328612",
+          "state": "14401472",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3688,7 +1479,7 @@
         {
           "entity_id": "sensor.compteur_energie_edf",
           "friendly_name": "Compteur énergie EDF",
-          "state": "404",
+          "state": "32654",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3700,21 +1491,21 @@
         },
         {
           "entity_id": "sensor.compteur_energie_edf_cost",
-          "friendly_name": "sensor Cost",
-          "state": "0.0014",
+          "friendly_name": "Compteur énergie EDF Cost",
+          "state": "2.59019999999994",
           "area_id": "",
           "attributes": {
             "state_class": "total",
-            "last_reset": "2026-08-08T14:33:47.092635+00:00",
+            "last_reset": "2026-08-27T17:42:53.172602+00:00",
             "unit_of_measurement": "EUR",
             "device_class": "monetary",
-            "friendly_name": "sensor Cost"
+            "friendly_name": "Compteur énergie EDF Cost"
           }
         },
         {
           "entity_id": "sensor.compteur_energie_export_edf",
           "friendly_name": "Compteur énergie Export EDF",
-          "state": "4505",
+          "state": "56513",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3727,7 +1518,7 @@
         {
           "entity_id": "sensor.compteur_energie_garage",
           "friendly_name": "Compteur énergie Garage",
-          "state": "176",
+          "state": "4247",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3740,7 +1531,7 @@
         {
           "entity_id": "sensor.compteur_energie_pompe_eau_de_pluie",
           "friendly_name": "Compteur énergie Pompe eau de pluie",
-          "state": "0",
+          "state": "5486",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3753,7 +1544,7 @@
         {
           "entity_id": "sensor.compteur_energie_prises_de_courants_existant",
           "friendly_name": "Compteur énergie Prises de courants (Existant)",
-          "state": "5497695",
+          "state": "5600078",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3766,7 +1557,7 @@
         {
           "entity_id": "sensor.compteur_energie_prises_de_courants_extension",
           "friendly_name": "Compteur énergie Prises de courants(Extension)",
-          "state": "4974592",
+          "state": "5017868",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3779,7 +1570,7 @@
         {
           "entity_id": "sensor.compteur_energie_production_solaire",
           "friendly_name": "Compteur énergie Production solaire",
-          "state": "21446",
+          "state": "256394",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3792,7 +1583,7 @@
         {
           "entity_id": "sensor.compteur_horaire_appliques_cuisine",
           "friendly_name": "Compteur horaire Cuisine Appliques",
-          "state": "4823",
+          "state": "4876",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3819,7 +1610,7 @@
         {
           "entity_id": "sensor.compteur_horaire_buanderie",
           "friendly_name": "Compteur horaire Buanderie",
-          "state": "117",
+          "state": "118",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3833,7 +1624,7 @@
         {
           "entity_id": "sensor.compteur_horaire_bureau",
           "friendly_name": "Compteur horaire Bureau",
-          "state": "2502",
+          "state": "2505",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3847,7 +1638,7 @@
         {
           "entity_id": "sensor.compteur_horaire_chambre_1",
           "friendly_name": "Compteur horaire Chambre 1",
-          "state": "632",
+          "state": "633",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3875,7 +1666,7 @@
         {
           "entity_id": "sensor.compteur_horaire_chambre_3",
           "friendly_name": "Compteur horaire Chambre 3",
-          "state": "1914",
+          "state": "1929",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3889,7 +1680,7 @@
         {
           "entity_id": "sensor.compteur_horaire_couloir",
           "friendly_name": "Compteur horaire Couloir",
-          "state": "217",
+          "state": "218",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -3916,7 +1707,7 @@
         {
           "entity_id": "sensor.compteur_horaire_entree",
           "friendly_name": "Compteur horaire Entrée",
-          "state": "1429",
+          "state": "1439",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4008,7 +1799,7 @@
         {
           "entity_id": "sensor.compteur_horaire_parking",
           "friendly_name": "Compteur horaire Parking",
-          "state": "687",
+          "state": "695",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4035,7 +1826,7 @@
         {
           "entity_id": "sensor.compteur_horaire_salle_a_manger",
           "friendly_name": "Compteur horaire Salle à manger",
-          "state": "4311",
+          "state": "4323",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4049,7 +1840,7 @@
         {
           "entity_id": "sensor.compteur_horaire_salle_d_eau_chambre_3",
           "friendly_name": "Compteur horaire Chambre 3 salle d'eau",
-          "state": "616",
+          "state": "618",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4089,7 +1880,7 @@
         {
           "entity_id": "sensor.compteur_horaire_spots_cuisine",
           "friendly_name": "Compteur horaire Cuisine Spots",
-          "state": "5288",
+          "state": "5351",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4103,7 +1894,7 @@
         {
           "entity_id": "sensor.compteur_horaire_terrasse_0",
           "friendly_name": "Compteur horaire Terrasse 0",
-          "state": "72",
+          "state": "73",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4117,7 +1908,7 @@
         {
           "entity_id": "sensor.compteur_horaire_terrasse_1",
           "friendly_name": "Compteur horaire Terrasse 1",
-          "state": "60",
+          "state": "61",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4131,10 +1922,10 @@
         {
           "entity_id": "sensor.consommation_eau_pluie_aujourd_hui",
           "friendly_name": "Consommation eau pluie aujourd'hui",
-          "state": "1",
+          "state": "131",
           "area_id": "",
           "attributes": {
-            "state_class": "total",
+            "state_class": "total_increasing",
             "unit_of_measurement": "L",
             "device_class": "water",
             "icon": "mdi:water-minus",
@@ -4144,7 +1935,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_compteur_de_pages",
           "friendly_name": "DCP-T780DW Compteur de pages",
-          "state": "158",
+          "state": "194",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4155,7 +1946,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_compteur_de_pages_de_l_unite_recto_verso",
           "friendly_name": "DCP-T780DW Compteur de pages de l'unité recto verso",
-          "state": "99",
+          "state": "127",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4166,7 +1957,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_encre_cyan_restante",
           "friendly_name": "DCP-T780DW Encre cyan restante",
-          "state": "95",
+          "state": "93",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4177,7 +1968,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_encre_jaune_restante",
           "friendly_name": "DCP-T780DW Encre jaune restante",
-          "state": "93",
+          "state": "90",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4188,7 +1979,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_encre_magenta_restante",
           "friendly_name": "DCP-T780DW Encre magenta restante",
-          "state": "95",
+          "state": "94",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4199,7 +1990,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_encre_noire_restante",
           "friendly_name": "DCP-T780DW Encre noire restante",
-          "state": "96",
+          "state": "94",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4210,7 +2001,7 @@
         {
           "entity_id": "sensor.dcp_t780dw_pages_en_couleur",
           "friendly_name": "DCP-T780DW Pages en couleur",
-          "state": "139",
+          "state": "175",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4241,7 +2032,7 @@
         {
           "entity_id": "sensor.debit_eau_eau_chaude",
           "friendly_name": "Débit eau Eau chaude",
-          "state": "1.327383e-06",
+          "state": "0.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4283,7 +2074,7 @@
         {
           "entity_id": "sensor.debit_eau_eau_froide_totale",
           "friendly_name": "Débit eau Eau froide totale",
-          "state": "1.478889e-06",
+          "state": "0.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4297,15 +2088,15 @@
         {
           "entity_id": "sensor.eau_pluie_arrosage_jour",
           "friendly_name": "eau_pluie_arrosage_jour",
-          "state": "0.001",
+          "state": "0.131",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
             "status": "collecting",
-            "last_period": "0",
-            "last_valid_state": "43.997",
-            "last_reset": "2026-08-07T22:00:00.001928+00:00",
-            "next_reset": "2026-08-09T00:00:00+02:00",
+            "last_period": "0.528",
+            "last_valid_state": "49.5",
+            "last_reset": "2026-09-04T22:00:00.004218+00:00",
+            "next_reset": "2026-09-06T00:00:00+02:00",
             "unit_of_measurement": "m³",
             "device_class": "water",
             "friendly_name": "eau_pluie_arrosage_jour"
@@ -4314,10 +2105,9 @@
         {
           "entity_id": "sensor.eau_pluie_arrosage_jour_litres",
           "friendly_name": "Eau pluie arrosage jour litres",
-          "state": "1",
+          "state": "131",
           "area_id": "",
           "attributes": {
-            "state_class": "total",
             "unit_of_measurement": "L",
             "device_class": "water",
             "icon": "mdi:watering-can",
@@ -4327,15 +2117,15 @@
         {
           "entity_id": "sensor.eau_pluie_arrosage_mois",
           "friendly_name": "eau_pluie_arrosage_mois",
-          "state": "0.480",
+          "state": "2.168",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
             "status": "collecting",
-            "last_period": "0",
-            "last_valid_state": "43.997",
-            "last_reset": "2026-07-31T22:00:00.003455+00:00",
-            "next_reset": "2026-09-01T00:00:00+02:00",
+            "last_period": "140.624",
+            "last_valid_state": "49.5",
+            "last_reset": "2026-08-31T22:00:00.012810+00:00",
+            "next_reset": "2026-10-01T00:00:00+02:00",
             "unit_of_measurement": "m³",
             "device_class": "water",
             "friendly_name": "eau_pluie_arrosage_mois"
@@ -4344,10 +2134,9 @@
         {
           "entity_id": "sensor.eau_pluie_arrosage_mois_litres",
           "friendly_name": "Eau pluie arrosage mois litres",
-          "state": "480",
+          "state": "2168",
           "area_id": "",
           "attributes": {
-            "state_class": "total",
             "unit_of_measurement": "L",
             "device_class": "water",
             "icon": "mdi:watering-can",
@@ -4357,7 +2146,7 @@
         {
           "entity_id": "sensor.eau_pluie_recuperable_aujourd_hui",
           "friendly_name": "Eau pluie récupérable aujourd'hui",
-          "state": "13",
+          "state": "0",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "L",
@@ -4374,9 +2163,9 @@
             "state_class": "total_increasing",
             "status": "collecting",
             "last_period": "0",
-            "last_valid_state": "119.437",
-            "last_reset": "2026-08-07T22:00:00.000436+00:00",
-            "next_reset": "2026-08-09T00:00:00+02:00",
+            "last_valid_state": "119.494",
+            "last_reset": "2026-09-04T22:00:00.001225+00:00",
+            "next_reset": "2026-09-06T00:00:00+02:00",
             "unit_of_measurement": "m³",
             "device_class": "water",
             "friendly_name": "eau_pluie_toilettes_jour"
@@ -4388,7 +2177,6 @@
           "state": "0",
           "area_id": "",
           "attributes": {
-            "state_class": "total",
             "unit_of_measurement": "L",
             "device_class": "water",
             "icon": "mdi:toilet",
@@ -4403,10 +2191,12 @@
           "attributes": {
             "state_class": "total_increasing",
             "status": "collecting",
-            "last_period": "0",
-            "last_valid_state": "None",
-            "last_reset": "2026-07-31T22:00:00.004787+00:00",
-            "next_reset": "2026-09-01T00:00:00+02:00",
+            "last_period": "358.482",
+            "last_valid_state": "119.494",
+            "last_reset": "2026-08-31T22:00:00.014600+00:00",
+            "next_reset": "2026-10-01T00:00:00+02:00",
+            "unit_of_measurement": "m³",
+            "device_class": "water",
             "friendly_name": "eau_pluie_toilettes_mois"
           }
         },
@@ -4416,7 +2206,6 @@
           "state": "0",
           "area_id": "",
           "attributes": {
-            "state_class": "total",
             "unit_of_measurement": "L",
             "device_class": "water",
             "icon": "mdi:toilet",
@@ -4426,15 +2215,15 @@
         {
           "entity_id": "sensor.edf",
           "friendly_name": "EDF",
-          "state": "9634",
+          "state": "9200",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
             "status": "collecting",
-            "last_period": "56726",
-            "last_valid_state": "404",
-            "last_reset": "2026-07-31T22:00:00.011731+00:00",
-            "next_reset": "2026-09-01T00:00:00+02:00",
+            "last_period": "64972",
+            "last_valid_state": "32654",
+            "last_reset": "2026-08-31T22:00:00.002405+00:00",
+            "next_reset": "2026-10-01T00:00:00+02:00",
             "unit_of_measurement": "Wh",
             "device_class": "energy",
             "friendly_name": "EDF"
@@ -4443,7 +2232,7 @@
         {
           "entity_id": "sensor.electricity_maps_intensite_carbone",
           "friendly_name": "Electricity Maps Intensité carbone",
-          "state": "34.0",
+          "state": "40.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4456,7 +2245,7 @@
         {
           "entity_id": "sensor.electricity_maps_pourcentage_d_energies_fossiles_du_reseau",
           "friendly_name": "Electricity Maps Pourcentage d'énergies fossiles du réseau",
-          "state": "3.05",
+          "state": "4.72",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4469,7 +2258,7 @@
         {
           "entity_id": "sensor.energy_battery_solarflow_1600_ac_plus_output_home_power_solarflow_1600_ac_plus_solar_input_power_net_power",
           "friendly_name": "SolarFlow 1600 AC+  Battery Power",
-          "state": "623.0",
+          "state": "897.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4495,7 +2284,7 @@
         {
           "entity_id": "sensor.energy_current_hour",
           "friendly_name": "Solar production forecast Production d'énergie estimée - cette heure",
-          "state": "0.603",
+          "state": "0.83",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -4506,7 +2295,7 @@
         {
           "entity_id": "sensor.energy_next_hour",
           "friendly_name": "Solar production forecast Production d'énergie estimée - heure suivante",
-          "state": "0.44",
+          "state": "1.113",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -4517,7 +2306,7 @@
         {
           "entity_id": "sensor.energy_production_today",
           "friendly_name": "Solar production forecast Production d'énergie estimée - aujourd'hui",
-          "state": "10.895",
+          "state": "11.62",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -4528,7 +2317,7 @@
         {
           "entity_id": "sensor.energy_production_today_remaining",
           "friendly_name": "Solar production forecast Production d'énergie estimée - restante aujourd'hui",
-          "state": "1.005",
+          "state": "2.562",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -4539,7 +2328,7 @@
         {
           "entity_id": "sensor.energy_production_tomorrow",
           "friendly_name": "Solar production forecast Estimation de la production d'énergie - demain",
-          "state": "10.901",
+          "state": "8.214",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -4550,7 +2339,7 @@
         {
           "entity_id": "sensor.envoy_122234087821_production_d_electricite_actuelle",
           "friendly_name": "Envoy 122234087821 Production d'électricité actuelle",
-          "state": "0.138",
+          "state": "1.07",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4585,7 +2374,7 @@
         {
           "entity_id": "sensor.envoy_122234087821_production_d_energie_totale",
           "friendly_name": "Envoy 122234087821 Production d'énergie totale",
-          "state": "5.632342",
+          "state": "5.725062",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -4609,7 +2398,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_distance_parcourue_totale",
           "friendly_name": "Tondeuse Distance parcourue totale",
-          "state": "1032.264",
+          "state": "1059.48",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4763,7 +2552,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_mode",
           "friendly_name": "Tondeuse Mode",
-          "state": "main_area",
+          "state": "home",
           "area_id": "",
           "attributes": {
             "options": [
@@ -4781,7 +2570,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_nombre_de_cycles_de_charge",
           "friendly_name": "Tondeuse Nombre de cycles de charge",
-          "state": "131",
+          "state": "135",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4791,7 +2580,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_prochain_demarrage",
           "friendly_name": "Tondeuse Prochain démarrage",
-          "state": "2026-08-09T05:00:00+00:00",
+          "state": "unavailable",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -4812,7 +2601,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_restricted_reason",
           "friendly_name": "Tondeuse Restricted reason",
-          "state": "week_schedule",
+          "state": "none",
           "area_id": "",
           "attributes": {
             "options": [
@@ -4846,7 +2635,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_temps_de_charge_total",
           "friendly_name": "Tondeuse Temps de charge total",
-          "state": "115.0",
+          "state": "118.0",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4858,7 +2647,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_temps_de_fonctionnement_total",
           "friendly_name": "Tondeuse Temps de fonctionnement total",
-          "state": "531.0",
+          "state": "545.0",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4870,7 +2659,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_temps_de_recherche_total",
           "friendly_name": "Tondeuse Temps de recherche total",
-          "state": "27.0",
+          "state": "28.0",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4882,7 +2671,7 @@
         {
           "entity_id": "sensor.garden_tondeuse_temps_de_tonte_total",
           "friendly_name": "Tondeuse Temps de tonte total",
-          "state": "504.0",
+          "state": "517.0",
           "area_id": "",
           "attributes": {
             "state_class": "total",
@@ -4894,7 +2683,7 @@
         {
           "entity_id": "sensor.ind_co2_salle_a_manger",
           "friendly_name": "ind_co2_Salle à manger",
-          "state": "913.92",
+          "state": "776.96",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4907,7 +2696,7 @@
         {
           "entity_id": "sensor.ind_humidite_salle_a_manger",
           "friendly_name": "ind_humidité_Salle à manger",
-          "state": "65.36",
+          "state": "61.04",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -4920,7 +2709,7 @@
         {
           "entity_id": "sensor.ind_pression_atmospherique_salle_a_manger",
           "friendly_name": "ind_pression_atmospherique_Salle à manger",
-          "state": "993.71",
+          "state": "1000.5",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5078,7 +2867,7 @@
         {
           "entity_id": "sensor.inverter_122346014427",
           "friendly_name": "Inverter 122346014427",
-          "state": "17",
+          "state": "126",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5090,7 +2879,7 @@
         {
           "entity_id": "sensor.inverter_122346014427_temperature",
           "friendly_name": "Inverter 122346014427 Température",
-          "state": "41",
+          "state": "46",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5102,7 +2891,7 @@
         {
           "entity_id": "sensor.inverter_122346014432",
           "friendly_name": "Inverter 122346014432",
-          "state": "16",
+          "state": "128",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5114,7 +2903,7 @@
         {
           "entity_id": "sensor.inverter_122346014432_temperature",
           "friendly_name": "Inverter 122346014432 Température",
-          "state": "42",
+          "state": "46",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5126,7 +2915,7 @@
         {
           "entity_id": "sensor.inverter_122346014978",
           "friendly_name": "Inverter 122346014978",
-          "state": "17",
+          "state": "126",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5138,7 +2927,7 @@
         {
           "entity_id": "sensor.inverter_122346014978_temperature",
           "friendly_name": "Inverter 122346014978 Température",
-          "state": "42",
+          "state": "47",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5150,7 +2939,7 @@
         {
           "entity_id": "sensor.inverter_122346025800",
           "friendly_name": "Inverter 122346025800",
-          "state": "17",
+          "state": "124",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5162,7 +2951,7 @@
         {
           "entity_id": "sensor.inverter_122346025800_temperature",
           "friendly_name": "Inverter 122346025800 Température",
-          "state": "42",
+          "state": "46",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5174,7 +2963,7 @@
         {
           "entity_id": "sensor.inverter_122346026143",
           "friendly_name": "Inverter 122346026143",
-          "state": "19",
+          "state": "143",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5186,7 +2975,7 @@
         {
           "entity_id": "sensor.inverter_122346026143_temperature",
           "friendly_name": "Inverter 122346026143 Température",
-          "state": "42",
+          "state": "48",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5198,7 +2987,7 @@
         {
           "entity_id": "sensor.inverter_122346026145",
           "friendly_name": "Inverter 122346026145",
-          "state": "20",
+          "state": "142",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5210,7 +2999,7 @@
         {
           "entity_id": "sensor.inverter_122346026145_temperature",
           "friendly_name": "Inverter 122346026145 Température",
-          "state": "42",
+          "state": "47",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5222,7 +3011,7 @@
         {
           "entity_id": "sensor.inverter_122346026180",
           "friendly_name": "Inverter 122346026180",
-          "state": "16",
+          "state": "126",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5234,7 +3023,7 @@
         {
           "entity_id": "sensor.inverter_122346026180_temperature",
           "friendly_name": "Inverter 122346026180 Température",
-          "state": "41",
+          "state": "45",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5246,7 +3035,7 @@
         {
           "entity_id": "sensor.inverter_122346026386",
           "friendly_name": "Inverter 122346026386",
-          "state": "16",
+          "state": "129",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5258,7 +3047,7 @@
         {
           "entity_id": "sensor.inverter_122346026386_temperature",
           "friendly_name": "Inverter 122346026386 Température",
-          "state": "41",
+          "state": "46",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5270,7 +3059,7 @@
         {
           "entity_id": "sensor.iphone_de_fanny_app_version",
           "friendly_name": "iPhone de Fanny  App Version",
-          "state": "2026.7.2",
+          "state": "2026.9.0",
           "area_id": "",
           "attributes": {
             "icon": "mdi:cellphone",
@@ -5278,24 +3067,14 @@
           }
         },
         {
-          "entity_id": "sensor.iphone_de_fanny_audio_output",
-          "friendly_name": "iPhone de Fanny  Audio Output",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  Audio Output"
-          }
-        },
-        {
           "entity_id": "sensor.iphone_de_fanny_battery_level",
           "friendly_name": "iPhone de Fanny  Battery Level",
-          "state": "75",
+          "state": "65",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
             "device_class": "battery",
-            "icon": "mdi:battery-70",
+            "icon": "mdi:battery-60",
             "friendly_name": "iPhone de Fanny  Battery Level"
           }
         },
@@ -5306,18 +3085,8 @@
           "area_id": "",
           "attributes": {
             "Low Power Mode": false,
-            "icon": "mdi:battery-70",
+            "icon": "mdi:battery-60",
             "friendly_name": "iPhone de Fanny  Battery State"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_bssid",
-          "friendly_name": "iPhone de Fanny  BSSID",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  BSSID"
           }
         },
         {
@@ -5332,46 +3101,6 @@
           }
         },
         {
-          "entity_id": "sensor.iphone_de_fanny_geocoded_location",
-          "friendly_name": "iPhone de Fanny  Geocoded Location",
-          "state": "Unknown",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:map",
-            "friendly_name": "iPhone de Fanny  Geocoded Location"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_kiosk_brightness",
-          "friendly_name": "iPhone de Fanny  Kiosk Brightness",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  Kiosk Brightness"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_kiosk_volume",
-          "friendly_name": "iPhone de Fanny  Kiosk Volume",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  Kiosk Volume"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_last_update_trigger",
-          "friendly_name": "iPhone de Fanny  Last Update Trigger",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  Last Update Trigger"
-          }
-        },
-        {
           "entity_id": "sensor.iphone_de_fanny_location_permission",
           "friendly_name": "iPhone de Fanny  Location permission",
           "state": "Denied",
@@ -5382,50 +3111,9 @@
           }
         },
         {
-          "entity_id": "sensor.iphone_de_fanny_sim_1",
-          "friendly_name": "iPhone de Fanny  SIM 1",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  SIM 1"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_sim_2",
-          "friendly_name": "iPhone de Fanny  SIM 2",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  SIM 2"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_ssid",
-          "friendly_name": "iPhone de Fanny  SSID",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  SSID"
-          }
-        },
-        {
-          "entity_id": "sensor.iphone_de_fanny_storage",
-          "friendly_name": "iPhone de Fanny  Storage",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "% available",
-            "icon": "mdi:dots-square",
-            "friendly_name": "iPhone de Fanny  Storage"
-          }
-        },
-        {
           "entity_id": "sensor.iphone_de_sylvain_app_version",
           "friendly_name": "iPhone de Sylvain App Version",
-          "state": "2026.7.2",
+          "state": "2026.9.0",
           "area_id": "",
           "attributes": {
             "icon": "mdi:cellphone",
@@ -5445,12 +3133,12 @@
         {
           "entity_id": "sensor.iphone_de_sylvain_battery_level",
           "friendly_name": "iPhone de Sylvain Battery Level",
-          "state": "25",
+          "state": "55",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
             "device_class": "battery",
-            "icon": "mdi:battery-20",
+            "icon": "mdi:battery-50",
             "friendly_name": "iPhone de Sylvain Battery Level"
           }
         },
@@ -5461,7 +3149,7 @@
           "area_id": "",
           "attributes": {
             "Low Power Mode": false,
-            "icon": "mdi:battery-20",
+            "icon": "mdi:battery-50",
             "friendly_name": "iPhone de Sylvain Battery State"
           }
         },
@@ -5473,6 +3161,16 @@
           "attributes": {
             "icon": "mdi:dots-square",
             "friendly_name": "iPhone de Sylvain BSSID"
+          }
+        },
+        {
+          "entity_id": "sensor.iphone_de_sylvain_camera_stream",
+          "friendly_name": "iPhone de Sylvain Camera Stream",
+          "state": "unavailable",
+          "area_id": "",
+          "attributes": {
+            "icon": "mdi:dots-square",
+            "friendly_name": "iPhone de Sylvain Camera Stream"
           }
         },
         {
@@ -5587,7 +3285,7 @@
         {
           "entity_id": "sensor.knx_interface_connection_established",
           "friendly_name": "KNX Interface Connection established",
-          "state": "2026-08-08T14:33:45+00:00",
+          "state": "2026-08-27T18:49:00+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -5637,7 +3335,7 @@
         {
           "entity_id": "sensor.knx_interface_telegrams",
           "friendly_name": "KNX Interface Telegrams",
-          "state": "6136",
+          "state": "754603",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -5648,7 +3346,7 @@
         {
           "entity_id": "sensor.luminosite_exterieure",
           "friendly_name": "Luminosité extérieure",
-          "state": "5585.92",
+          "state": "69058.56",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5661,7 +3359,7 @@
         {
           "entity_id": "sensor.pourcentage_cuve_eau_pluie",
           "friendly_name": "Pourcentage cuve eau pluie",
-          "state": "0.0",
+          "state": "44.8",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -5672,7 +3370,7 @@
         {
           "entity_id": "sensor.power_highest_peak_time_today",
           "friendly_name": "Solar production forecast Heure de pointe de puissance la plus élevée - aujourd'hui",
-          "state": "2026-08-08T11:00:00+00:00",
+          "state": "2026-09-05T11:00:00+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -5682,7 +3380,7 @@
         {
           "entity_id": "sensor.power_highest_peak_time_tomorrow",
           "friendly_name": "Solar production forecast Heure de pointe de puissance la plus élevée - demain",
-          "state": "2026-08-09T11:00:00+00:00",
+          "state": "2026-09-06T12:00:00+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -5692,7 +3390,7 @@
         {
           "entity_id": "sensor.power_production_now",
           "friendly_name": "Solar production forecast Production d'électricité estimée - maintenant",
-          "state": "506",
+          "state": "978",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5726,7 +3424,7 @@
         {
           "entity_id": "sensor.puis_garage",
           "friendly_name": "Puis. Garage",
-          "state": "2.0",
+          "state": "6.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5802,7 +3500,7 @@
         {
           "entity_id": "sensor.puissance_instantanee_chauffages_rev",
           "friendly_name": "Puis. Chauffages(Rev)",
-          "state": "328.0",
+          "state": "234.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5828,7 +3526,7 @@
         {
           "entity_id": "sensor.puissance_instantanee_edf",
           "friendly_name": "Puis. EDF",
-          "state": "-10.0",
+          "state": "830.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5854,7 +3552,7 @@
         {
           "entity_id": "sensor.puissance_instantanee_prises_de_courants_existant",
           "friendly_name": "Puis. Prises de courants (Existant)",
-          "state": "160.0",
+          "state": "35.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5867,7 +3565,7 @@
         {
           "entity_id": "sensor.puissance_instantanee_prises_de_courants_extension",
           "friendly_name": "Puis. Prises de courants(Extension)",
-          "state": "233.0",
+          "state": "179.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -5880,7 +3578,7 @@
         {
           "entity_id": "sensor.puissance_instantanee_production_solaire",
           "friendly_name": "Puis. Production solaire",
-          "state": "198.0",
+          "state": "918.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6013,7 +3711,7 @@
         {
           "entity_id": "sensor.sainte_livrade_cloud_cover",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Cloud cover",
-          "state": "70",
+          "state": "10",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -6025,7 +3723,7 @@
         {
           "entity_id": "sensor.sainte_livrade_daily_precipitation",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Daily precipitation",
-          "state": "0.1",
+          "state": "0",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "mm",
@@ -6049,7 +3747,7 @@
         {
           "entity_id": "sensor.sainte_livrade_humidity",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Humidity",
-          "state": "30",
+          "state": "25",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6062,16 +3760,16 @@
         {
           "entity_id": "sensor.sainte_livrade_next_rain",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Next rain",
-          "state": "2026-08-08T15:50:00+00:00",
+          "state": "unknown",
           "area_id": "",
           "attributes": {
-            "forecast_time_ref": "2026-08-08T15:50:00+00:00",
+            "forecast_time_ref": "2026-09-05T16:30:00+00:00",
             "1_hour_forecast": {
-              "0 min": "Pluie faible",
-              "5 min": "Pluie faible",
-              "10 min": "Pluie faible",
-              "15 min": "Pluie faible",
-              "20 min": "Pluie faible",
+              "0 min": "Temps sec",
+              "5 min": "Temps sec",
+              "10 min": "Temps sec",
+              "15 min": "Temps sec",
+              "20 min": "Temps sec",
               "25 min": "Temps sec",
               "35 min": "Temps sec",
               "45 min": "Temps sec",
@@ -6085,7 +3783,7 @@
         {
           "entity_id": "sensor.sainte_livrade_rain_chance",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Rain chance",
-          "state": "10",
+          "state": "0",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -6109,13 +3807,26 @@
         {
           "entity_id": "sensor.sainte_livrade_uv",
           "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade UV",
-          "state": "7",
+          "state": "6",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "UV index",
             "attribution": "Data provided by Météo-France",
             "icon": "mdi:sunglasses",
             "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade UV"
+          }
+        },
+        {
+          "entity_id": "sensor.sainte_livrade_wind_speed",
+          "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Wind speed",
+          "state": "11",
+          "area_id": "",
+          "attributes": {
+            "state_class": "measurement",
+            "unit_of_measurement": "km/h",
+            "attribution": "Data provided by Météo-France",
+            "device_class": "wind_speed",
+            "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade Wind speed"
           }
         },
         {
@@ -6150,7 +3861,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_aggr_charge",
           "friendly_name": "SolarFlow 1600 AC+  Total charges",
-          "state": "144.933179157155",
+          "state": "287.651105621079",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -6162,7 +3873,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_aggr_discharge",
           "friendly_name": "SolarFlow 1600 AC+  Total décharges",
-          "state": "122.30672918026",
+          "state": "245.976402980276",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -6174,7 +3885,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_aggr_grid_input_power",
           "friendly_name": "SolarFlow 1600 AC+  Total Grid Energy",
-          "state": "144.933445491392",
+          "state": "287.651394483715",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -6190,7 +3901,7 @@
           "area_id": "",
           "attributes": {
             "state_class": "total",
-            "last_reset": "2026-08-08T16:33:49.261678+02:00",
+            "last_reset": "2026-08-27T19:42:54.723872+02:00",
             "unit_of_measurement": "kWh",
             "device_class": "energy",
             "friendly_name": "SolarFlow 1600 AC+  Total Off-Grid Energy"
@@ -6199,7 +3910,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_aggr_output_home",
           "friendly_name": "SolarFlow 1600 AC+  introduit dans la maison",
-          "state": "122.651509527164",
+          "state": "246.744818100024",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -6232,7 +3943,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_available_kwh",
           "friendly_name": "SolarFlow 1600 AC+  Énergie disponible",
-          "state": "3.2256",
+          "state": "4.5504",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "kWh",
@@ -6252,7 +3963,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_bat_in_out",
           "friendly_name": "SolarFlow 1600 AC+  Puissance de la batterie",
-          "state": "623",
+          "state": "897",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6264,7 +3975,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_bat_volt",
           "friendly_name": "SolarFlow 1600 AC+  Tension de batterie",
-          "state": "49.61",
+          "state": "49.87",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6276,7 +3987,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_bindstate",
           "friendly_name": "SolarFlow 1600 AC+  bindstate",
-          "state": "0",
+          "state": "1",
           "area_id": "",
           "attributes": {
             "friendly_name": "SolarFlow 1600 AC+  bindstate"
@@ -6285,7 +3996,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_charge_max_limit",
           "friendly_name": "SolarFlow 1600 AC+  chargeMaxLimit",
-          "state": "900",
+          "state": "1200",
           "area_id": "",
           "attributes": {
             "friendly_name": "SolarFlow 1600 AC+  chargeMaxLimit"
@@ -6330,7 +4041,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_electric_level",
           "friendly_name": "SolarFlow 1600 AC+  Niveau de batterie",
-          "state": "76",
+          "state": "99",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6393,7 +4104,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_hyper_tmp",
           "friendly_name": "SolarFlow 1600 AC+  Température de l'appareil",
-          "state": "46.0",
+          "state": "38.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6425,11 +4136,22 @@
         },
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_is_error",
-          "friendly_name": "SolarFlow 1600 AC+  is_error",
-          "state": "0",
+          "friendly_name": "is_error",
+          "state": "unavailable",
           "area_id": "",
           "attributes": {
-            "friendly_name": "SolarFlow 1600 AC+  is_error"
+            "restored": true,
+            "friendly_name": "is_error",
+            "supported_features": 0
+          }
+        },
+        {
+          "entity_id": "sensor.solarflow_1600_ac_plus_lcnstate",
+          "friendly_name": "SolarFlow 1600 AC+  LCNState",
+          "state": "1",
+          "area_id": "",
+          "attributes": {
+            "friendly_name": "SolarFlow 1600 AC+  LCNState"
           }
         },
         {
@@ -6453,7 +4175,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_next_calibration",
           "friendly_name": "SolarFlow 1600 AC+  Next Calibration",
-          "state": "2026-09-06T16:36:41+00:00",
+          "state": "2026-10-05T15:41:01+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6481,7 +4203,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_output_home_power",
           "friendly_name": "SolarFlow 1600 AC+  Puissance de sortie",
-          "state": "623",
+          "state": "897",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6505,7 +4227,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_pack_input_power",
           "friendly_name": "SolarFlow 1600 AC+  Puissance de sortie de la batterie",
-          "state": "623",
+          "state": "897",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6562,7 +4284,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_remaining_time",
           "friendly_name": "SolarFlow 1600 AC+  Temps de restant",
-          "state": "5.17752808988764",
+          "state": "5.07290969899666",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6574,7 +4296,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_roundtrip_efficiency",
           "friendly_name": "SolarFlow 1600 AC+  Rendement aller-retour",
-          "state": "84.4",
+          "state": "85.5",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6594,7 +4316,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_rssi",
           "friendly_name": "SolarFlow 1600 AC+  rssi",
-          "state": "-33",
+          "state": "-32",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6624,7 +4346,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_soc_limit",
           "friendly_name": "SolarFlow 1600 AC+  SoC Limit State",
-          "state": "0",
+          "state": "1",
           "area_id": "",
           "attributes": {
             "friendly_name": "SolarFlow 1600 AC+  SoC Limit State"
@@ -6703,7 +4425,7 @@
         {
           "entity_id": "sensor.solarflow_1600_ac_plus_switch_count",
           "friendly_name": "SolarFlow 1600 AC+  Switch Count",
-          "state": "1987.0",
+          "state": "4546.0",
           "area_id": "",
           "attributes": {
             "state_class": "total_increasing",
@@ -6746,7 +4468,7 @@
         {
           "entity_id": "sensor.sun_next_dawn",
           "friendly_name": "Sun Prochaine aube",
-          "state": "2026-08-09T04:21:10+00:00",
+          "state": "2026-09-06T04:55:05+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6756,7 +4478,7 @@
         {
           "entity_id": "sensor.sun_next_dusk",
           "friendly_name": "Sun Prochain crépuscule",
-          "state": "2026-08-08T19:41:36+00:00",
+          "state": "2026-09-05T18:53:43+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6766,7 +4488,7 @@
         {
           "entity_id": "sensor.sun_next_midnight",
           "friendly_name": "Sun Prochain minuit",
-          "state": "2026-08-09T00:01:04+00:00",
+          "state": "2026-09-05T23:53:56+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6776,7 +4498,7 @@
         {
           "entity_id": "sensor.sun_next_noon",
           "friendly_name": "Sun Prochain midi",
-          "state": "2026-08-09T12:01:08+00:00",
+          "state": "2026-09-06T11:54:05+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6786,7 +4508,7 @@
         {
           "entity_id": "sensor.sun_next_rising",
           "friendly_name": "Sun Prochain lever",
-          "state": "2026-08-09T04:53:33+00:00",
+          "state": "2026-09-06T05:24:55+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6796,7 +4518,7 @@
         {
           "entity_id": "sensor.sun_next_setting",
           "friendly_name": "Sun Prochain coucher",
-          "state": "2026-08-08T19:09:14+00:00",
+          "state": "2026-09-05T18:23:56+00:00",
           "area_id": "",
           "attributes": {
             "device_class": "timestamp",
@@ -6806,7 +4528,7 @@
         {
           "entity_id": "sensor.sun_solar_azimuth",
           "friendly_name": "Sun Azimut solaire",
-          "state": "257.14",
+          "state": "259.38",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6817,7 +4539,7 @@
         {
           "entity_id": "sensor.sun_solar_elevation",
           "friendly_name": "Sun Élévation solaire",
-          "state": "36.05",
+          "state": "20.43",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6846,7 +4568,7 @@
         {
           "entity_id": "sensor.system_monitor_charge_1_min",
           "friendly_name": "System Monitor Charge (1 min)",
-          "state": "0.0",
+          "state": "0.01",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6857,7 +4579,7 @@
         {
           "entity_id": "sensor.system_monitor_temperature_du_processeur",
           "friendly_name": "System Monitor Température du processeur",
-          "state": "41.9",
+          "state": "45.8",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6879,7 +4601,7 @@
         {
           "entity_id": "sensor.system_monitor_utilisation_de_la_memoire",
           "friendly_name": "System Monitor Utilisation de la mémoire",
-          "state": "27.5",
+          "state": "37.3",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6890,7 +4612,7 @@
         {
           "entity_id": "sensor.system_monitor_utilisation_du_disque",
           "friendly_name": "System Monitor Utilisation du disque /",
-          "state": "57.6",
+          "state": "60.3",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6901,7 +4623,7 @@
         {
           "entity_id": "sensor.system_monitor_utilisation_du_processeur",
           "friendly_name": "System Monitor Utilisation du processeur",
-          "state": "8",
+          "state": "6",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -6911,114 +4633,9 @@
           }
         },
         {
-          "entity_id": "sensor.tars_batterie",
-          "friendly_name": "Tars  Batterie",
-          "state": "100",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "%",
-            "device_class": "battery",
-            "friendly_name": "Tars  Batterie"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_cycles_de_la_batterie",
-          "friendly_name": "Tars  Cycles de la batterie",
-          "state": "734",
-          "area_id": "",
-          "attributes": {
-            "state_class": "measurement",
-            "friendly_name": "Tars  Cycles de la batterie"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_dock_tank_level",
-          "friendly_name": "Tars  Dock tank level",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "%",
-            "friendly_name": "Tars  Dock tank level"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_duree_moyenne_d_une_mission",
-          "friendly_name": "Tars  Durée moyenne d'une mission",
-          "state": "27",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "min",
-            "friendly_name": "Tars  Durée moyenne d'une mission"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_missions_annulees",
-          "friendly_name": "Tars  Missions annulées",
-          "state": "98",
-          "area_id": "",
-          "attributes": {
-            "state_class": "measurement",
-            "unit_of_measurement": "Missions",
-            "friendly_name": "Tars  Missions annulées"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_missions_e",
-          "friendly_name": "Tars  Missions é",
-          "state": "37",
-          "area_id": "",
-          "attributes": {
-            "state_class": "measurement",
-            "unit_of_measurement": "Missions",
-            "friendly_name": "Tars  Missions é"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_missions_reussies",
-          "friendly_name": "Tars  Missions réussies",
-          "state": "967",
-          "area_id": "",
-          "attributes": {
-            "state_class": "measurement",
-            "unit_of_measurement": "Missions",
-            "friendly_name": "Tars  Missions réussies"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_nombre_total_de_missions",
-          "friendly_name": "Tars  Nombre total de missions",
-          "state": "1102",
-          "area_id": "",
-          "attributes": {
-            "state_class": "measurement",
-            "unit_of_measurement": "Missions",
-            "friendly_name": "Tars  Nombre total de missions"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_tank_level",
-          "friendly_name": "Tars  Tank level",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "%",
-            "friendly_name": "Tars  Tank level"
-          }
-        },
-        {
-          "entity_id": "sensor.tars_temps_total_de_nettoyage",
-          "friendly_name": "Tars  Temps total de nettoyage",
-          "state": "548",
-          "area_id": "",
-          "attributes": {
-            "unit_of_measurement": "h",
-            "friendly_name": "Tars  Temps total de nettoyage"
-          }
-        },
-        {
           "entity_id": "sensor.temperature_exterieure",
           "friendly_name": "Température extérieure",
-          "state": "34.9",
+          "state": "35.7",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7031,7 +4648,7 @@
         {
           "entity_id": "sensor.temperature_maximale_bureau",
           "friendly_name": "Temperature maximale bureau",
-          "state": "28.5",
+          "state": "28.8",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7046,7 +4663,7 @@
         {
           "entity_id": "sensor.temperature_moyenne_bureau",
           "friendly_name": "Température moyenne bureau",
-          "state": "27.9",
+          "state": "28.8",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7063,7 +4680,7 @@
         {
           "entity_id": "sensor.temperature_moyenne_chambre_1",
           "friendly_name": "Température moyenne chambre 1",
-          "state": "28.1",
+          "state": "28.6",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7080,7 +4697,7 @@
         {
           "entity_id": "sensor.temperature_moyenne_chambre_2",
           "friendly_name": "Température moyenne chambre 2",
-          "state": "27.5",
+          "state": "27.3",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7097,7 +4714,7 @@
         {
           "entity_id": "sensor.thermometre_atelier_1_1_107",
           "friendly_name": "Thermomètre Atelier 1.1.107",
-          "state": "32.64",
+          "state": "32.58",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7124,7 +4741,7 @@
         {
           "entity_id": "sensor.thermometre_buanderie_1_1_111",
           "friendly_name": "Thermomètre Buanderie 1.1.111",
-          "state": "27.9",
+          "state": "27.78",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7138,7 +4755,7 @@
         {
           "entity_id": "sensor.thermometre_bureau_1_1_100",
           "friendly_name": "Thermomètre Bureau 1.1.100",
-          "state": "28.36",
+          "state": "29.12",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7152,7 +4769,7 @@
         {
           "entity_id": "sensor.thermometre_bureau_1_1_113",
           "friendly_name": "Thermomètre Bureau 1.1.113",
-          "state": "27.54",
+          "state": "28.38",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7166,7 +4783,7 @@
         {
           "entity_id": "sensor.thermometre_chambre_1_1_1_101",
           "friendly_name": "Thermomètre Chambre 1 1.1.101",
-          "state": "27.96",
+          "state": "28.54",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7180,7 +4797,7 @@
         {
           "entity_id": "sensor.thermometre_chambre_1_1_1_102",
           "friendly_name": "Thermomètre Chambre 1 1.1.102",
-          "state": "28.16",
+          "state": "28.72",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7194,7 +4811,7 @@
         {
           "entity_id": "sensor.thermometre_chambre_2_1_1_103",
           "friendly_name": "Thermomètre Chambre 2 1.1.103",
-          "state": "27.72",
+          "state": "27.42",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7208,7 +4825,7 @@
         {
           "entity_id": "sensor.thermometre_chambre_2_1_1_104",
           "friendly_name": "Thermomètre Chambre 2 1.1.104",
-          "state": "27.22",
+          "state": "27.14",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7222,7 +4839,7 @@
         {
           "entity_id": "sensor.thermometre_chambre_3_1_1_115",
           "friendly_name": "Thermomètre Chambre 3 1.1.115",
-          "state": "23.0",
+          "state": "23.5",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7235,7 +4852,7 @@
         {
           "entity_id": "sensor.thermometre_couloir_1_1_105",
           "friendly_name": "Thermomètre Couloir 1.1.105",
-          "state": "28.24",
+          "state": "28.42",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7249,7 +4866,7 @@
         {
           "entity_id": "sensor.thermometre_entree_1_1_108",
           "friendly_name": "Thermomètre Entrée 1.1.108",
-          "state": "28.04",
+          "state": "27.76",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7263,7 +4880,7 @@
         {
           "entity_id": "sensor.thermometre_escalier_1_1_106",
           "friendly_name": "Thermomètre Escalier 1.1.106",
-          "state": "28.34",
+          "state": "28.64",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7277,7 +4894,7 @@
         {
           "entity_id": "sensor.thermometre_parking_1_1_221",
           "friendly_name": "Thermomètre Parking 1.1.221",
-          "state": "35.24",
+          "state": "32.72",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7291,7 +4908,7 @@
         {
           "entity_id": "sensor.thermometre_salle_a_manger_1_1_117",
           "friendly_name": "Thermomètre Salle à manger 1.1.117",
-          "state": "26.56",
+          "state": "26.94",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7305,7 +4922,7 @@
         {
           "entity_id": "sensor.thermometre_salle_a_manger_1_1_78",
           "friendly_name": "Thermomètre Salle à manger 1.1.78",
-          "state": "26.98",
+          "state": "27.42",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7319,7 +4936,7 @@
         {
           "entity_id": "sensor.thermometre_salle_a_manger_1_1_81",
           "friendly_name": "Thermomètre Salle à manger 1.1.81",
-          "state": "24.4",
+          "state": "24.9",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7333,7 +4950,7 @@
         {
           "entity_id": "sensor.thermometre_salle_de_bain_1_1_116",
           "friendly_name": "Thermomètre Salle de bain 1.1.116",
-          "state": "26.56",
+          "state": "26.76",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7347,7 +4964,7 @@
         {
           "entity_id": "sensor.thermometre_salon_1_1_82",
           "friendly_name": "Thermomètre Salon 1.1.82",
-          "state": "24.6",
+          "state": "24.9",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7361,7 +4978,7 @@
         {
           "entity_id": "sensor.unnamed_room_batterie",
           "friendly_name": "Enceinte nomade Batterie",
-          "state": "unavailable",
+          "state": "100",
           "area_id": "",
           "attributes": {
             "unit_of_measurement": "%",
@@ -7370,9 +4987,24 @@
           }
         },
         {
+          "entity_id": "sensor.unnamed_room_source_d_alimentation",
+          "friendly_name": "Enceinte nomade Source d'alimentation",
+          "state": "usb",
+          "area_id": "",
+          "attributes": {
+            "options": [
+              "battery",
+              "charging_base",
+              "usb"
+            ],
+            "device_class": "enum",
+            "friendly_name": "Enceinte nomade Source d'alimentation"
+          }
+        },
+        {
           "entity_id": "sensor.variation_temperature_bureau",
           "friendly_name": "Variation température bureau",
-          "state": "-0.0",
+          "state": "400.0",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7397,7 +5029,7 @@
         {
           "entity_id": "sensor.volume_eau_pluie_estime",
           "friendly_name": "Volume eau pluie estimé",
-          "state": "0",
+          "state": "2241",
           "area_id": "",
           "attributes": {
             "state_class": "measurement",
@@ -7433,7 +5065,7 @@
         {
           "entity_id": "sensor.zendure_manager_operation_state",
           "friendly_name": "Zendure Manager State",
-          "state": "1",
+          "state": "0",
           "area_id": "",
           "attributes": {
             "friendly_name": "Zendure Manager State"
@@ -7461,481 +5093,6 @@
             "unit_of_measurement": "kWh",
             "device_class": "energy_storage",
             "friendly_name": "Zendure Manager Total Battery Capacity"
-          }
-        }
-      ]
-    },
-    "sun": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "sun.sun",
-          "friendly_name": "Sun",
-          "state": "above_horizon",
-          "area_id": "",
-          "attributes": {
-            "next_dawn": "2026-08-09T04:21:10.192238+00:00",
-            "next_dusk": "2026-08-08T19:41:36.702199+00:00",
-            "next_midnight": "2026-08-09T00:01:04+00:00",
-            "next_noon": "2026-08-09T12:01:08+00:00",
-            "next_rising": "2026-08-09T04:53:33.459724+00:00",
-            "next_setting": "2026-08-08T19:09:14.838837+00:00",
-            "elevation": 36.05,
-            "azimuth": 257.14,
-            "rising": false,
-            "friendly_name": "Sun"
-          }
-        }
-      ]
-    },
-    "switch": {
-      "count": 25,
-      "entities": [
-        {
-          "entity_id": "switch.ack_alarme_gel",
-          "friendly_name": "ACK Alarme Gel",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "ACK Alarme Gel"
-          }
-        },
-        {
-          "entity_id": "switch.ack_alarme_pluie",
-          "friendly_name": "ACK Alarme Pluie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "ACK Alarme Pluie"
-          }
-        },
-        {
-          "entity_id": "switch.ack_alarme_vent_1",
-          "friendly_name": "ACK Alarme Vent 1",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "ACK Alarme Vent 1"
-          }
-        },
-        {
-          "entity_id": "switch.ack_alarme_vent_2",
-          "friendly_name": "ACK Alarme Vent 2",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "ACK Alarme Vent 2"
-          }
-        },
-        {
-          "entity_id": "switch.ack_alarme_vent_3",
-          "friendly_name": "ACK Alarme Vent 3",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "ACK Alarme Vent 3"
-          }
-        },
-        {
-          "entity_id": "switch.bureau_piece_a_vivre_tv_autoplay",
-          "friendly_name": "Bureau TV autoplay",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Bureau TV autoplay"
-          }
-        },
-        {
-          "entity_id": "switch.bureau_piece_a_vivre_ungroup_on_autoplay",
-          "friendly_name": "Bureau Ungroup on autoplay",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Bureau Ungroup on autoplay"
-          }
-        },
-        {
-          "entity_id": "switch.cumulus",
-          "friendly_name": "Cumulus",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:water-boiler",
-            "friendly_name": "Cumulus"
-          }
-        },
-        {
-          "entity_id": "switch.fontaine",
-          "friendly_name": "Fontaine",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:fountain",
-            "friendly_name": "Fontaine"
-          }
-        },
-        {
-          "entity_id": "switch.garden_tondeuse_activer_la_minuterie",
-          "friendly_name": "Tondeuse Activer la minuterie",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Tondeuse Activer la minuterie"
-          }
-        },
-        {
-          "entity_id": "switch.gestion_arrosage",
-          "friendly_name": "Gestion arrosage",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:toggle-switch",
-            "friendly_name": "Gestion arrosage"
-          }
-        },
-        {
-          "entity_id": "switch.gestion_eau_de_pluie",
-          "friendly_name": "Gestion eau de pluie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:toggle-switch",
-            "friendly_name": "Gestion eau de pluie"
-          }
-        },
-        {
-          "entity_id": "switch.ind_nuit",
-          "friendly_name": "Ind Nuit",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Ind Nuit"
-          }
-        },
-        {
-          "entity_id": "switch.piece_a_vivre_crossfade",
-          "friendly_name": "Bureau Crossfade",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Bureau Crossfade"
-          }
-        },
-        {
-          "entity_id": "switch.piece_a_vivre_loudness",
-          "friendly_name": "Bureau Loudness",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Bureau Loudness"
-          }
-        },
-        {
-          "entity_id": "switch.portail",
-          "friendly_name": "Portail",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:gate",
-            "friendly_name": "Portail"
-          }
-        },
-        {
-          "entity_id": "switch.porte_garage",
-          "friendly_name": "Porte Garage",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:garage",
-            "friendly_name": "Porte Garage"
-          }
-        },
-        {
-          "entity_id": "switch.solarflow_1600_ac_plus_fanmode",
-          "friendly_name": "SolarFlow 1600 AC+  Ventilateur intelligent",
-          "state": "on",
-          "area_id": "",
-          "attributes": {
-            "device_class": "switch",
-            "friendly_name": "SolarFlow 1600 AC+  Ventilateur intelligent"
-          }
-        },
-        {
-          "entity_id": "switch.solarflow_1600_ac_plus_lamp_switch",
-          "friendly_name": "SolarFlow 1600 AC+  LED",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "device_class": "switch",
-            "friendly_name": "SolarFlow 1600 AC+  LED"
-          }
-        },
-        {
-          "entity_id": "switch.unnamed_room_crossfade",
-          "friendly_name": "Enceinte nomade Crossfade",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Enceinte nomade Crossfade"
-          }
-        },
-        {
-          "entity_id": "switch.unnamed_room_loudness",
-          "friendly_name": "Enceinte nomade Loudness",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Enceinte nomade Loudness"
-          }
-        },
-        {
-          "entity_id": "switch.unnamed_room_tv_autoplay",
-          "friendly_name": "Enceinte nomade TV autoplay",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Enceinte nomade TV autoplay"
-          }
-        },
-        {
-          "entity_id": "switch.unnamed_room_ungroup_on_autoplay",
-          "friendly_name": "Enceinte nomade Ungroup on autoplay",
-          "state": "unavailable",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Enceinte nomade Ungroup on autoplay"
-          }
-        },
-        {
-          "entity_id": "switch.vmc_buanderie",
-          "friendly_name": "VMC Buanderie",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:toggle-switch",
-            "friendly_name": "VMC Buanderie"
-          }
-        },
-        {
-          "entity_id": "switch.vmc_salle_de_bain",
-          "friendly_name": "VMC Salle de bain",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "icon": "mdi:toggle-switch",
-            "friendly_name": "VMC Salle de bain"
-          }
-        }
-      ]
-    },
-    "tts": {
-      "count": 3,
-      "entities": [
-        {
-          "entity_id": "tts.google_translate_en_com",
-          "friendly_name": "Google Translate en com",
-          "state": "2025-12-13T18:02:25.288028+00:00",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Google Translate en com"
-          }
-        },
-        {
-          "entity_id": "tts.google_translate_fr_fr",
-          "friendly_name": "Google Translate fr fr",
-          "state": "2025-12-13T18:01:32.850615+00:00",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Google Translate fr fr"
-          }
-        },
-        {
-          "entity_id": "tts.pico_tts_fr_fr",
-          "friendly_name": "Pico TTS fr-FR",
-          "state": "unknown",
-          "area_id": "",
-          "attributes": {
-            "friendly_name": "Pico TTS fr-FR"
-          }
-        }
-      ]
-    },
-    "update": {
-      "count": 3,
-      "entities": [
-        {
-          "entity_id": "update.button_card_update",
-          "friendly_name": "button-card Update",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "auto_update": false,
-            "display_precision": 0,
-            "installed_version": "v7.0.1",
-            "in_progress": false,
-            "latest_version": "v7.0.1",
-            "release_summary": null,
-            "release_url": "https://github.com/custom-cards/button-card/releases/v7.0.1",
-            "skipped_version": null,
-            "title": null,
-            "update_percentage": null,
-            "friendly_name": "button-card Update",
-            "supported_features": 23
-          }
-        },
-        {
-          "entity_id": "update.hacs_update",
-          "friendly_name": "HACS Update",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "auto_update": false,
-            "display_precision": 0,
-            "installed_version": "2.0.5",
-            "in_progress": false,
-            "latest_version": "2.0.5",
-            "release_summary": null,
-            "release_url": "https://github.com/hacs/integration/releases/2.0.5",
-            "skipped_version": null,
-            "title": null,
-            "update_percentage": null,
-            "entity_picture": "https://brands.home-assistant.io/_/hacs/icon.png",
-            "friendly_name": "HACS Update",
-            "supported_features": 23
-          }
-        },
-        {
-          "entity_id": "update.zendure_home_assistant_integration_update",
-          "friendly_name": "Zendure Home Assistant Integration Update",
-          "state": "off",
-          "area_id": "",
-          "attributes": {
-            "auto_update": false,
-            "display_precision": 0,
-            "installed_version": "1.4.3",
-            "in_progress": false,
-            "latest_version": "1.4.3",
-            "release_summary": null,
-            "release_url": "https://github.com/Zendure/Zendure-HA/releases/1.4.3",
-            "skipped_version": null,
-            "title": null,
-            "update_percentage": null,
-            "entity_picture": "https://brands.home-assistant.io/_/zendure_ha/icon.png",
-            "friendly_name": "Zendure Home Assistant Integration Update",
-            "supported_features": 23
-          }
-        }
-      ]
-    },
-    "vacuum": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "vacuum.braava_jet",
-          "friendly_name": "Braava jet",
-          "state": "docked",
-          "area_id": "",
-          "attributes": {
-            "fan_speed_list": [
-              "Standard-1",
-              "Standard-2",
-              "Standard-3",
-              "Deep-1",
-              "Deep-2",
-              "Deep-3",
-              "Extended-1",
-              "Extended-2",
-              "Extended-3"
-            ],
-            "fan_speed": "Extended-3",
-            "software_version": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
-            "status": null,
-            "detected_pad": "reusableWet",
-            "lid_closed": null,
-            "tank_present": true,
-            "tank_level": 100,
-            "friendly_name": "Braava jet",
-            "supported_features": 13116
-          }
-        },
-        {
-          "entity_id": "vacuum.tars",
-          "friendly_name": "Tars ",
-          "state": "docked",
-          "area_id": "",
-          "attributes": {
-            "software_version": "v2.4.17-138",
-            "status": null,
-            "position": "(-132, 45, -19)",
-            "bin_present": true,
-            "bin_full": false,
-            "friendly_name": "Tars ",
-            "supported_features": 13084
-          }
-        }
-      ]
-    },
-    "weather": {
-      "count": 2,
-      "entities": [
-        {
-          "entity_id": "weather.home",
-          "friendly_name": "Station météo KNX",
-          "state": "cloudy",
-          "area_id": "",
-          "attributes": {
-            "temperature": 34.9,
-            "temperature_unit": "°C",
-            "pressure_unit": "hPa",
-            "wind_speed": 0.0,
-            "wind_speed_unit": "km/h",
-            "visibility_unit": "km",
-            "precipitation_unit": "mm",
-            "icon": "mdi:sun-thermometer-outline",
-            "friendly_name": "Station météo KNX"
-          }
-        },
-        {
-          "entity_id": "weather.sainte_livrade",
-          "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade",
-          "state": "cloudy",
-          "area_id": "",
-          "attributes": {
-            "temperature": 37.0,
-            "temperature_unit": "°C",
-            "humidity": 30,
-            "pressure": 1013.5,
-            "pressure_unit": "hPa",
-            "wind_bearing": 55,
-            "wind_gust_speed": 0.0,
-            "wind_speed": 7.2,
-            "wind_speed_unit": "km/h",
-            "visibility_unit": "km",
-            "precipitation_unit": "mm",
-            "attribution": "Data provided by Météo-France",
-            "friendly_name": "Météo-France forecast for city Sainte-Livrade - Midi-Pyrénées (31) - FR Sainte-Livrade",
-            "supported_features": 3
-          }
-        }
-      ]
-    },
-    "zone": {
-      "count": 1,
-      "entities": [
-        {
-          "entity_id": "zone.home",
-          "friendly_name": "Maison",
-          "state": "0",
-          "area_id": "",
-          "attributes": {
-            "latitude": 43.648804,
-            "longitude": 1.1139503,
-            "radius": 100,
-            "passive": false,
-            "persons": [],
-            "editable": true,
-            "icon": "mdi:home",
-            "friendly_name": "Maison"
           }
         }
       ]

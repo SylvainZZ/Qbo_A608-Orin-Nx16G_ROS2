@@ -32,9 +32,9 @@ _ACTION_DEFAULT_CLASS: dict[str, str] = {
     "set_position": "cover",
     "set_temperature": "climate",
     "select_option": "select",
-    "read_temperature": "sensor",
-    "read_power": "sensor",
-    "read_energy": "sensor",
+    "read_temperature": "temperature",
+    "read_power": "power",
+    "read_energy": "energy",
 }
 
 
@@ -152,7 +152,7 @@ class HomeIntentNode(Node):
         result = IntentResult()
         result.request_id = intent.request_id
         result.stamp = self.get_clock().now().to_msg()
-        result.intent = intent
+        # intent is already in ParseHomeCommand_Response.intent — not duplicated here
         if intent.status == HomeIntent.STATUS_NEEDS_CLARIFICATION:
             result.status = IntentResult.STATUS_NEEDS_CLARIFICATION
             result.spoken_response = self._response.build_clarification_request(
@@ -247,6 +247,7 @@ class HomeIntentNode(Node):
             device_class=intent.target.device_class,
             parameters=params_dict,
             dry_run=dry_run,
+            label=intent.target.name,
         )
 
         result.success = success

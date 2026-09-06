@@ -3,15 +3,20 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
 import rclpy
 import yaml
 from ament_index_python.packages import get_package_share_directory
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
 from qbo_home_interfaces.srv import ParseHomeCommand
+from qbo_msgs.msg import ListenResult
+from qbo_msgs.srv import Text2Speach
 
 _INTENT_TYPE = {"unknown": 0, "control": 1, "query": 2, "status": 3, "cancel": 4}
 _STATUS = {"parsed": 0, "resolved": 1, "needs_clarification": 2, "rejected": 3}
@@ -27,6 +32,11 @@ _X = "\033[0m"    # reset
 
 _SEP_D = "\u2550" * 72   # ════... (double, file header)
 _SEP_S = "\u2500" * 72   # ────... (single, final summary)
+
+_STATUS_LABEL: dict[int, str] = {
+    0: "SUCCESS", 1: "FAILED", 2: "CANCELLED",
+    3: "NEEDS_CONFIRMATION", 4: "NEEDS_CLARIFICATION",
+}
 
 
 def _call_parse(node: Node, cli, text: str) -> ParseHomeCommand.Response | None:
@@ -83,6 +93,65 @@ def _compare(expected: dict, actual: dict) -> list[tuple[str, Any, Any]]:
     return mismatches
 
 
+def _poll_future(future, timeout_s: float = 10.0):
+    """Poll a future without blocking the executor — safe to call from a callback."""
+    deadline = time.monotonic() + timeout_s
+    while not future.done():
+        if time.monotonic() > deadline:
+            return None
+        time.sleep(0.01)
+    return future.result()
+
+
+def _say(tts_cli, text: str) -> None:
+    if not text or not tts_cli.wait_for_service(timeout_sec=1.0):
+        return
+    req = Text2Speach.Request()
+    req.sentence = text
+    tts_cli.call_async(req)
+
+
+def _run_live(node: Node, parse_cli, tts_cli) -> None:
+    """Subscribe to /listen and process each utterance through the full pipeline."""
+    cbg = ReentrantCallbackGroup()
+
+    def on_listen(msg: ListenResult) -> None:
+        sentence = (msg.sentence or "").strip()
+        if not sentence:
+            return
+        print(f"\n{_B}[LIVE]{_X}  {sentence!r}  {_D}(confiance {msg.confidence:.2f}){_X}")
+
+        req = ParseHomeCommand.Request()
+        req.text = sentence
+        req.session_id = "live"
+        req.resolve = True
+        req.execute = True
+
+        resp = _poll_future(parse_cli.call_async(req))
+        if resp is None:
+            print(f"  {_R}TIMEOUT{_X}")
+            _say(tts_cli, "Je n'ai pas reçu de réponse.")
+            return
+
+        spoken = resp.result.spoken_response
+        label = _STATUS_LABEL.get(resp.result.status, str(resp.result.status))
+        col = _G if resp.result.success else _R
+        print(f"  {col}{label}{_X}  {_D}{spoken!r}{_X}")
+        _say(tts_cli, spoken)
+
+    node.create_subscription(ListenResult, "/listen", on_listen, 10, callback_group=cbg)
+    print(
+        f"\n{_B}Mode vocal actif{_X} — parlez pour commander la domotique"
+        f"  {_D}(Ctrl+C pour quitter){_X}\n"
+    )
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    try:
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+
+
 def _run_file(node: Node, cli, yaml_path: Path) -> tuple[int, int]:
     with open(yaml_path, encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
@@ -125,11 +194,31 @@ def main(args=None) -> None:
     parser = argparse.ArgumentParser(description="Run qbo_home_intent test suites")
     parser.add_argument("files", nargs="*",
                         help="Fichiers YAML spécifiques (défaut: tous les tests)")
+    parser.add_argument("--live", action="store_true",
+                        help="Mode vocal : écoute /listen et répond via TTS")
     parsed, ros_args = parser.parse_known_args()
 
     rclpy.init(args=ros_args)
-    node = Node("home_intent_test_runner")
 
+    if parsed.live:
+        node = Node("home_intent_live")
+        cbg = ReentrantCallbackGroup()
+        parse_cli = node.create_client(ParseHomeCommand, "/home_intent/parse", callback_group=cbg)
+        tts_cli = node.create_client(Text2Speach, "/qbo_driver/say_to_TTS", callback_group=cbg)
+        node.get_logger().info("Attente du service /home_intent/parse …")
+        if not parse_cli.wait_for_service(timeout_sec=5.0):
+            node.get_logger().error("/home_intent/parse indisponible.")
+            node.destroy_node()
+            rclpy.shutdown()
+            sys.exit(1)
+        try:
+            _run_live(node, parse_cli, tts_cli)
+        finally:
+            node.destroy_node()
+            rclpy.shutdown()
+        return
+
+    node = Node("home_intent_test_runner")
     cli = node.create_client(ParseHomeCommand, "/home_intent/parse")
     node.get_logger().info("Attente du service /home_intent/parse …")
     if not cli.wait_for_service(timeout_sec=5.0):

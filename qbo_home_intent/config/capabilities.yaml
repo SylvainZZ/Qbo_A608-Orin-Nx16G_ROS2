@@ -1,26 +1,104 @@
-# Device class capabilities — used by validator to reject unsupported actions
+# =============================================================================
+# capabilities.yaml — Actions autorisées par device_class
+# =============================================================================
+# UTILISÉ PAR :
+#   - validator.py → validate_action(device_class, action)
+#     Appelé dans home_intent_node._resolve() APRÈS la résolution de l'objet.
+#     Retourne (False, message) si l'action est interdite → status=REJECTED
+#     → spoken_response = "Je ne peux pas effectuer cette action."
+#
+# LOGIQUE DE VALIDATION :
+#   1. Si device_class inconnu (absent du fichier) → validation permissive (True)
+#   2. Si read_only=true ET action fournie → rejeté systématiquement
+#   3. Si action absente de la liste actions → rejeté
+#
+# CHAMPS :
+#   actions              : liste des actions internes autorisées
+#                          (noms définis dans actions.yaml)
+#   queryable_properties : documentation uniquement, non utilisé en validation
+#   read_only            : true = capteur en lecture seule, toute commande refusée
+#   supports_dimmer      : information contextuelle (non utilisé)
+#   position_range       : borne min/max position (non utilisé en validation)
+#   temperature_range    : borne min/max température (non utilisé en validation)
+#
+# AJOUT D'UNE ACTION : l'ajouter dans la liste actions du device_class concerné.
+# NOUVEAU DEVICE_CLASS : ajouter une entrée pour éviter le mode permissif.
+# =============================================================================
+
 capabilities:
+  # --- Lumières ---
+  # set_brightness : brightness_pct 0-100 (via turn_on avec paramètre)
+  # set_color      : color_name texte (via turn_on avec paramètre)
+  # read_state     : lit état on/off + luminosité depuis HA
   light:
-    actions: [turn_on, turn_off, set_brightness, set_color]
+    actions: [turn_on, turn_off, set_brightness, set_color, read_state]
     queryable_properties: [state, brightness]
     supports_dimmer: true
 
+  # --- Volets / Stores ---
+  # set_position : position 0-100% via set_cover_position HA
+  # read_state   : lit état open/closed + current_position depuis HA
   cover:
-    actions: [open, close, stop, set_position]
+    actions: [open, close, stop, set_position, read_state]
+    queryable_properties: [state, current_position]
+    position_range: [0, 100]
+
+  # --- Thermostats / Climatiseurs ---
+  # set_temperature : envoie température à climate.set_temperature HA
+  # read_state      : lit current_temperature + consigne
+  climate:
+    actions: [set_temperature, read_state]
+    queryable_properties: [temperature, current_temperature, hvac_mode]
+    temperature_range: [5.0, 30.0]
+
+  # --- Interrupteurs génériques (portail, cumulus, etc.) ---
+  # read_state : lit état on/off
+  switch:
+    actions: [turn_on, turn_off, read_state]
+    queryable_properties: [state]
+
+  # --- Fil pilote / sélecteurs de mode ---
+  # options possibles définies ici pour documentation :
+  # Off | Confort | Eco | Hors gel
+  # L'option réelle est envoyée par select_option → HA service select.select_option
+  select:
+    actions: [select_option, read_state]
+    queryable_properties: [state]
+    options: [Off, Confort, Eco, Hors gel]
+
+  # --- Capteurs numériques (température, énergie, puissance, batterie, etc.) ---
+  # read_only=true : toute action de contrôle est systématiquement rejetée
+  # La lecture se fait via read_temperature / read_energy / read_power / read_state
+  # → executor._execute_read() → GetEntityState
+  sensor:
+    actions: []
+    queryable_properties: [state]
+    read_only: true
+
+  # --- Capteurs binaires (présence, ouverture de porte, etc.) ---
+  # read_only=true : lecture seule, état on/off
+  binary_sensor:
+    actions: []
+    queryable_properties: [state]
+    read_only: true
+
+
+  cover:
+    actions: [open, close, stop, set_position, read_state]
     queryable_properties: [state, current_position]
     position_range: [0, 100]
 
   climate:
-    actions: [set_temperature]
+    actions: [set_temperature, read_state]
     queryable_properties: [temperature, current_temperature, hvac_mode]
     temperature_range: [5.0, 30.0]
 
   switch:
-    actions: [turn_on, turn_off]
+    actions: [turn_on, turn_off, read_state]
     queryable_properties: [state]
 
   select:
-    actions: [select_option]
+    actions: [select_option, read_state]
     queryable_properties: [state]
     options: [Off, Confort, Eco, Hors gel]
 

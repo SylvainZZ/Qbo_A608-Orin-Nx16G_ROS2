@@ -1,8 +1,129 @@
-# Object-level aliases for NLP resolution (accent-free after normalization)
+# =============================================================================
+# aliases.yaml — Alias pour les types d'appareils et les capteurs individuels
+# =============================================================================
+# UTILISÉ PAR :
+#   - slot_extractor.py : chargé au démarrage du nœud, construit deux maps :
+#       _device_map       : alias → (dev_id, device_class)  [section devices]
+#       _sensor_entity_map: alias → entity_id               [section sensors]
+#
+# ORDRE DE RÉSOLUTION dans slot_extractor.extract() :
+#   1. Devices  : si un alias device matche → Slots.device_class rempli
+#                 si entity_id direct défini → Slots.entity_id rempli aussi
+#   2. Sensors  : vérifié APRÈS devices — si un alias sensor matche,
+#                 Slots.entity_id est ÉCRASÉ (les sensors sont plus spécifiques)
+#
+#   Dans les deux cas : tri par longueur décroissante → le plus long alias gagne.
+#   CONSÉQUENCE : un alias sensor long (ex. "energie du chauffage du bureau")
+#   prend toujours la priorité sur un alias court (ex. "chauffage" → climate).
+#
+# SECTION devices :
+#   device_class : valeur stockée dans HomeTarget.device_class
+#                  → utilisée par _ACTION_DEFAULT_CLASS et resolver.py
+#   entity_id    : si présent, résolution directe sans passer par resolver.py
+#                  (ex. portail, cumulus = entités uniques sans ambiguïté de zone)
+#
+# SECTION sensors :
+#   entity_id    : entité HA directe — le resolver fait un exact match
+#                  et ignore area/device_class
+#
+# AJOUT D'UN APPAREIL GÉNÉRIQUE : ajouter dans devices avec device_class
+# AJOUT D'UN CAPTEUR SPÉCIFIQUE : ajouter dans sensors avec entity_id
+# IMPORTANT : tous les alias doivent être NORMALISÉS (sans accents, minuscules)
+# =============================================================================
+
 devices:
+  # --- Lumières : résout vers device_class=light sans zone ---
+  # Le resolver cherchera ensuite la lumière dans la bonne zone (area)
   lumiere:
     aliases: [lumiere, lumieres, lampe, lampes, eclairage, light]
     device_class: light
+
+  # --- Volets/Stores : résout vers device_class=cover ---
+  volet:
+    aliases: [volet, volets, store, stores, rideau, rideaux, volet roulant, volets roulants]
+    device_class: cover
+
+  # --- Chauffage thermostat : résout vers device_class=climate ---
+  # ATTENTION : "chauffage" seul est court → peut être masqué par un alias
+  # sensor plus long (ex. "energie du chauffage du bureau")
+  chauffage:
+    aliases: [chauffage, radiateur, chauffe, thermostat, plancher chauffant]
+    device_class: climate
+
+  # --- Fil pilote (chauffage électrique) : résout vers device_class=select ---
+  # Les options disponibles sont : Off / Confort / Eco / Hors gel
+  fil_pilote:
+    aliases: [fil pilote, chauffage fil pilote, mode chauffage]
+    device_class: select
+
+  # --- Portail : entité directe, pas besoin de zone ---
+  portail:
+    aliases: [portail, portillon, grille, entree]
+    entity_id: switch.portail
+
+  # --- Porte de garage : entité directe ---
+  porte_garage:
+    aliases: [porte garage, porte du garage]
+    entity_id: switch.porte_garage
+
+  # --- Chauffe-eau : entité directe avec confirmation safety (risk_level=2) ---
+  cumulus:
+    aliases: [cumulus, chauffe eau, eau chaude, ballon deau, ballon eau chaude]
+    entity_id: switch.cumulus
+
+sensors:
+  # --- Température extérieure ---
+  temperature_ext:
+    aliases: [temperature exterieure, dehors il fait, temperature dehors, il fait dehors]
+    entity_id: sensor.temperature_exterieure
+
+  # --- Luminosité extérieure (lux) ---
+  luminosite:
+    aliases: [luminosite exterieure, luminosite, ensoleillement, lumiere exterieure]
+    entity_id: sensor.luminosite_exterieure
+
+  # --- Détecteur d'intrusion (binary_sensor) ---
+  intrusion:
+    aliases: [intrusion, alarme, alarme intrusion, mouvement]
+    entity_id: binary_sensor.intrusion
+
+  # --- Position du portail (binary_sensor ouvert/fermé) ---
+  position_portail:
+    aliases: [position portail, portail ouvert, portail ferme]
+    entity_id: binary_sensor.position_portail
+
+  # --- Batterie Zendure (stockage solaire) ---
+  # IMPORTANT : "batterie" seul retiré pour éviter collision avec tars_batterie
+  batterie_zendure:
+    aliases: [batterie zendure, batterie solaire, niveau batterie zendure, zendure, batterie zendure niveau]
+    entity_id: sensor.zendure_battery_level
+
+  # --- Batterie du robot aspirateur Tars (bureau) ---
+  # Aliases longs en premier pour primer sur "batterie" générique
+  tars_batterie:
+    aliases: [batterie de tars, niveau batterie tars, niveau de le batterie de tars, batterie tars, tars batterie, niveau tars, robot tars batterie]
+    entity_id: sensor.bureau_tars_batterie
+
+  # --- Production solaire instantanée ---
+  production_solaire:
+    aliases: [production solaire, panneaux solaires, energie solaire, solaire]
+    entity_id: sensor.solar_production_power
+
+  # --- Volume cuve eau de pluie ---
+  eau_pluie:
+    aliases: [eau de pluie, citerne, cuve, reserve eau, eau pluie]
+    entity_id: sensor.citerne_eau_pluie
+
+  # --- Énergie cumul chauffage bureau (Wh → affiché en kWh automatiquement) ---
+  energie_chauffage_bureau:
+    aliases: [energie du chauffage du bureau, energie du chauffage bureau, energie chauffage bureau, consommation du chauffage bureau, consommation chauffage bureau, compteur chauffage bureau, energie pour le chauffage du bureau, consommation pour le chauffage du bureau]
+    entity_id: sensor.compteur_energie_chauffage_bureau
+
+  # --- Puissance instantanée chauffage bureau (W) ---
+  puissance_chauffage_bureau:
+    aliases: [puissance du chauffage du bureau, puissance du chauffage bureau, puissance chauffage bureau, watts chauffage bureau]
+    entity_id: sensor.puissance_instantanee_chauffage_bureau
+
 
   volet:
     aliases: [volet, volets, store, stores, rideau, rideaux, volet roulant, volets roulants]
@@ -46,8 +167,12 @@ sensors:
     entity_id: binary_sensor.position_portail
 
   batterie_zendure:
-    aliases: [batterie zendure, batterie solaire, niveau batterie, zendure, batterie]
+    aliases: [batterie zendure, batterie solaire, niveau batterie zendure, zendure, batterie zendure niveau]
     entity_id: sensor.zendure_battery_level
+
+  tars_batterie:
+    aliases: [batterie de tars, niveau batterie tars, niveau de le batterie de tars, batterie tars, tars batterie, niveau tars, robot tars batterie]
+    entity_id: sensor.bureau_tars_batterie
 
   production_solaire:
     aliases: [production solaire, panneaux solaires, energie solaire, solaire]
@@ -56,3 +181,11 @@ sensors:
   eau_pluie:
     aliases: [eau de pluie, citerne, cuve, reserve eau, eau pluie]
     entity_id: sensor.citerne_eau_pluie
+
+  energie_chauffage_bureau:
+    aliases: [energie du chauffage du bureau, energie du chauffage bureau, energie chauffage bureau, consommation du chauffage bureau, consommation chauffage bureau, compteur chauffage bureau, energie pour le chauffage du bureau, consommation pour le chauffage du bureau]
+    entity_id: sensor.compteur_energie_chauffage_bureau
+
+  puissance_chauffage_bureau:
+    aliases: [puissance du chauffage du bureau, puissance du chauffage bureau, puissance chauffage bureau, watts chauffage bureau]
+    entity_id: sensor.puissance_instantanee_chauffage_bureau

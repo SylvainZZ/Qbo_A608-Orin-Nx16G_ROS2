@@ -31,7 +31,7 @@ class StartProfileAction(BaseAction):
             )
 
             success = self.bringup_client.start_profile(
-                profile, 
+                profile,
                 callback=self._on_response
             )
             return success

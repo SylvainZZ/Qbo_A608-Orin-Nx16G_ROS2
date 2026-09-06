@@ -1,0 +1,118 @@
+# Tests de commandes de contrôle (Étape 6)
+# [LIVE]  'Quel est le niveau de la batterie Zendure ?'  (confiance 0.88)
+#   FAILED  'Je ne sais pas comment exécuter cette action.'
+
+# [LIVE]  "quel est l'état de la batterie Zendure ?"  (confiance 0.81)
+#   FAILED  'Je ne sais pas comment exécuter cette action.'
+
+# [LIVE]  'quel est le niveau du capteur au 2 puits?'  (confiance 0.77)
+#   NEEDS_CLARIFICATION  'Je ne suis pas sûr. Dans quelle pièce ? (light.salon, cover.volet_roulant_sw_salon, climate.chauffage_zone_3, sensor.thermometre_salon_1_1_82, switch.portail)'
+
+# [LIVE]  'Est-ce que tu peux arrêter le cumulus ?'  (confiance 0.87)
+#   FAILED  'Je ne peux pas effectuer cette action.'
+
+# [LIVE]  'Allume la lumière de la chambre 1.'  (confiance 0.75)
+#   SUCCESS  "J'ai allumé chambre 1."
+
+# [LIVE]  'Est-ce que tu peux arrêter la lumière de la chambre une?'  (confiance 0.86)
+#   NEEDS_CLARIFICATION  'Je ne suis pas sûr. Dans quelle pièce ? (light.salon, light.bureau, light.chambre_1, light.chambre_2, )'
+
+# [LIVE]  'Est-ce que tu peux arrêter la lumière de la chambre 1?'  (confiance 0.87)
+#   FAILED  'Je ne peux pas effectuer cette action.'
+
+# [LIVE]  'ferme le volet du bureau'  (confiance 0.88)
+#   SUCCESS  "J'ai fermé volet roulant sw bureau."
+
+# [LIVE]  'Arrête le volet rouleau du bureau.'  (confiance 0.86)
+#   SUCCESS  "J'ai arrêté volet roulant sw bureau."
+
+# [LIVE]  'Remontez le volet au lendemureau.'  (confiance 0.72)
+#   NEEDS_CLARIFICATION  'Je ne suis pas sûr. Dans quelle pièce ? (cover.volet_roulant_sw_salon, cover.volet_roulant_sw_bureau, cover.volet_roulant_nw_chambre_1, cover.volet_roulant_nw_chambre_2, )'
+
+# [LIVE]  'Romante le volet du bureau'  (confiance 0.86)
+#   FAILED  'Je ne sais pas comment exécuter cette action.'
+
+# [LIVE]  'ouvre le volet du rouleau'  (confiance 0.76)
+#   NEEDS_CLARIFICATION  'Je ne suis pas sûr. Dans quelle pièce ? (cover.volet_roulant_sw_salon, cover.volet_roulant_sw_bureau, cover.volet_roulant_nw_chambre_1, cover.volet_roulant_nw_chambre_2, )'
+
+# [LIVE]  'Ouvre les stores et du bureau.'  (confiance 0.68)
+#   SUCCESS  "J'ai ouvert volet roulant sw bureau."
+
+# [LIVE]  "quel est l'état du volet roulant du bureau ?"  (confiance 0.80)
+#   FAILED  'Je ne sais pas comment exécuter cette action.'
+
+# [LIVE]  'Est-ce que le volet rouleun du bureau est ouvert ?'  (confiance 0.84)
+#   FAILED  'Je ne peux pas effectuer cette action.'
+tests:
+  - text: "allume le salon"
+    expected:
+      intent_type: control
+      action: turn_on
+      area: salon
+      device_class: light
+
+  - text: "éteins la lumière du bureau"
+    expected:
+      intent_type: control
+      action: turn_off
+      area: bureau
+      device_class: light
+
+  - text: "ferme les volets du salon"
+    expected:
+      intent_type: control
+      action: close
+      area: salon
+      device_class: cover
+
+  - text: "ouvre les volets du bureau"
+    expected:
+      intent_type: control
+      action: open
+      area: bureau
+      device_class: cover
+
+  - text: "règle la luminosité du salon à 40%"
+    expected:
+      intent_type: control
+      action: set_brightness
+      area: salon
+      device_class: light
+      parameters:
+        brightness_pct: "40"
+
+  - text: "mets le chauffage à 21 degrés"
+    expected:
+      intent_type: control
+      action: set_temperature
+      device_class: climate
+      parameters:
+        temperature: "21"
+
+  - text: "éteins toutes les lumières"
+    expected:
+      intent_type: control
+      action: turn_off
+      device_class: light
+      risk_level: 1
+
+  - text: "arrête les volets"
+    expected:
+      intent_type: control
+      action: stop
+      device_class: cover
+
+  - text: "positionne le volet salon à 30%"
+    expected:
+      intent_type: control
+      action: set_position
+      area: salon
+      device_class: cover
+      parameters:
+        value: "30"
+
+  - text: "active le cumulus"
+    expected:
+      intent_type: control
+      action: turn_on
+      entity_id: switch.cumulus

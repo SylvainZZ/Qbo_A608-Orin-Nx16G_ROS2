@@ -1,23 +1,141 @@
-# Verb → action mappings for French NLP (Étape 3)
+# =============================================================================
+# actions.yaml — Table de correspondance verbes → actions internes
+# =============================================================================
+# UTILISÉ PAR :
+#   - slot_extractor.py  : construit _action_map (verbe → action)
+#                          et _query_verbs / _control_verbs pour la classification
+#   - classifier.py      : utilise les listes de verbes pour détecter
+#                          si la phrase est une commande ou une requête
+#   - home_intent_node.py: _ACTION_DEFAULT_CLASS se base sur le nom d'action
+#                          pour inférer le device_class quand il est absent
+#
+# STRUCTURE :
+#   Deux sections : control (modifie l'état HA) et query (lit l'état HA)
+#   Chaque action contient :
+#     verbs      : liste de mots/phrases en français NORMALISÉ
+#                  (minuscules, sans accents, contractions expansées)
+#                  → le slot_extractor essaie les phrases de 6 mots à 1 mot
+#                    et prend la première correspondance (greedy, longueur max)
+#     targets    : device_class ou entity_id ciblés — information documentaire,
+#                  NON utilisée par le slot_extractor (juste pour référence)
+#     parameters : noms des paramètres numériques attendus — documentaire
+#
+# PRIORITÉ DE MATCH : phrase la plus longue gagne toujours.
+# AJOUT D'UN SYNONYME : ajouter le mot normalisé dans la liste verbs,
+#   puis rebuilder : colcon build --packages-select qbo_home_intent
+# =============================================================================
+
 control:
+  # ---------- Lumières ----------
   turn_on:
-    verbs: [allume, allumer, active, activer, mets, mettre, ouvre la lumiere, ouvre la lumière]
+    # Allume un appareil (lumière principalement, mais aussi switch)
+    verbs: [allume, allumer, active, activer, mets, mettre, allume la lumiere]
+    targets: [light]
+
   turn_off:
-    verbs: [eteins, éteins, eteindre, éteindre, coupe, couper, desactive, désactive, desactiver, désactiver, eteins, ferme la lumiere, ferme la lumière]
+    # Éteint un appareil (lumière principalement)
+    verbs: [etein, eteint, eteins, eteindre, coupe, couper, desactive, desactiver, arrete la lumiere, arrete]
+    targets: [light]
+
+  # ---------- Volets / Portail / Porte garage ----------
+  open:
+    # Ouvre un volet, le portail ou la porte de garage
+    # ↳ switch.portail et switch.porte_garage sont des entités directes dans aliases.yaml
+    verbs: [ouvre, ouvrir, leve, lève, lever, monte, monter, remonte, remonter]
+    targets: [cover, switch.portail, switch.porte_garage]
+
+  close:
+    # Ferme un volet, le portail ou la porte de garage
+    verbs: [ferme, fermer, baisse, baisser, descends, descendre, redescends, redescendre]
+    targets: [cover, switch.portail, switch.porte_garage]
+
+  stop:
+    # Arrête le mouvement d'un volet en cours de déplacement
+    # ATTENTION : "arrete" est aussi dans turn_off → résolu par longueur de phrase
+    verbs: [stop, stoppe, stopper, arrete, arrête, arreter, arrêter]
+    targets: [cover, switch.portail, switch.porte_garage]
+
+  # ---------- Réglages lumières ----------
+  set_brightness:
+    # Règle l'intensité lumineuse — paramètre brightness_pct extrait par regex numérique
+    # Exemple : "mets à 40%" → brightness_pct=40
+    verbs: [regle la luminosite, règle la luminosité, mets a, mets à, dim, dimme, luminosite a, luminosité à, intensite, intensité]
+    parameters: [brightness_pct]
+
+  # ---------- Chauffage ----------
+  set_temperature:
+    # Règle la consigne de température d'un thermostat climate
+    # Exemple : "chauffe à 21" → temperature=21
+    verbs: [regle la temperature, chauffe a, mets le chauffage a, consigne a, temperature a]
+    parameters: [climate]
+
+  set_color:
+    # Change la couleur d'une lumière RGB
+    # Exemple : "passe en rouge" → color_name=rouge
+    verbs: [mets en, passe en, change la couleur, couleur]
+    parameters: [color_name]
+
+  set_position:
+    # Positionne un volet à un pourcentage précis
+    # Exemple : "positionne à 30%" → position=30
+    # ATTENTION : "mets a" est partagé avec set_brightness → longueur de phrase décide
+    verbs: [positionne a, positionne à, mets a, règle à, regle a]
+    parameters: [position]
+
+  select_option:
+    # Sélectionne un mode sur un fil pilote (Off / Confort / Eco / Hors gel)
+    # Exemple : "passe en mode Eco" → option=Eco
+    verbs: [mode, passe en mode, mets en mode, active le mode]
+    parameters: [option]
+
+query:
+  # ---------- Capteurs température ----------
+  read_temperature:
+    # Lit la température d'un capteur sensor.* ou d'un thermostat climate
+    # → executor._execute_read() → GetEntityState → réponse vocale avec unité °C
+    # → _ACTION_DEFAULT_CLASS mappe sur device_class 'temperature'
+    verbs: [quel est la temperature, quelle temperature, combien de degres, il fait combien, temperature dans ]
+    targets: [sensor, climate]
+
+  read_state:
+    # Lit l'état général d'un appareil (ouvert/fermé, allumé/éteint, position, etc.)
+    # → executor._execute_read() → GetEntityState → réponse vocale traduite en français
+    # → Requiert que read_state soit dans la liste actions de capabilities.yaml
+    verbs: [c est quoi l etat, quel est l etat, est ce que, est allume, est eteint, est il allume, est il allumé, est il eteint, est il éteint, quel est le niveau, niveau de, est ouvert, est ferme, est il ouvert, est il ferme]
+    targets: [sensor, switch, light, cover, climate]
+
+  read_power:
+    # Lit la puissance instantanée en watts d'un capteur
+    # → executor._execute_read() → réponse avec unité W
+    # → _ACTION_DEFAULT_CLASS mappe sur device_class 'power'
+    verbs: [quelle consommation, combien de watts, puissance, watt]
+    targets: [sensor]
+
+  read_energy:
+    # Lit l'énergie cumulée en Wh/kWh d'un compteur
+    # → executor._execute_read() → conversion automatique Wh → kWh si > 1000
+    # → _ACTION_DEFAULT_CLASS mappe sur device_class 'energy'
+    verbs: [combien d energie, consommation totale, energie totale, énergie totale, quel est le energie, quel est l energie, energie du, energie de, consommation du, consommation de]
+    targets: [sensor]
+
+  turn_off:
+    verbs: [etein, eteint, eteins, eteindre, coupe, couper, desactive, desactiver, arrete la lumiere, arrete]
+    targets: [light]
   open:
     verbs: [ouvre, ouvrir, leve, lève, lever, monte, monter, remonte, remonter]
     targets: [cover, switch.portail, switch.porte_garage]
   close:
     verbs: [ferme, fermer, baisse, baisser, descends, descendre, redescends, redescendre]
-    targets: [cover]
+    targets: [cover, switch.portail, switch.porte_garage]
   stop:
     verbs: [stop, stoppe, stopper, arrete, arrête, arreter, arrêter]
+    targets: [cover, switch.portail, switch.porte_garage]
   set_brightness:
     verbs: [regle la luminosite, règle la luminosité, mets a, mets à, dim, dimme, luminosite a, luminosité à, intensite, intensité]
     parameters: [brightness_pct]
   set_temperature:
-    verbs: [regle la temperature, règle la température, chauffe a, chauffe à, mets le chauffage a, mets le chauffage à, consigne a, consigne à, temperature a, température à]
-    parameters: [temperature]
+    verbs: [regle la temperature, chauffe a, mets le chauffage a, consigne a, temperature a]
+    parameters: [climate]
   set_color:
     verbs: [mets en, passe en, change la couleur, couleur]
     parameters: [color_name]
@@ -30,13 +148,14 @@ control:
 
 query:
   read_temperature:
-    verbs: [quelle temperature, quelle température, combien de degres, combien de degrés, il fait combien, fait il combien, temperature dans, température dans]
+    verbs: [quel est la temperature, quelle temperature, combien de degres, il fait combien, temperature dans ]
     targets: [sensor, climate]
   read_state:
-    verbs: [cest quoi letat, quel est letat, est ce que, est allume, est éteint, est il allume, est il allumé, est il eteint, est il éteint]
+    verbs: [c est quoi l etat, quel est l etat, est ce que, est allume, est eteint, est il allume, est il allumé, est il eteint, est il éteint, quel est le niveau, niveau de, est ouvert, est ferme, est il ouvert, est il ferme]
+    targets: [sensor, switch, light, cover, climate]
   read_power:
     verbs: [quelle consommation, combien de watts, puissance, watt]
     targets: [sensor]
   read_energy:
-    verbs: [combien denergie, consommation totale, energie totale, énergie totale]
+    verbs: [combien d energie, consommation totale, energie totale, énergie totale, quel est le energie, quel est l energie, energie du, energie de, consommation du, consommation de]
     targets: [sensor]

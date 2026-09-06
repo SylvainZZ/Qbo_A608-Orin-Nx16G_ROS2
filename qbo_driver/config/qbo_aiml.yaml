@@ -1,8 +1,7 @@
 /qbo_aiml:
-  ros__parameters: {}
-
-# Parametres AIML a venir:
-# /qbo_aiml:
-#   ros__parameters:
-#     debug: false
-#     startup_greeting: ""
+  ros__parameters:
+    threshold_listen:     0.70
+    threshold_diagnostic: 0.88
+    threshold_dialog:     0.75
+    enable_llm_rewrite:   false
+    embed_model:          "intfloat/e5-small-v2"

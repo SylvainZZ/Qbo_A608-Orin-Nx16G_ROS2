@@ -24,7 +24,6 @@ setup(
     maintainer_email='sylvain-zwolinski@orange.fr',
     description='Natural language home intent parser and executor for Qbo robot',
     license='Apache-2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'home_intent = qbo_home_intent.main:main',

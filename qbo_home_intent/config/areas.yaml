@@ -1,9 +1,68 @@
-# Zone definitions with French aliases (accent-free after normalization)
+# =============================================================================
+# areas.yaml — Définition des zones de la maison
+# =============================================================================
+# UTILISÉ PAR :
+#   - slot_extractor.py : construit _area_map (alias normalisé → area_id)
+#                         lors de extract(), cherche l'alias le plus long
+#                         présent dans le texte → remplit Slots.area
+#
+# STRUCTURE par zone :
+#   label      : nom lisible (affiché dans les logs, non utilisé en NLP)
+#   aliases    : termes en français NORMALISÉ (minuscules, sans accents)
+#                → le texte normalisé est scanné pour trouver le plus long alias
+#   ha_area_id : identifiant area Home Assistant — prévu pour filtrage futur
+#                via l'API HA (actuellement non utilisé par le resolver)
+#
+# RÉSULTAT : Slots.area = area_id (clé YAML), ex. 'bureau', 'salon'
+#   → utilisé par resolver.py pour filtrer les objets de home_objects.yaml
+#
+# AJOUT D'UNE ZONE : ajouter une entrée avec ses alias, puis rebuild.
+# AJOUT D'UN ALIAS : ajouter le terme normalisé dans la liste aliases.
+# =============================================================================
+
 areas:
   salon:
     label: Salon
-    aliases: [sejour, sejoour, living, piece principale, piece de vie]
+    # "sejoour" intentionnel : couvre les fautes de prononciation STT courantes
+    aliases: [sejour, sejooor, living, piece principale, piece de vie]
     ha_area_id: salon
+
+  bureau:
+    label: Bureau
+    aliases: [salle de travail, office, piece de travail]
+    ha_area_id: bureau
+
+  cuisine:
+    label: Cuisine
+    aliases: [kitchenette, salle a manger attenant]
+    ha_area_id: cuisine
+
+  chambre_1:
+    label: Chambre 1
+    aliases: [chambre principale, grande chambre, chambre parents, chambre 1]
+    ha_area_id: chambre_1
+
+  chambre_2:
+    label: Chambre 2
+    aliases: [deuxieme chambre, chambre damis, petite chambre, chambre 2, chambre invites]
+    ha_area_id: chambre_2
+
+  atelier:
+    label: Atelier
+    # "garage" alias ici car l'atelier est dans le garage
+    aliases: [garage, atelier garage, atelier]
+    ha_area_id: atelier
+
+  salle_a_manger:
+    label: Salle à manger
+    aliases: [salle manger, dining, salle a manger]
+    ha_area_id: salle_a_manger
+
+  exterieur:
+    label: Extérieur
+    aliases: [dehors, jardin, terrasse, exterieur]
+    ha_area_id: exterieur
+
 
   bureau:
     label: Bureau

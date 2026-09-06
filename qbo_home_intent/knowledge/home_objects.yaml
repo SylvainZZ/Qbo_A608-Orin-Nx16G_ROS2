@@ -1,79 +1,5 @@
 # Base domestique manuelle — ~10 objets pour valider l'architecture (Étape 2)
 objects:
-  - id: lumiere_salon
-    label: "Lumière salon"
-    device_class: light
-    area: salon
-    entity_id: light.salon
-    aliases: [lumiere du salon, salon lumiere, eclairage salon, lumiere sejour]
-    capabilities: [turn_on, turn_off, set_brightness]
-
-  - id: volet_salon
-    label: "Volets salon"
-    device_class: cover
-    area: salon
-    entity_id: cover.volet_roulant_sw_salon
-    aliases: [volets du salon, store salon, rideau salon, volet salon]
-    capabilities: [open, close, stop, set_position]
-
-  - id: chauffage_jour
-    label: "Chauffage zone jour"
-    device_class: climate
-    area: salon
-    entity_id: climate.chauffage_zone_3
-    aliases: [chauffage salon, chauffage sejour, thermostat salon, chauffage jour]
-    capabilities: [set_temperature]
-
-  - id: temperature_salon
-    label: "Température salon"
-    device_class: sensor
-    area: salon
-    entity_id: sensor.thermometre_salon_1_1_82
-    aliases: [temperature du salon, il fait combien dans le salon, temperature salon]
-    capabilities: [read_temperature]
-
-  - id: portail
-    label: "Portail"
-    device_class: switch
-    area: exterieur
-    entity_id: switch.portail
-    aliases: [portail, portillon, entree]
-    capabilities: [turn_on, turn_off]
-    risk_level: 2
-
-  - id: porte_garage
-    label: "Porte garage"
-    device_class: switch
-    area: atelier
-    entity_id: switch.porte_garage
-    aliases: [porte du garage, garage, porte garage]
-    capabilities: [turn_on, turn_off]
-    risk_level: 2
-
-  - id: batterie_zendure
-    label: "Batterie Zendure"
-    device_class: sensor
-    area: exterieur
-    entity_id: sensor.zendure_battery_level
-    aliases: [batterie, batterie solaire, niveau batterie, zendure]
-    capabilities: [read_state]
-
-  - id: production_solaire
-    label: "Production solaire"
-    device_class: sensor
-    area: exterieur
-    entity_id: sensor.solar_production_power
-    aliases: [production solaire, panneaux solaires, energie solaire, solaire]
-    capabilities: [read_power]
-
-  - id: eau_pluie
-    label: "Eau de pluie"
-    device_class: sensor
-    area: exterieur
-    entity_id: sensor.citerne_eau_pluie
-    aliases: [eau de pluie, citerne, cuve, reserve eau]
-    capabilities: [read_state]
-
   - id: lumiere_bureau
     label: "Lumière bureau"
     device_class: light
@@ -90,38 +16,6 @@ objects:
     aliases: [volet du bureau, store bureau, rideau bureau]
     capabilities: [open, close, stop, set_position]
 
-  - id: lumiere_chambre_1
-    label: "Lumière chambre 1"
-    device_class: light
-    area: chambre_1
-    entity_id: light.chambre_1
-    aliases: [lumiere chambre 1, eclairage chambre 1, lumiere chambre principale]
-    capabilities: [turn_on, turn_off, set_brightness]
-
-  - id: lumiere_chambre_2
-    label: "Lumière chambre 2"
-    device_class: light
-    area: chambre_2
-    entity_id: light.chambre_2
-    aliases: [lumiere chambre 2, eclairage chambre 2, lumiere chambre amis]
-    capabilities: [turn_on, turn_off, set_brightness]
-
-  - id: volet_chambre_1
-    label: "Volet chambre 1"
-    device_class: cover
-    area: chambre_1
-    entity_id: cover.volet_roulant_nw_chambre_1
-    aliases: [volet chambre 1, store chambre 1]
-    capabilities: [open, close, stop, set_position]
-
-  - id: volet_chambre_2
-    label: "Volet chambre 2"
-    device_class: cover
-    area: chambre_2
-    entity_id: cover.volet_roulant_nw_chambre_2
-    aliases: [volet chambre 2, store chambre 2]
-    capabilities: [open, close, stop, set_position]
-
   - id: chauffage_bureau
     label: "Chauffage bureau"
     device_class: select
@@ -130,35 +24,50 @@ objects:
     aliases: [chauffage du bureau, fil pilote bureau, mode chauffage bureau]
     capabilities: [select_option]
 
-  - id: chauffage_chambre_1
-    label: "Chauffage chambre 1"
-    device_class: select
-    area: chambre_1
-    entity_id: select.chauffage_chambre_1
-    aliases: [chauffage chambre 1, fil pilote chambre 1]
-    capabilities: [select_option]
+  - id: temperature_bureau
+    label: "Température bureau"
+    device_class: temperature
+    area: bureau
+    entity_id: sensor.temperature_moyenne_bureau
+    aliases: [température du bureau, temp bureau, chaleur bureau, combien il fait dans le bureau]
+    capabilities: [get_state]
 
-  - id: chauffage_chambre_2
-    label: "Chauffage chambre 2"
-    device_class: select
-    area: chambre_2
-    entity_id: select.chauffage_chambre_2
-    aliases: [chauffage chambre 2, fil pilote chambre 2]
-    capabilities: [select_option]
+  # - id: thermometre_bureau_1
+  #   label: "Thermomètre bureau 1"
+  #   device_class: temperature
+  #   area: bureau
+  #   entity_id: sensor.thermometre_bureau_1_1_100
+  #   aliases: [thermomètre bureau, sonde bureau, capteur température bureau]
+  #   capabilities: [get_state]
 
-  - id: cumulus
-    label: "Cumulus"
-    device_class: switch
-    area: atelier
-    entity_id: switch.cumulus
-    aliases: [cumulus, chauffe eau, eau chaude, ballon eau chaude]
-    capabilities: [turn_on, turn_off]
-    risk_level: 2
+  # - id: thermometre_bureau_2
+  #   label: "Thermomètre bureau 2"
+  #   device_class: temperature
+  #   area: bureau
+  #   entity_id: sensor.thermometre_bureau_1_1_113
+  #   aliases: [deuxième thermomètre bureau, sonde bureau 2]
+  #   capabilities: [get_state]
 
-  - id: temperature_exterieure
-    label: "Température extérieure"
-    device_class: sensor
-    area: exterieur
-    entity_id: sensor.temperature_exterieure
-    aliases: [temperature dehors, il fait combien dehors, temperature exterieure]
-    capabilities: [read_temperature]
+  - id: tars_batterie
+    label: "Tars batterie"
+    device_class: battery
+    area: bureau
+    entity_id: sensor.bureau_tars_batterie
+    aliases: [batterie tars, batterie aspirateur bureau, niveau batterie tars, robot tars]
+    capabilities: [get_state]
+
+  - id: energie_chauffage_bureau
+    label: "Énergie chauffage bureau"
+    device_class: energy
+    area: bureau
+    entity_id: sensor.compteur_energie_chauffage_bureau
+    aliases: [consommation chauffage bureau, énergie fil pilote bureau]
+    capabilities: [get_state]
+
+  - id: puissance_chauffage_bureau
+    label: "Puissance chauffage bureau"
+    device_class: power
+    area: bureau
+    entity_id: sensor.puissance_instantanee_chauffage_bureau
+    aliases: [puissance chauffage bureau, watts chauffage bureau]
+    capabilities: [get_state]

@@ -733,3 +733,122 @@ pour que leurs callbacks puissent s'exécuter en parallèle dans le même
 | 2      | `STATUS_CANCELLED`          | (annulation en cours de confirmation)            |
 | 3      | `STATUS_NEEDS_CONFIRMATION` | « Je vais ouvrir le portail. Confirmez-vous ? »  |
 | 4      | `STATUS_NEEDS_CLARIFICATION`| « Dans quelle pièce ? »                          |
+
+---
+
+## 8. Commandes de lancement
+
+### 8.1 Nœud principal `home_intent`
+
+```bash
+# Lancement standard
+ros2 launch qbo_home_intent home_intent.launch.py
+
+# Avec niveau de log verbeux
+ros2 launch qbo_home_intent home_intent.launch.py log_level:=debug
+```
+
+---
+
+### 8.2 Reconnaissance vocale Whisper (`qbo_driver`)
+
+```bash
+# Lance le node qbo_listen (STT Whisper) — publie sur /listen
+ros2 launch qbo_driver voice_input.launch.py
+```
+
+---
+
+### 8.3 Test runner (`runner_tests`)
+
+```bash
+# Tous les fichiers YAML de tests/
+ros2 run qbo_home_intent runner_tests
+
+# Un ou plusieurs fichiers spécifiques
+ros2 run qbo_home_intent runner_tests control_commands.yaml
+ros2 run qbo_home_intent runner_tests safety_commands.yaml ambiguous_commands.yaml
+
+# Mode vocal live : écoute /listen, exécute et répond via TTS
+ros2 run qbo_home_intent runner_tests --live
+```
+
+Mode `--live` : utilise un `MultiThreadedExecutor` + `ReentrantCallbackGroup` ;
+les commandes sont exécutées (`execute=true`) et la réponse est envoyée
+au service `/qbo_driver/say_to_TTS`.
+
+---
+
+### 8.4 Synchronisation entités HA (`ha_entities_sync`)
+
+```bash
+# Import complet → écrit ha_entities.json
+ros2 run qbo_home_intent ha_entities_sync
+
+# Afficher uniquement un domaine (pas d'écriture JSON)
+ros2 run qbo_home_intent ha_entities_sync -d light
+ros2 run qbo_home_intent ha_entities_sync -d cover
+ros2 run qbo_home_intent ha_entities_sync -d select
+
+# Plusieurs domaines simultanément
+ros2 run qbo_home_intent ha_entities_sync -d light cover switch
+
+# Filtrer par area_id HA (si assigné dans l'interface HA)
+ros2 run qbo_home_intent ha_entities_sync -a bureau
+
+# Combiner domaine + pièce
+ros2 run qbo_home_intent ha_entities_sync -d light -a salon
+
+# Sortie JSON dans un chemin personnalisé
+ros2 run qbo_home_intent ha_entities_sync -o /tmp/ha_dump.json
+```
+
+> En mode filtré (`-d` ou `-a`), le fichier `ha_entities.json` n'est **pas** écrit.
+> Relancer sans filtre pour une synchro complète.
+
+---
+
+### 8.5 Appels directs au service `/home_intent/parse`
+
+```bash
+# Parse + resolve uniquement (pas d'exécution HA)
+ros2 service call /home_intent/parse qbo_home_interfaces/srv/ParseHomeCommand \
+  "{text: 'allume le bureau', session_id: 'test', resolve: true, execute: false}"
+
+# Parse + resolve + execute (action réelle sur HA)
+ros2 service call /home_intent/parse qbo_home_interfaces/srv/ParseHomeCommand \
+  "{text: 'allume le bureau', session_id: 'test', resolve: true, execute: true}"
+
+# Requête d'information
+ros2 service call /home_intent/parse qbo_home_interfaces/srv/ParseHomeCommand \
+  "{text: 'quelle température fait-il dehors', session_id: 'test', resolve: true, execute: false}"
+```
+
+---
+
+### 8.6 Inspection des topics ROS2
+
+```bash
+# Vérifier la transcription Whisper
+ros2 topic echo /listen
+
+# Lister les nœuds actifs
+ros2 node list | grep -E "home_intent|ha_bridge|qbo"
+
+# Vérifier les services disponibles
+ros2 service list | grep home_intent
+```
+
+---
+
+### 8.7 Ordre de démarrage recommandé
+
+```
+1.  ha_bridge          (passerelle Home Assistant)
+2.  home_intent        ros2 launch qbo_home_intent home_intent.launch.py
+3a. voice_input        ros2 launch qbo_driver voice_input.launch.py
+ OU
+3b. runner_tests live  ros2 run qbo_home_intent runner_tests --live
+ OU
+3c. runner_tests yaml  ros2 run qbo_home_intent runner_tests
+```

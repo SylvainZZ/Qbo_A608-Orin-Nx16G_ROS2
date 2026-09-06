@@ -110,6 +110,12 @@ class AIMLNode(Node):
     def __init__(self):
         super().__init__('qbo_aiml')
 
+        self.declare_parameter('threshold_listen',     0.70)
+        self.declare_parameter('threshold_diagnostic', 0.88)
+        self.declare_parameter('threshold_dialog',     0.75)
+        self.declare_parameter('enable_llm_rewrite',   False)
+        self.declare_parameter('embed_model',          'intfloat/e5-small-v2')
+
         self.get_logger().info("🚀 Initialisation AIML...")
 
         try:
@@ -127,7 +133,7 @@ class AIMLNode(Node):
             # ==============================
 
             self.qa_loader = QALoader(
-                model_name=EMBED_MODEL_NAME,
+                model_name=self.get_parameter('embed_model').get_parameter_value().string_value,
                 logger=self.get_logger(),
                 data_dir=DATA_DIR,
                 index_dir=INDEX_DIR
@@ -141,22 +147,23 @@ class AIMLNode(Node):
             )
             self.qa_diag.share_embedding(self.qa_loader)
 
+            _enable_llm = self.get_parameter('enable_llm_rewrite').get_parameter_value().bool_value
             self.llm_engine = LLMEngine(
                 model_name=GEN_MODEL_NAME,
                 logger=self.get_logger(),
-                enable=True
+                enable=_enable_llm
             )
 
-            self.enable_style_rewrite = False
+            self.enable_style_rewrite = _enable_llm
 
             # ==============================
             # 🔹 2️⃣ Configuration seuils
             # ==============================
 
             self.THRESHOLDS = {
-                "listen": 0.70,      # actions
-                "diagnostic": 0.88,  # événements
-                "dialog": 0.75       # conversation pure
+                "listen":     self.get_parameter('threshold_listen').get_parameter_value().double_value,
+                "diagnostic": self.get_parameter('threshold_diagnostic').get_parameter_value().double_value,
+                "dialog":     self.get_parameter('threshold_dialog').get_parameter_value().double_value,
             }
 
             # ==============================

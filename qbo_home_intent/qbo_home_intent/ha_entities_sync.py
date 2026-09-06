@@ -72,6 +72,19 @@ def _group_by_domain(states: list) -> dict[str, list]:
     return by_domain
 
 
+def _filter_states(
+    states: list,
+    domains: list[str] | None,
+    area: str | None,
+) -> list:
+    if domains:
+        keep = {d.lower() for d in domains}
+        states = [s for s in states if s.entity_id.split(".")[0].lower() in keep]
+    if area:
+        states = [s for s in states if (s.area_id or "").lower() == area.lower()]
+    return states
+
+
 def _display(by_domain: dict[str, list]) -> None:
     total = sum(len(v) for v in by_domain.values())
     for domain in sorted(by_domain):
@@ -134,32 +147,65 @@ def _find_source_path(share_path: Path, package_name: str) -> Path | None:
 
 def main(args=None) -> None:
     import argparse
-    parser = argparse.ArgumentParser(description="Sync HA entities to ha_entities.json")
+    parser = argparse.ArgumentParser(
+        description="Sync HA entities to ha_entities.json",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Exemples :\n"
+            "  Tout importer    : ros2 run qbo_home_intent ha_entities_sync\n"
+            "  Filtrer domaine  : ros2 run ... ha_entities_sync -d light,cover\n"
+            "  Filtrer pièce    : ros2 run ... ha_entities_sync -a bureau\n"
+            "  Combiner         : ros2 run ... ha_entities_sync -d light,switch -a salon\n"
+        ),
+    )
     parser.add_argument("-o", "--output", type=Path, default=_DEFAULT_OUTPUT,
-                        help=f"Output path (default: {_DEFAULT_OUTPUT})")
+                        help=f"Chemin de sortie (défaut: {_DEFAULT_OUTPUT})")
+    parser.add_argument("-d", "--domain", metavar="DOMAIN[,DOMAIN...]",
+                        help="Filtrer par domaine(s) séparés par virgule : light,cover,switch,select")
+    parser.add_argument("-a", "--area", metavar="AREA_ID",
+                        help="Filtrer par area_id HA (ex: bureau, salon). "
+                             "Attention : area_id vide dans HA si non assigné.")
     parsed, ros_args = parser.parse_known_args()
     output: Path = parsed.output
 
+    domains = [d.strip() for d in parsed.domain.split(",")] if parsed.domain else None
+
     rclpy.init(args=ros_args)
     node = Node("ha_entities_sync")
-    node.get_logger().info("Fetching all HA entities via /ha_bridge/get_all_states …")
+
+    filter_info = ""
+    if domains:
+        filter_info += f"  domaines={domains}"
+    if parsed.area:
+        filter_info += f"  area={parsed.area!r}"
+    node.get_logger().info(
+        "Fetching all HA entities via /ha_bridge/get_all_states"
+        + (f" — filtres :{filter_info}" if filter_info else " …")
+    )
 
     try:
         states = _fetch(node)
         if states is None:
             sys.exit(1)
-        node.get_logger().info(f"{len(states)} entities received")
+        node.get_logger().info(f"{len(states)} entité(s) reçue(s) depuis HA")
+
+        if domains or parsed.area:
+            states = _filter_states(states, domains, parsed.area)
+            node.get_logger().info(f"{len(states)} entité(s) après filtrage")
+
         by_domain = _group_by_domain(states)
         _display(by_domain)
+
         _write_json(by_domain, output)
         node.get_logger().info(f"Written → {output.resolve()}")
-        # Also write to the source tree so the file survives the next colcon build
         src_path = _find_source_path(_DEFAULT_OUTPUT.parent.parent, "qbo_home_intent")
         if src_path and src_path.resolve() != output.resolve():
             _write_json(by_domain, src_path)
             node.get_logger().info(f"Written → {src_path.resolve()}")
         elif not src_path:
-            node.get_logger().warn("Source knowledge/ not found — rebuild with --symlink-install to avoid this")
+            node.get_logger().warn(
+                "Source knowledge/ not found — rebuild with --symlink-install to avoid this"
+            )
     finally:
         node.destroy_node()
         rclpy.shutdown()
